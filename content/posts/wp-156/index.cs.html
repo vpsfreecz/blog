@@ -1,0 +1,26 @@
++++
+title = "Měníme základní desku v serveru"
+date = "2015-10-27T13:34:48+00:00"
+lastmod = "2015-11-09T08:11:43+00:00"
+draft = false
+url = "/menime-zakladni-desku-v-serveru/"
+translationKey = "wp-156"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-156"
+source_body_sha256 = "e74e58f9b919e3f0925f9eb94a501c7777fa938d3d35d9a244dc1a46e8c2a96c"
++++
+
+<p>Už jste někdy měnili základní desku v serveru? Ano, i tohle musíme někdy zajet do datacentra udělat.<br>
+<!--more--><span id="more-156"></span></p>
+<p>V našem Node1 se začal chovat podivně SAS řadič, kterým připojujeme část disků. Disky připojené přes tento externí čip (není součástí čipsetu) měly podivně vysokou latenci. Objednali jsme proto novou desku s novější revizí a o víkendu v noci jsme vyrazili do pražského datacentra <a href="http://lists.vpsfree.cz/pipermail/outage-list/2015-October/000386.html">základní desku vyměnit</a>.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_09_50_Pro.jpg"><img alt="WP_20151025_01_09_50_Pro" class="aligncenter size-medium wp-image-160" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_09_50_Pro-300x169.jpg" width="300"></a></p>
+<p>V první chvíli nás překvapily jinak naskládané SATA porty na desce. Museli jsme tedy přesunout část kabelů, což mělo za následek jiné pořadí detekce disků v systému. Naštěstí to ZFS vůbec nevadí a pole se rozběhlo bez problémů. Kdybychom ale používali ZFS verze 0.6.2 a starší, měli bychom problém. Tam bylo potřeba divoce symlinkovat.</p>
+<p>Po prvním startu serveru s novou deskou nás překvapil status kód BIOSu „B7“, který zůstal svítit v pravém dolním rohu. Google ale odhalil, že je to hláška AMI BIOSu, že je něco špatně s RAM. Byli jsme si jisti, že je problém s CPU0 a museli jsme proto paměti dvakrát přeskládat, než se vše podařilo rozběhnout bez chyby. Naše prsty to odnesly, byli jsme oba pěkně dořezaní.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_30_35_Pro.jpg"><img alt="WP_20151025_01_30_35_Pro" class="aligncenter size-medium wp-image-162" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_30_35_Pro-300x169.jpg" width="300"></a></p>
+<p>Výměna desky skutečně pomohla, předtím bylo <em>svctime</em> disků v iostatu velmi vysoké, po výměně zůstal vysoký jen <em>atime</em> (access time). Parametr <em>svctime</em> ukazuje čas, za který disk vybaví požadavek, když ho na něj kernel odešle. Proti tomu <em>atime</em> je čas, po který požadavek čeká čas kompletně i ve frontě na disk v kernelu.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_02_25_06_Pro.jpg"><img alt="WP_20151025_02_25_06_Pro" class="aligncenter size-medium wp-image-163" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_02_25_06_Pro-300x169.jpg" width="300"></a></p>
+<p>Problém se tedy vyřešil jen částečně, z výsledků je vidět, že dva disky na externím řadiči ZFS přetěžuje a dostávají větší zátěž než ostatní. Pole je tak nevyvážené a bude potřeba ho ještě přeinstalovat na čisto. Postupně tedy budeme muset udělat migraci na Node12, přeinstalaci a návrat. Zároveň s tím ale vyměníme současné 1TB disky za 2TB, které už netrpělivě čekají v racku. Bohužel není možné je v <em>zpoolu</em> míchat dohromady, protože ty nové už používají 4k sektory.</p>
+<p>Pokud chcete vidět, jak celá noční akce probíhala, <a href="https://foto.vpsfree.cz/?f=2015%2FVymena_desky">nahlédněte do naší galerie</a>, kde je spousta dalších obrázků.</p>
+

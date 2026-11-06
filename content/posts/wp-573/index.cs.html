@@ -1,0 +1,25 @@
++++
+title = "vpsAdminOS: změny v síťování, ISO ke stažení, zálohování a cgroupy"
+date = "2018-10-23T06:18:17+00:00"
+lastmod = "2018-10-23T06:18:17+00:00"
+draft = false
+url = "/vpsadminos-zmeny-v-sitovani-iso-ke-stazeni-zalohovani-a-cgroupy/"
+translationKey = "wp-573"
+categories = ["technologie"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-573"
+source_body_sha256 = "ba8b8cd6f968b38eaf12d10ca7a36ebd40438b72af2ceb4f9c01f99d1c767b02"
++++
+
+<p>Podařilo se nám najít jiný, jednodušší způsob routování IP adres do VPS bez spojovacích sítí.<br>
+<!--more--><span id="more-573"></span></p>
+<p>Ve VPS na stagingu tak už nejsou žádné spojovací adresy, jen adresy veřejné. Jak síťování VPS aktuálně funguje je <a href="https://vpsadminos.org/networking/veth-routed/#routing">popsáno v dokumentaci</a>.</p>
+<p>U VPS na stagingu vpsAdmin rozlišuje adresy sítí (ty jsou do VPS naroutované) a koncové adresy co jsou přiřazeny na rozhraní. Správa IP adres je tak ve webovém rozhraní rozdělena na dva formuláře. Je to zatím jen takový základ na kterém budeme později stavět.</p>
+<p>Díky zrušení spojovacích adres funguje maškaráda v iptables a s tím i výchozí síť v dockeru, která maškarádu využívá. Není potřeba si vytvářet vlastní síť. Teď už instalace dockeru neobsahuje žádné kroky navíc. Zbývá dořešit delegace ZFS datasetů do VPS, aby se v dockeru dal použít ZFS driver.</p>
+<p>Pokud jste chtěli vpsAdminOS vyzkoušet, ale nechtělo se vám instalovat Nix a zjišťovat jak se to sestavuje, sorki <a href="https://iso.vpsadminos.org">připravil ISO s vpsAdminOS</a>, které si můžete stáhnout a rovnou nabootovat. Je to live systém a <a href="https://vpsadminos.org/os/installation/">obsahuje i instalátor</a>, pokud to chcete nainstalovat na disk nebo si vyzkoušet deklarativní konfiguraci s Nixem.</p>
+<p>Od pátku jsou VPS na stagingu zálohované, abychom se nemuseli bát o data. Obnova VPS ze záloh funguje, ale na staging si je zatím nepřipojíte. Na produkční VPS ty zálohy připojit půjdou. Nemáme ještě dořešené NFS, přijde to pak spolu s NASem.</p>
+<p>Koncem srpna jsme narazili na nečekané omezení: věděli jste, že maximální počet memory cgroup je 65536? Několika členům už se podařilo je vyčerpat, takže jsme řešili jak ten limit navýšit. snajpa napsal <a href="https://github.com/vpsfreecz/vpsadminos/commit/87cd90ab99b5f4d527d3b33adfda13550cb8413a">patch do kernelu</a>, který navyšuje maximální počet memory cgroup na 2147483648, nicméně zatím s tím nefunguje swap. Nám to nevadí, protože swap nepoužíváme.</p>
+<p>Dále bylo potřeba omezit počet cgroup, které mohou vytvořit jednotlivé VPS, aby nikdo nemohl vyčerpat všechny a omezit tak ostatní. K tomuto účelu snajpa vytvořil <a href="https://github.com/vpsfreecz/vpsadminos/commit/e73db73975e240b865497af4b40dbf3a0216f98d">cglimit cgroup controller</a>. Můžete jej vidět i a používat i ve VPS. Přes <code>cglimit.all.max</code> se nastavuje limit na počet všech cgroup a přes <code>cglimit.memory.max</code> jen memory cgroupy.</p>
+<p>Za pomoc s testováním děkujeme (nicky na IRC): ppar, somm, domogled, pdostal, etnyx a všem dalším co <a href="https://kb.vpsfree.cz/informace/podpora">píší na podporu</a>. Pokud narazíte na nějakou chybu, <a href="https://kb.vpsfree.cz/informace/kam_psat">dejte nám o tom prosím vědět</a>, rádi to opravíme.</p>
+

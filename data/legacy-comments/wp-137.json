@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "Tomáš",
+    "date": "2015-11-03T15:14:06+00:00",
+    "html": "<p>chápu, ZFS a snapshoty jsou určitě návykové.</p>\n<p>Náhodou nemáte v plánu poskytovat Solaris?</p>\n",
+    "id": 210,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2015-11-03T20:15:12+00:00",
+    "html": "<p>Testujeme <a href=\"https://kb.vpsfree.cz/navody/vps/kvm\" rel=\"nofollow\">běh KVM na vpsFree.cz</a> a někteří uživatelé už to provozují. V KVM je možné si pak pustit libovolný systém, včetně Solarisu.</p>\n",
+    "id": 211,
+    "parent_id": 0
+  }
+]

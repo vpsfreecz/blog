@@ -1,0 +1,22 @@
++++
+title = "Přidali jsme Alpine Linux 3.3 a Slackware 14.1"
+date = "2016-05-31T08:08:16+00:00"
+lastmod = "2017-05-03T09:55:02+00:00"
+draft = false
+url = "/pridali-jsme-alpine-linux-3-3-a-slackware-14-1/"
+translationKey = "wp-358"
+categories = ["distribuce"]
+tags = ["alpine"]
+[params]
+article_id = "wp-358"
+source_body_sha256 = "2abe65e9119d67a8f8618944ac719a6a02f7249069eb7b51c05ebcf2f2aab6f6"
++++
+
+<p>Mezi šablony distribucí jsme přidali další dvě.<br>
+<!--more--><span id="more-358"></span></p>
+<p>K dispozici jsou další dvě šablony distribucí: <a href="https://alpinelinux.org/">Alpine Linux</a> 3.3 a <a href="http://slackware.com">Slackware</a> 14.1. Obě distribuce jsou dostupné rovnou v přihlášce.</p>
+<p>Alpine Linux je minimalistická distribuce zaměřená na bezpečnost. Je založená na musl libc, BusyBoxu, jako init systém je zde použito OpenRC. Bohužel u nás nemůžeme využít jinak přítomné PaX a grsecurity patche v kernelu.</p>
+<p>S velikostí 5,5 MB je Alpine zatím <strong>nejmenší</strong> šablona, jakou jsme kdy měli. Pro porovnání, Debian 8 má 121 MB a CentOS 7 potřebuje 244 MB. Tuto <a href="https://github.com/vpsfreecz/build-vpsfree-templates/blob/master/templates/alpine-3.3.sh">šablonu vytvořil</a> Jakub Jirůtka, děkujeme!</p>
+<p>Slackware je nejstarší distribuce, která je stále aktivní. Zakládá si na jednoduchosti a stabilitě, např. balíčkovací systém je implementován v bashi a nijak neřeší závislosti. Balíček je obyčejný tar.{gz,xz} archiv, který se nainstaluje tak, že se rozbalí do /.</p>
+<p>Jediná komplikace byla s nastavením síťě, protože zabudované init skripty neumí nastavit více než jednu IPv4 adresu jednomu zařízení a IPv6 není podporováno vůbec. Vyřešili jsme to vlastním init skriptem a <a href="https://github.com/vpsfreecz/vzctl/commit/d79bfdcc4df3048d963ced74fb677d1fdb7019b6">patchem vzctl</a>, více je to <a href="https://github.com/vpsfreecz/build-vpsfree-templates/blob/master/templates/slackware-14.1.sh">popsáno v šabloně</a>.</p>
+

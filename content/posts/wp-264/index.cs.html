@@ -1,0 +1,24 @@
++++
+title = "vpsAdmin v2.2.0: nastavení času pro plánované výpadky VPS"
+date = "2016-02-10T07:45:15+00:00"
+lastmod = "2016-02-09T18:45:59+00:00"
+draft = false
+url = "/vpsadmin-v2-2-0-nastaveni-casu-pro-planovane-vypadky-vps/"
+translationKey = "wp-264"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-264"
+source_body_sha256 = "b5e2b136ceff0b9fbc14eae9601b83c0f2c781cfe59a34c8f6104798262d22f9"
++++
+
+<p>Nová verze našeho webového rozhraní vpsAdmin umožňuje nastavit čas, ve kterém může na vašem VPS probíhat údržba.<br>
+<!--more--><span id="more-264"></span></p>
+<p><a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.2.0/">vpsAdmin v2.2.0</a> umožňuje nastavit jednotlivým VPS čas, ve kterém může docházet k plánovaným výpadkům, migracím, apod. Dá se nastavit různý čas pro každý den v týdnu, či některý den úplně vynechat. Cílem je provádět plánované výpadky v co nejvhodnější dobu pro každé VPS.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/02/Outage_windows.png"><img alt="Outage_windows" class="aligncenter size-medium wp-image-265" height="262" src="https://blog.vpsfree.cz/wp-content/uploads/2016/02/Outage_windows-300x262.png" width="300"></a></p>
+<p>Tuto funkci budeme využívat zejména při migracích VPS mezi nody. vpsAdmin nyní umí migrace provádět hromadně a respektovat přitom nastavený čas k výpadku. O průběhu migrace VPS bude nově člen informován mailem.</p>
+<p>Ve výchozím stavu mají VPS nastaveno okno pro výpadky každý den od 01:00 do 05:00. To neznamená, že bude každý den 4 hodiny výpadek, ale že v této době <strong>může</strong> dojít k <strong>plánovanému</strong> výpadku, což je např. u migrace maximálně pár minut. O těchto výpadcích budeme samozřejmě dopředu informovat.</p>
+<p><em>Prosím ty, co si mohou výpadky dovolit i přes den, aby nastavení patřičně upravili.</em></p>
+<p>vpsAdmin dále ukládá více informací o VPS - sleduje zatížení CPU, uptime a loadavg. Neudržuje se jen aktuální stav, ale ukládá se i historie, která je <a href="https://api.vpsfree.cz/v2.0/#root-vps-status">přístupná přes API</a>. Tyto údaje sbíráme hlavně kvůli tomu, abychom mohli časem VPS automaticky rozmisťovat tak, aby byl každý node optimálně vytížen.</p>
+<p>Verze API byla povýšena na 2.0. Vydán nový <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfree-client</a>, který obsahuje především opravy chyb a nový příkaz <code>vps migrate_many</code> pro adminy. Seznam všech změn je v <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.2.0/">poznámkách o vydání</a>.</p>
+

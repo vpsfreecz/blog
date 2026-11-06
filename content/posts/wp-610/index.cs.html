@@ -1,0 +1,57 @@
++++
+title = "Revize šablon distribucí: na stagingu nově openSUSE, Slackware a Void Linux"
+date = "2019-06-11T09:49:45+00:00"
+lastmod = "2019-06-11T09:49:45+00:00"
+draft = false
+url = "/revize-sablon-distribuci-na-stagingu-nove-opensuse-slackware-a-void-linux/"
+translationKey = "wp-610"
+categories = ["distribuce"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-610"
+source_body_sha256 = "531ca828430a915661bea740970662d71ac97b3f033d62fd86e1ed2956f41bf8"
++++
+
+<p>Připravujeme se postupně na přechod na novou kontejnerovou platformu vpsAdminOS. S tím souvisí také systém šablon.<br>
+<!--more--><span id="more-610"></span></p>
+<p>Na stagingu je nyní podporováno openSUSE Leap 15.1 a Tumbleweed, Slackware 14.2 a Void Linux (glibc, musl).</p>
+<p>Poslední dva týdny jsem se snažil vylepšit situaci ohledně sestavování šablon distribucí, ze kterých se vytvářejí nové VPS. <a href="https://lists.vpsfree.cz/pipermail/community-list/2014-June/006697.html">Od roku 2014</a> používáme k sestavování šablon <a href="https://github.com/vpsfreecz/build-vpsfree-templates">skripty build-vpsfree-templates</a>. Už tehdy bylo cílem šablony sestavovat pravidelně a automatizovaně, jenže se to nikdy nedotáhlo do konce. Šablony nestačí jen tak sestavit a hned je používat, protože distribuce se mění a skripty nemusí fungovat spolehlivě. Každá šablona se před použitím musí otestovat, a to se muselo vždy dělat manuálně.</p>
+<p>Pokud chtěl někdo přispět, musel řešit kde a jak šablony sestavovat a testovat. Bylo nutné manuálně nainstalovat potřebné závislosti jako debootstrap, yum/dnf, zypper, atp. Na opravdové ověření funkčnosti bylo potřeba si nainstalovat OpenVZ.</p>
+<p>Aktualizace šablony jedné distribuce spočívala ve zprovoznění skriptu samotného, výsledek si nakopírovat na nějaký systém s OpenVZ, pak z toho vytvořit VPS, zjistit že něco nefunguje (start, ssh, konzole, heslo, ...) a zase na začátek. S uvedením vpsAdminOS se všechno muselo dělat dvakrát, protože se <a href="https://github.com/vpsfreecz/build-vpsfree-templates/tree/vpsadminos">šablony samozřejmě liší</a>.</p>
+<p>Ve výsledku se šablony aktualizovaly jen když to bylo nezbytně nutné. U stabilních distribucí jako Debian to nevadí, s aktualizací systému po vytvoření VPS není problém. Rolling-release distribuce jako Arch nebo Gentoo jsou na tom hůře a po delší době dá aktualizace více práce.</p>
+<p>Proto jsem se snažil to aspoň na vpsAdminOS udělat lépe: zajistit stejné prostředí pro sestavování šablon a automatizovat testování. Nix a vpsAdminOS jednotné prostředí zajistit umí. Toho jsem využil a program pro sestavování šablon jsem přidal přímo do OS. K sestavení šablon tedy <a href="https://vpsadminos.org/user-guide/setup/">stačí nabootovat vpsAdminOS</a>, třeba v QEMU. Poté naklonovat <a href="https://github.com/vpsfreecz/build-vpsfree-templates/tree/vpsadminos">skripty pro šablony na vpsAdminOS</a>:</p>
+<pre>
+$ git clone -b vpsadminos https://github.com/vpsfreecz/build-vpsfree-templates.git
+$ cd build-vpsfree-templates
+</pre>
+<p>Program, kterým se šablony sestavují, se jmenuje <a href="https://man.vpsadminos.org/osctl-image/man8/osctl-image.8.html">osctl-image</a>. Sám o sobě žádnou šablonu sestavit neumí, funguje ve spolupráci se skripty výše, a očekává je v pracovním adresáři. Seznam šablon dostupných k sestavení zjistíme takto:</p>
+<pre>
+$ osctl-image ls
+</pre>
+<p>Pro sestavení šablony je potřeba libovolný ZFS dataset. V konfiguraci pro QEMU je automaticky k dispozici zpool tank, takže můžeme použít např. tank/image-builds. Sestavení vybrané šablony pak vypadá takto:</p>
+<pre>
+$ osctl-image build --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>Sestavené šablony se ve výchozím stavu ukládají do ./output. Sestavenou šablonu můžeme jednoduše otestovat:</p>
+<pre>
+$ osctl-image test --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>Aktuálně se testuje: start/stop VPS, síť, nastavení hesla roota, hostname a připojení přes SSH. Chtělo by to ještě testovat i funkční konzoli a přihlášení.</p>
+<p>Pokud něco nefunguje, můžeme si snadno ze šablony vytvořit VPS:</p>
+<pre>
+$ osctl-image instantiate --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>Příkaz výše vypíše ID VPS, na kterou se můžeme podívat:</p>
+<pre>
+$ osctl ct start -F instance-abcdefgh
+$ osctl ct attach instance-abcdefgh
+</pre>
+<p>Když je vše v pořádku, je čas na pull request. My šablonu přídáváme do repozitáře, ze kterého si ji vpsAdminOS stáhne při vytváření nové VPS:</p>
+<pre>
+$ osctl-image deploy --build-dataset tank/image-builds ubuntu-18.04 /kde/je/repozitar
+</pre>
+<p>Takto se staráme o výchozí repozitář na adrese <a href="https://images.vpsadminos.org">images.vpsadminos.org</a>.</p>
+<p>Celý postup se dá shrnout do toho posledního příkazu, protože <code>osctl-image deploy</code> šablonu když je potřeba automaticky sestaví, otestuje, a až pokud je vše v pořádku, přidá ji do repozitáře. Podobně fungují i příkazy <code>test</code> a <code>instantiate</code>, proto je všude použito <code>--build-dataset</code>, aby se šablona mohla případně sestavit. osctl-image na pozadí spravuje VPS pro sestavovaní i testování šablon, jak to přesně funguje je popsáno v manuálu.</p>
+<p>Abychom s tím měli dlouhodobě co nejméně práce, <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/modules/services/osctl/image-repository.nix">připravil jsem Nix modul</a>, pomocí kterého lze deklarativně nastavit pravidelné sestavování repozitářů a jejich obsahu. Výsledek si můžete <a href="https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/configs/image-repository.nix">prohlédnout ve vpsfree-cz-configuration</a>.</p>
+<p>Máme to nastaveno tak, aby se šablony sestavovaly jednou týdně v sobotu ráno. Ty, které se podaří správně sestavit a otestovat budou ihned přidány do repozitáře. Pokud něco selže, pošle se nám mail s cestou k logu, ve kterém zjistíme co a proč se stalo. Uvidíme na co ještě narazíme, ale zatím to vypadá, že by to mohlo fungovat.</p>
+

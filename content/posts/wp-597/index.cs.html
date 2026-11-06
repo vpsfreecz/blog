@@ -1,0 +1,21 @@
++++
+title = "Terraform provider pro vpsAdmin: spravujte infrastrukturu automatizovaně"
+date = "2019-05-02T12:34:31+00:00"
+lastmod = "2019-05-02T12:34:31+00:00"
+draft = false
+url = "/terraform-provider-pro-vpsadmin-spravujte-infrastrukturu-automatizovane/"
+translationKey = "wp-597"
+categories = ["server", "vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-597"
+source_body_sha256 = "110fa543404c72217a412029d465d3a495fb7a044eaee1686571abb42154b4dd"
++++
+
+<p>Máme vlastní modul pro Terraform, který umí vytvářet a upravovat VPS na naší infrastruktuře, nahrávat veřejné SSH klíče a spouštět příkazy přes SSH.</p>
+<p><!--more--><span id="more-597"></span></p>
+<p><a href="https://www.terraform.io">Terraform</a> je nástroj pro správu infrastruktury pomocí konfiguračních souborů. Podporuje spoustu různých poskytovatelů hostingu, cloudů a podobných služeb. Nyní je možné pomocí něj konfigurovat i naše VPS.</p>
+<p>Náš plugin pro Terraform aktuálně umí vytvářet a upravovat VPS, nahrávat veřejné SSH klíče a spouštět příkazy přes SSH. Plugin, pokyny k instalaci a ukázku použití <a href="https://github.com/vpsfreecz/terraform-provider-vpsadmin">najdete na GitHubu</a>.</p>
+<p>Případné chyby prosím hlaste u repozitáře. Samozřejmě se můžete také zapojit do vývoje, chtělo by to ještě dodělat podporu pro správu datasetů, mountů a určitě se toho najde více.</p>
+<p>Terraform pluginy se nejsnadněji píšou v Golangu, takže jsme v Golangu potřebovali taky klienta k našemu API. Díky tomu, že se naše API <a href="https://github.com/vpsfreecz/haveapi">umí samo pěkně zdokumentovat</a>, klient pro Golang je kompletně automaticky vygenerovaný. Výsledkem je tedy <a href="https://github.com/vpsfreecz/haveapi/tree/master/clients/go">generátor klientských Golang knihoven pro HaveAPI</a> a samotný <a href="https://github.com/vpsfreecz/vpsadmin-go-client">klient k našemu API</a>, který je možné použít nezávisle na Terraformu.</p>
+

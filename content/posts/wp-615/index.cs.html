@@ -1,0 +1,80 @@
++++
+title = "Vývoj vpsAdminOS, NFS na stagingu, overlay2 driver pro Docker a další"
+date = "2019-10-29T18:29:11+00:00"
+lastmod = "2019-10-29T18:29:11+00:00"
+draft = false
+url = "/vyvoj-vpsadminos-nfs-na-stagingu-overlay2-driver-pro-docker-a-dalsi/"
+translationKey = "wp-615"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-615"
+source_body_sha256 = "dec2f2ee1b2e4f552eebbf24bda4a5cd83d5c7af855a343e82bbee4cb4b9845d"
++++
+
+<p>Přináším zase nějaké nové informace o přechodu na vpsAdminOS a čemu jsme od posledního reportu v červnu věnovali. Píšu po dlouhé době, takže je to jaksi... delší. To nejdůležitější je na začátku.</p>
+<p><!--more--><span id="more-615"></span></p>
+<p><strong>Aktuální stav</strong></p>
+<p>Ke spuštění produkčního nodu s vpsAdminOS nyní zbývá dořešit přístup k NFS. Dlouho jsme hledali nějaký funkční model pro přístup k nasboxu z OpenVZ a vpsAdminOS a to se nám teď snad podařilo, podrobněji viz níže.</p>
+<p>S následným přechodem OpenVZ -&gt; vpsAdminOS to aktuálně vidíme tak, že přidáme jeden další produkční node s vpsAdminOS, na který budeme VPS ze stagingu individuálně přesouvat. IP adresy měnit nebudeme. Nové členy budeme umisťovat na nový systém, stávající VPS poběží nadále na OpenVZ. Kdo chce, se bude moct na nový systém přesunout, ale v dohledné době k tomu nikoho tlačit nebudeme.</p>
+<p><strong>NFS v produkci a na stagingu</strong></p>
+<p>V <a href="https://lists.vpsfree.cz/pipermail/community-list/2019-June/010062.html">posledním reportu</a> jsem naznačoval, jakým způsobem budeme řešit exporty a mounty datasetů na vpsAdminOS. Ačkoli by to fungovalo, mělo to jednu zásadní nevýhodu: jeden NAS dataset by nešel připojit najednou do OpenVZ a vpsAdminOS VPS, resp. jeden z těch dvou systémů by neměl přistup k datům. Dalo by se s tím žít, ale byla by to pro nás všechny zbytečná zátěž při migraci VPS.</p>
+<p>Zmiňoval jsem taky, že do kernelu 5.2 byla do NFS klienta přidána podpora pro user namespaces. Zkusili jsme tedy ve VPS povolit mountování NFS a ono to funguje. Na NFS server chodí ID uživatelů a skupin tak jak je vidí VPS, resp. user namespace, takže není problém sdílet data s VPS na OpenVZ.</p>
+<p>Znamená to však zásadní změnu v přístupu k nasboxu. Na OpenVZ to funguje tak, že si mount naklikáte ve vpsAdminu a ten ho připojí, ani vás nemusí zajímat jakým způsobem to funguje. Na vpsAdminOS to takto být nemůže. Aby na NFS server chodily správné UID/GID, je potřeba mountovat zevnitř VPS. Kernel si totiž pamatuje, v jakém user namespace mount vytvoříte a podle toho se chová.</p>
+<p>Pro staging/vpsAdminOS se ve vpsAdminu nebudou nastavovat mounty ve VPS, ale exporty na NFS serveru. Nastavíte si, jaké VPS mají mít k danému datasetu přístup a vpsAdmin vám zobrazí adresu a cestu k exportu, který si z VPS sami mountnete. Ve vpsAdminu najdete ukázkový příkaz pro mount, záznam v <code>/etc/fstab</code>, nebo i systemd mount unit. Ve VPS samozřejmě musíte mít nainstalovány utility pro práci s NFS. Nově tak máte pod kontrolou jednak více možností u nastavení exportu (ro/rw per host, root_squash, sync, atd.) a taky si můžete zvolit libovolné nastavení mountu. Akorát nepoužívejte -<code>oproto=udp</code>, nefunguje to spolehlivě a budeme to vypínat.</p>
+<p>Problém zůstává se sdílením (sub)datasetů VPS. To zatím nebude možné, žádné ideální zatím řešení nemáme. Předpokládám, že v budoucnu si budete moct sdílet data mezi VPS tak, že si uvnitř spustíte NFS server. To se ještě uvidí, jak moc to bude hořet. Jedno z use-case, které tímto zaniká, je možnost opravy nestartující VPS tak, že si jeho disk připojíte do jiné VPS. Místo toho plánuju do vpsAdminu přidat možnost nechat VPS nastartovat z čisté šablony distribuce, ze které se do rozbitého systému dostanete podobně jako když nabootujete live systém.</p>
+<p>Toť tedy aktuální plán zprovoznění nasboxu na stagingu. Všechno už máme nasazeno, můžete to začít používat. A prosím hlásit na podporu když na něco narazíte. Abych to shrnul:</p>
+<ul>
+<li>do OpenVZ VPS se datasety a snapshoty připojují tak jako doposud</li>
+<li>na vpsAdminOS místo mountu z vpsAdminu vytvoříte export datasetu/snapshotu a ten si z VPS mountnete sami</li>
+<li>jeden dataset/snapshot může být exportován jen jednou, připojen kdekoli (i na OpenVZ)</li>
+</ul>
+<p>Více viz <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/storage">článek na naší KB</a>.</p>
+<p>Nějaký čas to takto necháme běžet. Pokud nenarazíme na nějakou komplikaci, můžeme vpsAdminOS spustit na ostro. Budeme čekat minimálně na Linux 5.4, protože to bude LTS, na kterém budeme moci zůstat delší dobu.</p>
+<p><strong>Storage driver Dockeru</strong></p>
+<p>Hlavní problém dockeru na vpsAdminOS byla <a href="https://docs.docker.com/storage/storagedriver/select-storage-driver/">nefunkčnost pořádného storage driveru</a>. Doposud u nás fungoval jen VFS driver a ten je značně neefektivní. Při vytváření každé vrstvy kontejneru totiž kopíruje data na disku sem a tam. Proto u nás byl docker pomalejší než jinde. TL;DR je, že se nám podařilo zprovoznit overlay2 driver díky tomu, že snajpa do ZFS dodělal podporu pro overlayfs. Cesta ale byla trnitá.</p>
+<p>Výchozím driverem v dockeru je overlay2 založený na overlayfs. Ten bohužel stále <a href="https://github.com/zfsonlinux/zfs/pull/9414">nefunguje nad čistým ZFS</a>, protože kernel vyžaduje implementaci určitých flagů v <code>renameat2()</code>. Další problém je, že se ZFS pro kernel tváří jako "remote filesystem" a vyžaduje revalidaci dentries, což overlayfs nedělá.</p>
+<p>Docker obsahuje taky ZFS driver, ale ten nejde uvnitř VPS použít, protože ZFS nepodporuje user namespace a není jasné, jak by to vůbec mělo fungovat. Tzn. nemáme jak bezpečně předat dataset z hostitele do VPS. Nakonec by to asi ani nebyl dobrý nápad, ZFS je sice super když zrovna nepanikaří, ale přináší to i různé komplikace, které stačí že musíme řešit na hostiteli.</p>
+<p>Dalším z možných driverů je AUFS. Jedná se o předchůdce overlayfs, který obsahuje více funkcí, ale nikdy se do Linuxu nedostal. Zkoušeli jsme ho přidat do kernelu na stagingu, i tak ho docker stejně sám o sobě nevyužije, protože si myslí, že AUFS v user namespace nefunguje a nevyzkouší to. Když se docker opatchuje, s AUFS funguje a je to mnohem svižnější. Bohužel by to vyžadovalo instalaci dockeru z našich repozitářů, o které bychom se museli starat. Navíc je AUFS v dockeru označený za překonaný a je možné, že ho odstraní. Pak bychom si jej museli udržovat sami.</p>
+<p>Nakonec se nám povedlo přizpůsobit si ZFS tak, aby nad ním fungoval overlayfs. Máme na to <a href="https://github.com/zfsonlinux/zfs/pull/9414">pull request</a>, začleněn zatím nebyl.</p>
+<p>Pokud si myslíte, že pak docker sám od sebe použije overlay2 driver a všechno bude super, tak jste na omylu. Samozřejmě <a href="https://github.com/docker/docker-ce/blob/master/components/engine/daemon/graphdriver/overlay2/overlay.go#L165">mají v kódu natvrdo zapsáno</a>, že na ZFS to nefunguje. Takže dockeru z kernelu lžeme a říkáme mu, že na ZFS neběží... a pak teda funguje. Hurá.</p>
+<p>Nasazeno už to máme několik týdnů a podle ohlasů jsou buildy kontejnerů mnohem rychlejší. Jediný zádrhel byl bug v našem overlayfs patchi, který rozbil účtování zabraného místa při přesouvání/mazání souborů. Zabrané místo nešlo uvolnit a postupně se kvůli tomu zaplňovaly kvóty datasetů VPS. Bylo to způsobeno tím, že jedna důležitá funkce byla volána z ASSERT makra, které je implementováno jen v debug buildech, takže s vypnutým debugem to nic nedělalo.</p>
+<p><strong>Docker-in-Docker</strong></p>
+<p>Další chuťovka je docker v dockeru, používá se to např. na nějaké CI v gitlabu. U nás to samo od sebe nefunguje, protože se to při startu pokouší o <code>mount -t securityfs</code>, což ve VPS s user namespace nejde. Zatím se nám nepodařilo kernel upravit tak, aby to prošlo, ale pokud na to někdo narazíte, má to jednoduchý workaround, stačí přidat volume:</p>
+<pre>
+$ docker run -v /sys/kernel/security:/sys/kernel/security ...
+</pre>
+<p><strong>osctl-exportfs</strong></p>
+<p>Na nasboxu nám dlouhodobě chybí možnost zjistit kdo a jak ho využívá v případě, že disky přestávají stíhat. Kernel 5.3 přináší podporu NFS serveru v network namespace a to nám přináší zajímavé možnosti.</p>
+<p><a href="https://man.vpsadminos.org/osctl-exportfs/man8/osctl-exportfs.8.html">osctl-exportfs</a> je nástroj z vpsAdminOS pro vytváření malých kontejnerů pro NFS servery, kde každý server má vlastní IP adresu a sadu exportů. Funguje to tak, že když si ve vpsAdminu nastavíte export, spustí se vám dedikovaný NFS server. vpsAdmin pak bude schopen počítat přenesené data či sledovat využití jednotlivých NFS serverů.</p>
+<p><strong>syslog namespace</strong></p>
+<p>Během prázdnin jsme do kernelu přidali syslog namespace, tzn. z VPS je číst log z kernelu, à la dmesg. Můžete tam vidět zprávy od OOM killeru, logy z iptables a další.</p>
+<p><strong>Nastavení oom_score_adj</strong></p>
+<p>Přidali jsme do kernelu výjimku, aby bylo možné ve VPS libovolně nastavovat <code>/proc/&lt;pid&gt;/oom_score_adj</code>. Můžete tak chránit důležité procesy před OOM killerem, např. sshd. Minimálně distribuce se systemd to využijí automaticky.</p>
+<p><strong>Restrikce /sys</strong></p>
+<p>Část <code>/sys</code> je sdílená mezi hostitelem a všemi VPS, část se přizpůsobuje např. network namespace. Změnili jsme oprávnění citlivých adresářů tak, aby se k nim z VPS nedalo přistupovat. Může se stát, že s tím nějaký program bude mít problém, např. museli jsme trochu ustoupit libvirtu. Pokud narazíte na něco dalšího, tak se ozvěte.</p>
+<p><strong>vpsfree-cz-configuration a monitoring</strong></p>
+<p>Během prázdnin jsem z velké části <a href="https://github.com/vpsfreecz/vpsfree-cz-configuration">předělal konfiguraci</a> našich vpsAdminOS nodů a NixOS serverů/VPS. Konfigurace systému se teď definuje na jednom místě pro různé výstupy, jako netboot server a aktualizace systému naživo.</p>
+<p>V konfiguraci serveru je možné se odkazovat na adresy, služby a porty ostatních systémů v clusteru, což se hodí třeba na propojování služeb, přesné nastavení firewallu, nebo generování DNS. Máme taky nový monitoring, který automaticky hlídá všechny systémy, které jsou součástí konfigurace.</p>
+<p>Nový monitoring je postavený nad prometheusem, alertmanagerem a používáme taky centralizované logování přes graylog. Sledujeme teď více parametrů, které nám způsobovaly problémy. Řešil jsem to hlavně kvůli častým výpadkům při ZFS panics, které nás trápily od začátku prázdnin. Původní monitoring úplně selhával a o tom, že node přestal ve 4 ráno provádět diskové operace, jsme se dozvěděli až když se někdo z nás probudil.</p>
+<p>Aktuálně logy ze všech nodů zpracovává graylog a pokud dojde k ZFS panic, pošle o tom alert přes alertmanager. Do minuty tak máme SMS. Je zde ještě hodně co ladit, zejména doručování SMS různým lidem v různých časech, abychom se z toho nezbláznili. Na to jsem bohužel existující řešení zatím nenašel.</p>
+<p>Do budoucna bych taky chtěl členům zpřístupnit grafanu s daty z prometheuse jako náhradu muninu, ale těch parametrů k zobrazení je tam strašně moc a je potřeba tomu věnovat více času, který teď nemáme.</p>
+<p><strong>Buildbot pro vpsAdminOS</strong></p>
+<p>Už mnoho let toužíme po nějaké formě CI a zajišťování QA pro kontrolu aktualizací či nové funkcionality. Trochu to sice komplikuje fakt, že nemáme naprosto žádné testy, ale nenašli jsme ani žádnou technologii, nad kterou bychom to chtěli postavit. Teď jsem s tím trochu pohnul, repozitář vpsAdminOS hlídá Buildbot a při změně ho automaticky sestavuje. Vypadá to celkem použitelně a postupem času bychom toho chtěli více. Už teď je to užitečné zejména pro plnění binární cache, ze které lze stahovat naše buildy kernelu, ZFS, atd. Na NixOS se dá použít takto:</p>
+<pre>
+nix = {
+    binaryCaches = [
+      "https://cache.vpsadminos.org"
+    ];
+    binaryCachePublicKeys = [
+      "cache.vpsadminos.org:wpIJlNZQIhS+0gFf1U3MC9sLZdLW3sh5qakOWGDoDrE="
+    ];
+  };
+</pre>
+<p><strong>Unmounty snapshotů ve vpsAdminu</strong></p>
+<p>Kdo jste do VPS připojovali snapshot, asi jste si všimli, že často nešel odpojit. Snapshoty do OpenVZ VPS se připojují tak, že se na backuperu snapshot naklonuje přes zfs clone a vytvořený filesystem se exportuje přes NFS. Na nodu se pak mountne do VPS. Při odpojování se nejdříve provede unmount ve VPS a potom se vpsAdmin pokouší odstranit naklonovaný snapshot na backuperu. No a tady to vázne. Z nějakého důvodu je buď mountpoint nebo dataset busy, takže se toho nedá zbavit. To mělo za následek, že operace odpojení snapshotu ve vpsAdminu selhávala a mount se vracel do původního stavu -- opět se připojil.</p>
+<p>Na podpoře jsem všem doporučoval mount "vypnout" (disable), vpsAdmin se ho pak pravidelně snaží odpojovat, až jednou uspěje. Bohužel než se takhle "zaseklý" dataset umoudří mohlo trvat několik dní nebo i týdnů. Nově se klony snapshotů mažou na pozadí a na mounty ve VPS to nemá vliv. Problémy nám to bude dělat stále, ale aspoň už ty mounty ve vpsAdminu nejsou vidět.</p>
+<p><strong>Zamyšlení na konec</strong></p>
+<p>První commit ve vpsAdminOS vznikl před dvěma lety, 3. listopadu 2017. Asi nikdo nečekal, že s tím bude tolik práce. Pohledem zpět to tehdy ani fungovat nemohlo, hlavně protože až v posledních verzích kernelu se objevují funkce, bez kterých se neobejdeme, à la NFS klient v user namespace. Ani s nejnovějším kernelem, LXC, atd., však bez vlastních úprav nejde dělat systémové kontejnery na úrovni OpenVZ před 10 lety. Menší a větší patche máme v kernelu, ZFS, LXC i LXCFS a nemohli bychom bez nich fungovat.</p>
+<p>Pro provoz OpenVZ jsme naopak dlouho žádné vlastní úpravy nepotřebovali, nebyl problém používat to co bylo k dispozici. Poslední cca 4 roky už se však OpenVZ (Legacy) nevyvíjí a rozjet tam aktuální distribuce je čím dál tím obtížnější. O dnes moderních aplikačních kontejnerech à la docker ani nemluvím. Aby vůbec fungovalo Ubuntu 18.04, museli jsme si připravit vlastní kernel s chybějícím syscallem. Cesta je stále trnitá, ale už se na vpsAdminOS v produkci těšíme.</p>
+

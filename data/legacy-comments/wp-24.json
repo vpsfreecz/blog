@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "BBaron",
+    "date": "2015-05-06T19:08:02+00:00",
+    "html": "<p>ZFS je fajn, ale pri urcitom zaplneni zacina byt strasne pomale. Drzim palce. U nas ho uz nepouzivame.</p>\n",
+    "id": 16,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Pavel Šnajdr",
+    "author_url": "http://vpsfree.cz",
+    "date": "2015-05-07T08:35:09+00:00",
+    "html": "<p>ZFS je v prvni rade copy on write filesystem, tohle chovani je u vsech CoW FS normalni. BTRFS, az nebude trpet detskymi nemocemi, bude s timhle mit problem na stalo taky. NetApp WAFL ma ten \"problem\" taky. Proste je potreba rezervovat odpovidajici cast mista a nikdy ho nezaplnit. Bezne se doporucuje nechat aspon 20% a pak neni problem. Pravda je, ze u ZFS je to v soucasny implementaci vic, nekde okolo 35%, potom zacne rapidne narustat fragmentace, coz pool na rotacnich diskach zpomali. A pri min jak cca 10% volnyho mista u poolu s kapacitama v TB zacne byt pomale vyhledani volneho mista pro nove zapisovana data. Nicmene OpenZFS se vyviji dopredu pomerne rychle a tohle je jeden z problemu, ktery je pravidelne na programu vyvojaru ke konstantnimu vylepsovani.</p>\n",
+    "id": 17,
+    "parent_id": 16
+  }
+]

@@ -1,0 +1,21 @@
++++
+title = "Jak si opravit rozbitý VPS"
+date = "2015-09-14T06:58:45+00:00"
+lastmod = "2016-01-25T10:55:27+00:00"
+draft = false
+url = "/jak-si-opravit-rozbity-vps/"
+translationKey = "wp-112"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-112"
+source_body_sha256 = "113dbbe1875f011b004be6b23ee3ad04cbedd2944589adfa82a60704fe38360a"
++++
+
+<p>Často se nás na podpoře ptáte, jak opravit nefunkční VPS. Sepsali jsme proto pro vás podrobný univerzální návod.<br>
+<!--more--><span id="more-112"></span></p>
+<p>vpsAdmin od verze 2.0 umožňuje členům samostatně vyřešit většinu problémů s poškozeným VPS, tj. když nestartuje nebo není přístupná po síti. K rozbití VPS může dojít například při aktualizaci systému, špatně zvoleným příkazem či konfigurací, apod.</p>
+<p>Nejprve je potřeba identifikovat, proč vlastně VPS nedělá to, co by měl. Příčin může být hned několik: plný disk, rozbitý init systém nebo třeba špatně nastavená síť. Většinu problémů je možné odstranit pomocí připojení rootfs do jiného VPS.</p>
+<p>vpsAdmin totiž umožňuje připojit <strong>jakýkoliv</strong> dataset do <strong>kterékoli</strong> VPS. Je tedy možné připojit dataset, na němž je rootfs rozbité VPS, do funkčního VPS. K tomuto účelu může posloužit buď playground nebo i jiná produkční VPS.</p>
+<p>Kompletní postup najdete na naší <a href="https://kb.vpsfree.cz/">knowledge base</a> na stránce <a href="https://kb.vpsfree.cz/navody/vps/oprava">Oprava rozbité VPS</a>.</p>
+

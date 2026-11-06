@@ -1,0 +1,23 @@
++++
+title = "Přecházíme z OpenVZ na vpsAdminOS, spouštíme testovací prostředí"
+date = "2018-05-21T12:41:55+00:00"
+lastmod = "2018-05-21T12:42:27+00:00"
+draft = false
+url = "/prechazime-z-openvz-na-vpsadminos-spoustime-testovaci-prostredi/"
+translationKey = "wp-547"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-547"
+source_body_sha256 = "2deb028ac6712a45a6b37b94a639c83f05aaae5ce7f315a78a2f145be0c443fc"
++++
+
+<p>Námi používaná technologie OpenVZ už dosluhuje a vývoj skončil. Přecházíme proto na novější řešení v podobě vpsAdminOS.<br>
+<!--more--><span id="more-547"></span></p>
+<p>Aktuálně na všech nodech k provozu VPS používáme kontejnerovou virtualizaci OpenVZ Legacy. Protože už dosluhuje, vývoj skončil a nové distribuce jej přestávají podporovat, řešíme přechod na novější řešení v podobě <a href="https://vpsadminos.org">vpsAdminOS</a> (<a href="https://github.com/vpsfreecz/vpsadminos">GitHub</a>). Jedná se o distribuci založenou na <a href="https://nixos.org">NixOS</a> a <a href="https://github.com/cleverca22/not-os">not-os</a>, která bude na nodech sloužit jako hypervizor pro provoz VPS.</p>
+<p>Pro správu VPS (kontejnerů) jsme vytvořili vlastní utilitu <code>osctl</code>, která se funkcemi vyrovná <code>vzctl</code> z OpenVZ, popř. <a href="https://linuxcontainers.org">LXD</a>. Řeší hlavně nastavení <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos#user_namespaces">user namespaces</a> pro správnou izolaci VPS a cgroups pro limity paměti, CPU, atd. Ke spouštění kontejnerů se používá LXC.</p>
+<p>vpsAdminOS není omezen jen na infrastrukturu vpsFree.cz. Pokud někde provozujete OpenVZ Legacy a nevíte co dál, můžete zvážit vpsAdminOS, který je na <a href="https://vpsadminos.org/migration-paths/openvz-legacy/">migraci kontejnerů z OpenVZ</a> připraven.</p>
+<p>Na vpsAdminOS <a href="https://blog.vpsfree.cz/predstavili-jsme-vpsadminos-system-pro-provoz-kontejneru/">pracujeme zhruba od podzimu 2017</a> a nyní si všichni členové mohou vyzkoušet, jak VPS nad novým systémem fungují. Naším cílem je, aby migrace VPS z OpenVZ na vpsAdminOS proběhly bez povšimnutí, nicméně záleží na tom, co ve VPS provozujete. Doporučujeme všem, aby si novou VPS vyzkoušeli a hlásili nám případné problémy a nedostatky. Než přistoupíme k migraci produkčních VPS, je potřeba ten OS a integraci s vpsAdminem vyladit.</p>
+<p>V podstatě máte k dispozici další playground VPS, podmínky jsou podobné. Jen to může být trochu divočejší – nehlášené výpadky, restarty když budeme potřebovat něco aktualizovat, atd. Ve vpsAdminu ve formuláři na vytvoření VPS vyberte lokaci <strong>Staging</strong>. K dispozici jsou zatím tyto distribuce: Alpine, Arch, CentOS, Debian, Fedora, Gentoo, NixOS a Ubuntu. Časem budou přibývat další.</p>
+<p>Na testování a hlášení chyb máte cca několik týdnů až měsíců, podle toho jak nám to půjde. Více informací o změnách v OS, vpsAdminu a <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">plánu přechodu na knowledge base</a>.</p>
+

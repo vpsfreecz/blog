@@ -1,0 +1,39 @@
++++
+title = "vpsAdmin v2.7.0: zpracování plateb, e-maily, dvě pgnd VPS"
+date = "2017-02-13T09:55:43+00:00"
+lastmod = "2017-02-13T09:55:43+00:00"
+draft = false
+url = "/vpsadmin-v2-7-0-zpracovani-plateb-e-maily-dve-pgnd-vps/"
+translationKey = "wp-490"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-490"
+source_body_sha256 = "3f0b03f3921abcc0fd2b74ddd8ae24999e01cee61e92018feee3151ecb1f0a0c"
++++
+
+<p>V pátek jsem nasadil novou verzi vpsAdminu, v2.7.0. Mezi hlavní novinky patří automatizované zpracování plateb členských příspěvků, možnost nastavení více e-mailových adres, mazání snapshotů NASu z web UI a volitelné pojmenování ručně vytvořených snapshotů.</p>
+<p><!--more--><span id="more-490"></span></p>
+<p>Dále bylo změněno výchozí nastavení dovoleného počtu VPS, mezi které lze rozdělit přidělené prostředky. V produkci na pět VPS a v playgroundu na dvě VPS. V playgroundu jsou navíc k dispozici dvě IPv4 adresy.</p>
+<p>Hodně změn se událo také pod kapotou. Do API byla přesunuta implementace přihlášek a požadavků na změnu osobních údajů. K tomu spousta refactoringu a veškerá funkcionalita už je nyní dostupná v API – např. přihlášku do vpsFree je možné <a href="https://kb.vpsfree.cz/navody/vps/api#cli">zaslat přes vpsfreectl</a>.</p>
+<h2>Platby</h2>
+<p>Do teď se příchozí platby přepisovaly z bankovního účtu do vpsAdminu manuálně. vpsAdmin má nyní <a href="https://github.com/vpsfreecz/vpsadmin-plugin-payments">plugin</a>, který obsahuje podporu pro platící uživatele. Platby se z účtu stahují několikrát denně <a href="https://www.fio.cz/bankovni-sluzby/api-bankovnictvi">přes Fio API</a>. O přijetí platby pak vpsAdmin informuje mailem.</p>
+<p>Automaticky jsou zpracovány všechny platby, které mají správný VS (ID člena) a částku (násobek členského příspěvku). Pokud někdo zapomene vyplnit VS, platbu zpracujeme manuálně. Když se nám platbu nepodaří spárovat ani podle jména, budete muset napsat na podporu. V tomto ohledu se tedy nic nemění a bude to fungovat jako doposud.</p>
+<p>Případné doplatky za další VPS, apod., se budou platit s jiným VS – domluvíte se s Michalem na podpoře.</p>
+<h2>Nastavení vícero kontaktních e-mailových adres</h2>
+<p>Někteří členové chtěli do vpsAdminu zapsat více e-mailových adres, týká se to zejména firem, kde se o členství a VPS stará více lidí, apod.</p>
+<p>vpsAdmin definuje dva typy kontaktů (role): správce VPS a správce účtu (členství). Jednotlivé zprávy, které vpsAdmin rozesílá, jsou rozděleny do těchto rolí a můžete si nastavit, kdo je bude dostávat.</p>
+<p>Například, správce účtu (členství) dostává maily o upozornění k platbě členského příspěvku a pozastavení/obnovení členství. Správce VPS pak maily o změně stavu VPS, změně konfigurace VPS, stahování záloh a migrace VPS.</p>
+<p>Ke každé roli lze nastavit více e-mailů. Komu by ani toto rozdělení nestačilo, existuje ještě detailnější nastavení, kde si můžete u každého typu zprávy vybrat, zda ji chcete dostávat a na které adresy.</p>
+<p>Více <a href="https://kb.vpsfree.cz/navody/vps/uzivatele">info v KB</a>.</p>
+<p>Pokud vám stávající nastavení jedné adresy vyhovuje, nemusíte nic měnit.</p>
+<h2>Snapshoty</h2>
+<p>Ve web UI se konečně objevila možnost smazat snapshoty NASu, které tam šly jen vytvořit, ale mazat se musely přímo přes API.</p>
+<p>Při vytváření snapshotu VPS nebo NASu si můžete snapshot pro pozdější identifikaci libovolně pojmenovat.</p>
+<h2>Systém pluginů</h2>
+<p>Ve snaze ponechat jádro vpsAdminu co nejjednodušší jsem se rozhodl přidávat funkcionalitu nesouvisející s primárním zaměřením ve <a href="https://projects.vpsfree.cz/vpsadmin-doc/plugins/">formě pluginů</a>. Jádro vpsAdminu by mělo umět spravovat VPS, storage a síť.<br>
+Ostatní věci, jako platby nebo uživatelské požadavky, jsou tedy implenentovány jako pluginy.</p>
+<h2>Další změny</h2>
+<p>Až v této verzi byl úplně dokončen přesun funkcionality z původního webového rozhraní do API. Web UI bylo kompletně odpojeno od databáze, všechno co vidíte se načítá z API.</p>
+<p>Seznam všech změn je k dispozici v <a href="http://https;//projects.vpsfree.cz/vpsadmin-doc/releases/v2.7.0/">poznámkách o vydání</a>.</p>
+

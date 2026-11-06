@@ -1,0 +1,129 @@
+{
+  "categories": {
+    "akce": {
+      "name": "Akce"
+    },
+    "bezpecnost": {
+      "name": "Bezpečnost"
+    },
+    "distribuce": {
+      "name": "Distribuce"
+    },
+    "nezarazene": {
+      "name": "Nezařazené"
+    },
+    "podpora": {
+      "name": "Podpora"
+    },
+    "server": {
+      "name": "Server"
+    },
+    "skoly": {
+      "name": "Školy"
+    },
+    "technologie": {
+      "name": "Technologie"
+    },
+    "vpsfree-cz": {
+      "name": "vpsFree.cz"
+    }
+  },
+  "tags": {
+    "alpine": {
+      "name": "Alpine"
+    },
+    "brno": {
+      "name": "Brno"
+    },
+    "centos": {
+      "name": "CentOS"
+    },
+    "ddos": {
+      "name": "DDoS"
+    },
+    "debian": {
+      "name": "Debian"
+    },
+    "devuan": {
+      "name": "Devuan"
+    },
+    "discourse": {
+      "name": "Discourse"
+    },
+    "disk": {
+      "name": "disk"
+    },
+    "dns": {
+      "name": "DNS"
+    },
+    "docker": {
+      "name": "Docker"
+    },
+    "energie": {
+      "name": "energie"
+    },
+    "fedora": {
+      "name": "Fedora"
+    },
+    "gentoo": {
+      "name": "Gentoo"
+    },
+    "gre": {
+      "name": "GRE"
+    },
+    "haveapi": {
+      "name": "HaveAPI"
+    },
+    "installfest": {
+      "name": "InstallFest"
+    },
+    "ipv6": {
+      "name": "IPv6"
+    },
+    "irc": {
+      "name": "IRC"
+    },
+    "kristalova-lupa": {
+      "name": "Křišťálová Lupa"
+    },
+    "kvm": {
+      "name": "KVM"
+    },
+    "lets-encrypt": {
+      "name": "Let's Encrypt"
+    },
+    "linuxdays": {
+      "name": "LinuxDays"
+    },
+    "master": {
+      "name": "Master"
+    },
+    "mikrotik": {
+      "name": "MikroTik"
+    },
+    "openalt": {
+      "name": "OpenAlt"
+    },
+    "opensuse": {
+      "name": "openSUSE"
+    },
+    "passkey": {
+      "name": "Passkey"
+    },
+    "prometheus": {
+      "name": "Prometheus"
+    },
+    "sit": {
+      "name": "síť"
+    },
+    "ssd": {
+      "name": "SSD"
+    },
+    "vpsadmin": {
+      "name": "vpsAdmin"
+    },
+    "vpsadminos": {
+      "name": "vpsAdminOS"
+    }
+  }
+}

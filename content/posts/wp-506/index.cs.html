@@ -1,0 +1,33 @@
++++
+title = "Podporujeme Alpine Linux, má u nás hlavní mirror"
+date = "2017-05-03T09:54:29+00:00"
+lastmod = "2017-05-03T18:44:46+00:00"
+draft = false
+url = "/podporujeme-alpine-linux-ma-u-nas-hlavni-mirror/"
+translationKey = "wp-506"
+categories = ["distribuce"]
+tags = ["alpine"]
+[params]
+article_id = "wp-506"
+source_body_sha256 = "1c4fb547171ed0a42ba82906735b52391862e70e39923fd26d43c6fc2bf1aae3"
++++
+
+<p>Podpořili jsme projekt Alpine Linux a hostujeme u nás ve vpsFree.cz hlavní zrcadlo (mirror).</p>
+<p><!--more--><span id="more-506"></span></p>
+<p>Jde (zatím jen) o hosting oficiálního zrcadla cz.alpinelinux.org. Momentálně se používá jako hlavní, ze kterého se synchronizují další zrcadla. Zatím ovšem není jisté, jestli takto zůstane.</p>
+<p>V Alpine Linuxu (dále jen „Alpine“) právě probíhají změny v infrastruktuře zrcadel. Rozdělí se do tří kategorií:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2017/05/Alpine_infra-1.png"><img alt="" class="aligncenter size-medium wp-image-513" height="241" src="https://blog.vpsfree.cz/wp-content/uploads/2017/05/Alpine_infra-1-300x241.png" width="300"></a></p>
+<ul>
+<li>„hlavní zrcadlo“ (do budoucna snad zdvojené), do kterého budou „buildery“ nahrávat balíčky a synchronizovat se z něj zrcadla v Tier 1.</li>
+<li>Tier 1 se plánují tři – pro Evropu, Ameriku a Asii (ponz.: můj návrh, že musíme mít zrcadlo i na Antarktidě se nějak neujal…). Z nich se budou synchronizovat zrcadla v Tier 2 a zároveň je budou používat koncoví uživatelé přes HTTP(S).</li>
+<li>Tier 2 pak budou zrcadla třetích stran, uživatelů, plus záložní zrcadlo.</li>
+</ul>
+<p>Zrcadlo na vpsFree se později možná změní na zrcadlo pro Evropu v Tier 1, to ještě nebylo rozhodnuto.</p>
+<p>Nápad na spolupráci s vpsFree vznikl asi před půl rokem, kdy nastal nějaký problém s „hlavním zrcadlem“. Tehdy se začalo diskutovat o přemístění k jinému poskytovateli. Jednou z podmínek výběru bylo, aby daný poskytovatel nabízel Alpine jako podporovanou distribuci a ideálně ho sám nějakým způsobem využíval. Ve vpsAdminu nabízíme Alpine k instalaci od května 2016 a už nějakou dobu plánujeme postavení některých částí vpsAdminu na Alpine. Rozhodli jsme se tedy projektu pomoci a nabídnout mu zdarma prostor pro zrcadlo. Akutní problém se současným zrcadlem se ale mezitím vyřešil a přemístění „hlavního zrcadla“ ustoupilo jiným prioritám. Až doteď.</p>
+<p>Před několika dny došlo k několikahodinovému výpadku „hlavního zrcadla“, server byl nedostupný, z administrace s ním nešlo nic dělat a nezbývalo než čekat na zásah podpory. Opět se tedy otevřela diskuze o změně poskytovatele a také změně infrastruktury zrcadel do výše popsané podoby. Znovu jsem navrhl podporu ve vpsFree. Do pár hodin jsem měl připravený OVZ kontejner, za dalších několik hodin vše nainstalované, nastavené a synchronizované celé aports. Druhý den jsme nastavili doménový záznam cz.alpinelinux.org a hned další den ho povýšili na „hlavní zrcadlo“.</p>
+<p>Ozvalo se i několik firem, že by chtěly pro Alpine poskytnout infrastrukturu. Jedna je myslím z USA, další z Japonska. Jedni z nich mají Alpine asi opravdu rádi, protože projektu dali k dispozici opravdu hodně výkonný stroj s několika SSD disky.</p>
+<p>Za čtyři dny to bude rok ode dne, kdy jsme do vpsAdminu přidali podporu Alpine Linuxu, a jeho obliba u našich členů stále roste. Petr Krčmář měl na posledním <a href="https://installfest.cz/if17/">InstallFestu</a> o Alpine samostatnou přednášku. Pokud vás distribuce zajímá, podívejte se na ni:</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/BNAFHj1DXnQ" title="Embedded video" width="560"></iframe></p>
+<p>Pokud byste o ni rádi řekli známému, který neumí česky, můžete ho odkázat na mé slajdy z mé „<a href="https://www.linuxdays.cz/2016/video/Jakub_Jirutka-LT_Alpine_Linux.pdf">lightning talk</a>“ [PDF] na posledních <a href="https://www.linuxdays.cz/2016/">LinuxDays</a>.</p>
+<p>Poznámka: Článek byl několik hodin po vydání aktualizován – představený návrh infrastruktury je teprve ve fázi konceptu a mezitím došlo ke změně značení kategorií zrcadel.</p>
+

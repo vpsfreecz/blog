@@ -1,0 +1,50 @@
++++
+title = "Co je to reverzní záznam (PTR) a jak ho nastavit?"
+date = "2017-06-26T11:47:28+00:00"
+lastmod = "2024-09-10T07:52:39+00:00"
+draft = false
+url = "/co-je-to-reverzni-zaznam-ptr-a-jak-ho-nastavit/"
+translationKey = "wp-521"
+categories = ["podpora"]
+tags = []
+[params]
+article_id = "wp-521"
+source_body_sha256 = "49348094f5362af03ecf71dfc827cbfadea490f123d96e29470ad1ee6c3a72cf"
++++
+
+<p>Na podpoře se nám neustále objevuje dotaz na reverzní záznam. Řada uživatelů má jen velmi mlhavou představu, o co jde a jak to použít.<br>
+<!--more--><span id="more-521"></span></p>
+<p>Reverzní záznam pro své IP adresy si můžete <a href="https://kb.vpsfree.cz/navody/vps/rdns">nastavit ve vpsAdminu</a>. Uživatelé ale v mnoha případech přistupují k reverznímu záznamu chybně, nechápou ho nebo používají nesprávně. Jak to tedy funguje?</p>
+<p>PTR (pointer record) slouží v DNS k pokládání reverzního dotazu. Běžně se ptáme: „Jaké IP adresy patří k tomuto doménovému jménu?“ a zajímají nás záznamy typu A a AAAA. V DNS ale existuje i hierarchický strom obsahující odpovědi na opačné (reverzní) dotazy: „Jaké doménové jméno patří této IP adrese?“</p>
+<p>Zatímco dopředné záznamy jsou záležitostí správce domény, reverzní záznamy zřizuje správce přidělených IP adres. Dotaz se automaticky pokládá do domény nejvyššího řádu (TLD) <code>.arpa</code> (konkrétně <code>in-addr.arpa</code> a <code>ip6.arpa</code>) a funguje to stejně jako u dopředného záznamu: vlevo je nejspecifičtější část, vpravo je nejobecnější. Příklad:</p>
+<pre>
+$ host 37.205.9.45
+45.9.205.37.in-addr.arpa domain name pointer mxproxy.vpsfree.cz.
+
+$ host 2a01:430:17:1::ffff:427
+7.2.4.0.f.f.f.f.0.0.0.0.0.0.0.0.1.0.0.0.7.1.0.0.0.3.4.0.1.0.a.2.ip6.arpa domain name pointer mxproxy.vpsfree.cz.
+</pre>
+<p>Proč je zřízení reverzního záznamu důležité? Mail servery přijímající poštu dnes sledují, jestli oba záznamy souhlasí. Tedy zda doménové jméno míří na IP adresu, ze které zase reverzní záznam míří zpět na stejnou doménu. Je to základní ochrana proti spamu, správce tím vlastně dokazuje, že má pod kontrolou záznamy v obou směrech a nejde jen o napadený stroj, který „náhodou“ odesílá poštu.</p>
+<p>Častou chybou je, že se správce snaží do reverzních záznamu vyjmenovat všechny domény, pro které bude daný mail server přijímat poštu. Tak to ale nefunguje. V reverzním záznamu je uvedené <strong>jméno serveru</strong>, ne domény spravované serverem. Tedy nejlépe něco jako <code>mail.example.com</code>. Musí to být jméno, kterým se mail server představuje při předávání pošty. V případě Postfixu je to konfigurační volba:</p>
+<pre>
+myhostname="mail.example.com"
+</pre>
+<p>Nastavit je vždy možné jen <strong>jeden</strong> PTR záznam na IP adresu. Musíte si tedy vybrat, jak se váš server bude skutečně jmenovat. Není možné dát na jednu adresu více doménových jmen.</p>
+<p>Toto nastavení nemá žádný vliv na e-mailové adresy nebo na domény pro příjem pošty. Vazba mezi doménou a mail serverem se provádí v DNS pomocí takzvaného MX záznamu. Ten určuje, na jaký server se má pro dané doménové jméno posílat pošta. Všimněte si, že mail server vůbec nemusí ležet ve stejné doméně:</p>
+<pre># dig MX vpsfree.org
+…
+;; ANSWER SECTION:
+vpsfree.org.		1800	IN	MX	10 mxproxy.vpsfree.cz.
+vpsfree.org.		1800	IN	MX	15 mx2.vpsfree.cz.
+…
+</pre>
+<p>Pokud tedy chcete nastavit reverzní záznam, vymyslete si doménové jméno svého poštovního serveru v jakékoliv subdoméně, kterou ovládáte. Toto jméno si nastavte ve vpsAdminu pro svou IPv4 i IPv6 adresu. To je důležité, protože řada poštovních serverů (včetně Gmailu) dnes využije moderní protokol IPv6 a i u něj musí být vše v pořádku.</p>
+<p>Poté už můžete svůj poštovní server konfigurovat zcela dle libosti, přidávat do něj další domény pro příjem pošty a doménové jméno pak používat v MX záznamu všech domén, pro který má přijímat poštu. Další zásah do reverzního záznamu už není potřeba.</p>
+<p>Shrnutí toho podstatného:</p>
+<ul>
+<li>reverzní záznam si nastavíte ve vpsAdminu</li>
+<li>odkazuje na jméno serveru, ne na domény pro příjem pošty</li>
+<li>odkazuje vždy jen na jedno doménové jméno</li>
+<li>když zřizujete reverzní záznam, nezapomeňte na IPv6 adresu</li>
+</ul>
+

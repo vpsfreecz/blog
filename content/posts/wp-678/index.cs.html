@@ -1,0 +1,61 @@
++++
+title = "Správa paměti na vpsAdminOS"
+date = "2020-08-17T08:28:55+00:00"
+lastmod = "2020-08-17T08:28:55+00:00"
+draft = false
+url = "/sprava-pameti-na-vpsadminos/"
+translationKey = "wp-678"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-678"
+source_body_sha256 = "d1ce146951ab8fb909d01bdc3aec714ba012ad03a77c94bebcfe41787e631d17"
++++
+
+<p>Sliboval jsem (většinou off-list), že shrnu pak řešení s paměti na vpsAdminOS, tak tady to je.</p>
+<p><!--more--><span id="more-678"></span></p>
+<p>Když chce programátor dneska z aplikace pracovat s velkým souborem, je docela rozšířeným přístupem, si takový soubor namapovat do paměti pomoci mmap(2) syscallu.</p>
+<p>To způsobí, že se soubor ocitne ve virtuálním paměťovém prostoru procesu, tj. ten program si pak může sahat do toho souboru prostým přistupováním do paměti (nabízí se teda snadný ukládání napr. Cčkových structů do souboru, přístup přes pointerovou aritmetiku, atd.).</p>
+<p>Linux cachuje takový napamovaný soubor po stránkách, protože samotnou paměť spravuje po stránkách (1 stránka paměti je na x64 velká 4 kB, huge pages jsou potom další extra story na jindy...). Jakmile aplikace chce přečíst nějaká data, Linux na pozadí, pokud už to neudělal, pro ta data alokuje stránku fyzické paměti, aby ta data měla reálné, kde sedět, přečte je do té stránky z disku (nebo kde ten soubor je) a pak tu stránku namapuje do příslušného místa virtuálního paměťového prostoru našeho procesu, který ta data čte.</p>
+<p>Jádro vede mapované stránky v evidenci pomoci LRU listu, což je datová struktura, seznam, který se vyznačuje tím, že vede v evidenci, která položka byla použita naposled (tak, že se mění při jejím použití její pořadí na začátek seznamu).</p>
+<p>Když všechno funguje jak má, v reálné fyzické paměti jsou používaná čtena data a ještě nezapsané „pošpiněné“ (dirty) stránky, do kterých se psalo, tj. je u nich naplánováno, aby se co nejrychleji dostaly na disk (pokud teda celý soubor nebyl otevřený s flagem O_SYNC, nebo podobně, co by vynutilo každou změnu zapsat na disk ihned, než Linux vrátí kontrolu aplikaci při tom zápisu do mapovaného souboru; to není tak časté a to je nám teď "jedno").</p>
+<p>Zápis je naštěstí vyřešeny dobře, Linux má na to mechanismus, kterému říká „writeback throttle“; když detekuje, že se začíná RAM plnit víc, než je zdrávo, začne aplikaci ty zapisující přístupy adekvátně zpomalovat. Tohle „impedanční přizpůsobení“ funguje vcelku dobře, navíc funguje dostatečně dobře i pod memory cgroup.</p>
+<p>Memory cgroup je mechanismus, kterým omezujeme přidělenou paměť kontejnerům pod Linuxem - je to volitelná sada dalších počítadel využití paměti, nad základní systémové, plus vydělení ukazatelů na LRU, writeback a další cache, aby se dalo pěkně vést takovéhle seznamy stránek v odděleně, mimo jiné aby bylo jasné, co komu patří, když dojde čas tu paměť jednou odklidit. Ale taky, aby se dalo hlídat maximální využití paměti na různé caches - zdaleka nejen - kvůli právě mapovaným souborům.</p>
+<p>Potud všechno dobře.</p>
+<p>To nám tak systém naběhne, pospouští se na něm stovka VPSek, všechny aplikace se krásné rozběhnou, některé si namapujou soubory, některé do nich vesele zapisují data...</p>
+<p>Systém může běžet klidně měsíce bez problémů, všechno stíhá, v pohodě. Ty seznamy jsou běžné docela krátké, takže sbírka jaderných threadu „kswapd“ je na pozadí pěkně stíhá procházet a odklízet, jak se postupně některé memory cgroupy dostávají s paměti do úzkých.</p>
+<p>Koneckonců, 4 GB RAM (na jeden kontejner) přeloženo na 4 kB stránky znamená teoretickou maximální délku jednoho seznamu 1M položek. To se na 2+ gigahertzových CPU přeci stihne projít rychle, že.</p>
+<p>No a pak se stane, že po třeba dvou měsících běhu systému najednou zoufalý člen píše, že mu v kontejnerů dochází paměť, přitom ať počítá, jak počítá, nemůže se dopočítat, že by to zabíraly aplikace - je vidět, že je to tím, že caches nechtějí odcouvavat.</p>
+<p>Hm, docela špatenka, jak to máme opravit, když to trvá tak dlouho, než se problém projeví?</p>
+<p>Tady někde bych měl podotknout, že abych byl schopny to takhle pěkně vysvětlit, musel jsem projít celou cestu do vyřešena, takže teď se to jeví zpětně jako trivka, ale než jsem přišel na to, z které strany ten problém půjde aspoň nějak řešit...</p>
+<p>Když se člověk na takový trpící systém přihlásí, vidí tam zpravidla kswapd0 na 100% a když má ta mašina dva fyzické CPU, tak tam vidí většinou i kswapd1 v tom samém stavu.</p>
+<p>V dmesgu jsou vidět out of memory hlásky z jednotlivých kontejnerů, jak narážejí na neodkliditelné caches a jádro zoufale zabíjí staré procesy, aby udělalo místo pro další.</p>
+<p>V těch OOM hláskách je vidět pokaždé i stack trace, odkud ta OOM událost z jádra přišla - většina z nich byla vyvolaná kvůli čtení do mmaped souboru, což se pozná tak, že v tom stacku jsou vidět funkce přidávající LRU stránky na seznam té memory cgroupě.</p>
+<p>Tak si říkám, hm, to má přeci snadné řešení, nebudeme účtovat mapovanou paměť do memory cgroup členů, ale necháme ji v root memory cgroup...</p>
+<p>Okay, to by mohlo fungovat, že?</p>
+<p>..a zase, kswapd0/1 na 100%...</p>
+<p>To už jsem se začal seriózněji zajímat, co se to vlastně děje, co dělají tak dlouho a jak to celé funguje, když to nešlo smáznout „ízy háčkem“.</p>
+<p>Nápad to byl dobrý, fungoval by, nebýt menší drobnosti:</p>
+<p>kswapd, když odklízejí caches na pozadí, prohledávají memory cgroupy stylem „děj mi takovou, která žere nejvíc a tu odklidíme, když to nebude stačit, půjdem na další“.</p>
+<p>Tj. pokud se objeví jedna cgroup, která je větší a má toho vždycky víc k odklízení, může se vždycky kswapd zahojit na ní a k dalším se ani nedostat.</p>
+<p>Jediné, kdy se odklízí paměť úplně přímo z té memory cgroupy, je tzv. „direct reclaim“, cesta kódu přímo v momentě, kdy je potřeba alokovat - ale v tu chvíli není tolik času na uklízení, tak se jádro zas tak nesnaží a někdy to může vzdát předčasné a říct, že paměť nenašlo a vyvolá OOM situaci v postižené memory cgroupe.</p>
+<p>Hmm... okay, takhle by to nešlo, tak zkusme mmaped paměť neúčtovat cgroupam vůbec a nechme ji v základních systémových seznamech...</p>
+<p>A po trochu zápasení, bo se v jádře s memory cgroup nepočítá, že by náhodou mmaped paměť nebyla účtována žádné memory cgroupe, je vyřešeno, odchod na párek!</p>
+<p>...do chvíle, než tím pošleme celou mašinu out-of-memory a OOM chyby začnou přicházet odkudkoliv, ne jen z mmaped readu odspod z mém-cgroup...</p>
+<p>Totiž když byly mmaped soubory účtovány na jeden seznam, který není v memory cgroupe, myslelo si jádro, že má hodně volnou ruku v tom, co si může dovolit nechat nacachované - ale v tom je potom menší caveat se ZFS... postupný náhodný random access pattern k datum mmaped souboru nadělá z ARC slab caches fragmentovane řešeto, ještě když se drží ty kousky z těch původně načtených dát při životě „připinováním“ na jeden velký seznam, který nemá důvod couvat, protože host má přeci všechnu paměť k dispozici bez limitu :D</p>
+<p>No pak a chudáci kswapd, když si s tím bordelem mají nějak poradit a odklidit to, *obzvlášť* když jsou jen dva a když pod nima máme (konečně správné nastavené se správným ashiftem) NVMe pole... na té staging node (nyní node1.stg) se tak dařilo zaplnit RAM až skoro do mrtvá.</p>
+<p>Takže co s tím?</p>
+<p>Snadná řešení došla, bude potřeba odklízet ty seznamy per-limitována-memory-cgroup.</p>
+<p>Na několik iteraci jsem nakonec dospěl k patchi, který spustí per-NUMA-node „ksoftlimd“ thready, pro každou memory cgroupu, která má nastaveny soft_limit.</p>
+<p>Ksoftlimd pak dělá přesně toto - prochází seznamy svoji memory cgroupy a drží si je okolo soft_limitu.</p>
+<p>Kswapd mají o práci s memory cgroupama min, pokud je jádro nastavené v režimu, že má ksoftlimd pouštět automaticky (dá se též spouštět jen ručně).</p>
+<p>My jsme zatím defaultně zvolili soft_limit jako watermark, nad který se má ksoftlimd snažit víc odklízet, nastavujeme ho na 80% paměti kontejnerů - ale do budoucna možná tohle ještě předělám na nějakou větší automatiku, podle toho, jak kde se ukážou případně nedostatky.</p>
+<p>Tedy, výsledná situace je, že pokud aplikace žerou min, jak 80% paměti, ale je co držet v RAM jako cache, bude mít kontejner využito okolo těch 80% - bude to vidět normálně jako aplikační paměť a zbytek jako caches. Už by se nemělo stát, že využití stoupne až ke 100% kvůli caches a že dojde k OOM a zabíjení procesu.</p>
+<p>Závěrem bych ještě zmínil ty patche:</p>
+<p>Pokus mmaped soubory <a href="https://github.com/vpsfreecz/linux/commit/d42232f89795">naúčtovat root mém cgroupě</a>.</p>
+<p>Pokus mmaped soubory mém <a href="https://github.com/vpsfreecz/linux/commit/c10ae4a7ef95">cgroupam neúčtovat vůbec</a> (popis commitu je blbě a celkové je nedočištěny, nebyl jsem s tím spokojený a nechtěl jsem tím trávit víc času, radši jsem koumal, co dál, ať thé time...).</p>
+<p>A finálně, <a href="https://github.com/vpsfreecz/linux/commit/e04b3f9cda1d">aktuálně nasazená verze ksoftlimd patche</a>.</p>
+<p>A úplně-úplně závěrem: linux kernel není advanced black magic. Je to jen strašně velká a někdy dost neforemná kupa C kódu, který potřebuje schopné a ochotně instalatéry.</p>
+<p>V končinách memory cgroup + memory managementu je teda hodně, co zlepšovat, a vůbec to není raketová věda... Teda obecně, na kontejnerizace v Linuxu je dost co řešit.</p>
+<p>Takže kdybyste s tím jaderným vývojem někdo chtěl pomoct, stavte se na IRC, nebo v Base48 v Brně pokecat, něco vymyslíme, bude to zábava, trust me.</p>
+

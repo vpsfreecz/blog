@@ -1,0 +1,22 @@
++++
+title = "Spouštíme podporu virtualizace s KVM"
+date = "2015-11-30T09:30:30+00:00"
+lastmod = "2016-01-25T10:55:20+00:00"
+draft = false
+url = "/spoustime-podporu-virtualizace-s-kvm/"
+translationKey = "wp-215"
+categories = ["server"]
+tags = ["kvm", "vpsadmin"]
+[params]
+article_id = "wp-215"
+source_body_sha256 = "0d306656f38a20ed9063ba6a23fbc262d0873ec1316bd2e71ee9e559b0f86527"
++++
+
+<p>Už delší dobu testujeme nasazení KVM v našich virtuálních serverech. Teď jsme ho spustili všem.<br>
+<!--more--><span id="more-215"></span></p>
+<p>vpsFree.cz bylo od začátku postaveno nad kontejnerovou virtualizací <a href="https://kb.vpsfree.cz/informace/openvz">OpenVZ</a>. Uživatelé se nás ale dlouhodobě ptali na možnost provozu vlastního linuxového jádra nebo jiného operačního systému. Před časem jsme proto začali experimentovat s KVM.</p>
+<p>Aktivace KVM je nyní zpřístupněna všem členům přes <a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a>. KVM bylo zařazeno k ostatním VPS features (jako iptables, TUN/TAP, apod.), které jsou nastavitelné v detailu VPS. Stačí novou vlastnost zapnout, systém bude restartován a bude v něm k dispozici jaderné rozhraní KVM.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/11/KVM.png"><img alt="KVM" class="aligncenter size-medium wp-image-218" height="293" src="https://blog.vpsfree.cz/wp-content/uploads/2015/11/KVM-300x293.png" width="300"></a></p>
+<p>Znamená to, že si lze ve VPS (OpenVZ kontejneru) vytvářet virtuální stroje přes KVM, např. za pomoci libvirt, a provozovat tak libovolnou verzi jádra nebo i jiný operační systém.</p>
+<p>Jak přesně se dá KVM s libvirt použít je <a href="https://kb.vpsfree.cz/navody/vps/kvm">popsáno v KB</a>. Budeme rádi, když se s námi podělíte o zkušenosti a hlavně o to, co v KVM provozujete.</p>
+

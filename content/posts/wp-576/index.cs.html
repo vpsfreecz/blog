@@ -1,0 +1,29 @@
++++
+title = "Vyzkoušejte si klonování produkčních VPS na testovací prostředí s vpsAdminOS"
+date = "2018-11-01T08:45:06+00:00"
+lastmod = "2018-11-01T08:46:21+00:00"
+draft = false
+url = "/vyzkousejte-si-klonovani-produkcnich-vps-na-testovaci-prostredi-s-vpsadminos/"
+translationKey = "wp-576"
+categories = ["technologie"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-576"
+source_body_sha256 = "3e68e78a1b6f0df337f251d5133fff8e141fdb2ec9819c44ec16b78497f26561"
++++
+
+<p>Testování naší platformy vpsAdminOS se dostává do další významné fáze: můžete klonovat produkční VPS z OpenVZ na staging s vpsAdminOS.<br>
+<!--more--><span id="more-576"></span></p>
+<p>VPS se <a href="https://kb.vpsfree.cz/navody/vps/sprava#klonovani_vps">klonují stejně jako na Playground</a>, jen jako lokaci vyberte Staging, kde <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">běží vpsAdminOS</a>. Dejte pozor na checkbox „Stop“ – můžete si vybrat, jestli chcete při klonování produkční VPS vypnout pro vytvoření konzistentního snapshotu (data z paměti se zapíšou na disk). Pro pouhé otestování na stagingu to ale nemusí být potřeba a klonování tak můžete provést bez restartu produkční VPS. Klonuje se vše kromě mountů, ty jsou prozatím odstraněny.</p>
+<p>Pokud by někdo chtěl klonovat větší VPS, nebo už na stagingu něco máte, <a href="https://kb.vpsfree.cz/informace/kam_psat">napište prosím na podporu</a> a navýšíme vám tam RAM/HDD, abyste se tam vešli.</p>
+<p>Nyní očekávám větší zájem o vyzkoušení zda běží vše co potřebujete. Naším cílem je zajistit, aby následné migrace VPS probíhaly spolehlivě a z pohledu administátora VPS nebylo potřeba nic moc řešit, takže prosím hlaste vše na co narazíte, abychom se mohli připravit. Napište nám prosím i když bude vše v pořádku. Potřebujeme vědět, jak na tom jsme, co funguje a co ne</p>
+<p>Po naklonování musí být funkční:</p>
+<ul>
+<li>IPv4/IPv6 síť</li>
+<li>vzdálená konzole</li>
+<li>ideálně všechny služby ve VPS</li>
+</ul>
+<p>Pokud něco z toho nepůjde, nebo něco bude vyžadovat změnu konfigurace z důvodu jiné virtualizace/kernelu, informujte nás prosím.</p>
+<p>S migracemi všech produkčních VPS bychom chtěli začít v Q1/Q2 2019, podle toho co bude potřeba dodělat. V listopadu 2019 <a href="https://wiki.openvz.org/Releases">končí podpora OpenVZ Legacy kernelu</a> ze strany OpenVZ teamu, takže do té doby chceme stihnout přesunout co nejvíce VPS na vpsAdminOS.</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/nOqGe788A80" title="Embedded video" width="560"></iframe></p>
+

@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "Daniel Kozák",
+    "date": "2019-11-06T12:27:40+00:00",
+    "html": "<p>Celkem zajímavé řešení kecat dockeru že neběží nad ZFS. Mohu se zeptat jak jste toho docílili? Zkouším teď na stagingu centos 8 s podmanem místo dockeru a zdá se že pro něj tento trik nefunguje.</p>\n",
+    "id": 2957,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Jakub Skokan",
+    "author_url": "https://vpsfree.cz",
+    "date": "2019-11-13T06:44:21+00:00",
+    "html": "<p>V ZFS <a href=\"https://github.com/vpsfreecz/zfs/commit/d9ef1f7212ae5b7b4544437de4734c44658cf393\" rel=\"nofollow\">upravujeme hodnotu</a>, kterou vrací statvfs() podle toho, který proces to zavolá. <a href=\"https://github.com/vpsfreecz/zfs/commit/aca6706986d2d1e6c19fbe1a908ed43cc85d36b0\" rel=\"nofollow\">Přidal</a> jsem tam výjimku i pro podman, ale nestačí to, padá zase na něčem jiném.</p>\n",
+    "id": 2972,
+    "parent_id": 2957
+  }
+]

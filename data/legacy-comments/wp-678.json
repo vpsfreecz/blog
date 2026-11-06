@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "Michal Koutný",
+    "date": "2020-09-10T21:35:27+00:00",
+    "html": "<p>Ahoj, moc pěkně napsaný blogýsek (úvod do MM, analýza problému). Nepřekvapuje mě špatná zkušenost se soft_limitem. Zkoušeli jste přechod na cgroup v2 (neznám vaši infrastrukturu, ale chápu, že to stále nemusí být plynulý přechod)? Konkrétně mám na mysli přepracované mechanismy pro kontrolu paměti memory.low (ten by teoreticky mohl suplovat soft_limit) nebo memory.high (vytváří prostor pod memory.max limitem, kdy se omezují rostoucí spotřebitelé bez přetížení kswapd). Mimochodem, per-cgroup odložený reclaim se již několikrát v upstream kernelu diskutoval, aktuální je návrh https://lore.kernel.org/lkml/20200909215752.1725525-1-shakeelb@google.com/.</p>\n",
+    "id": 4638,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Pavel Šnajdr",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-09-11T06:46:41+00:00",
+    "html": "<p>Ahoj,</p>\n<p>ty se nejak aktivneji ucastnis vyvoje, nebo ho jen sledujes?</p>\n<p>Nechces jim tam navrhnout ten ksoftlimd?</p>\n<p>Totiz na prvni i druhy i treti pohled mi prijde, ze to mam lip rozmyslene a nezavadim nejaky novy tezko uchopitelny hejblatko, nybrz jen enforcing uz existujiciho soft_limitu.</p>\n<p>Cgroup v2 ci v1 je v tomhle kontextu jedno, to se vicemene lisi az interface k nastaveni memcg-&gt;memory nebo memsw (pamet+swap), podle toho, co nastavujes a pres jaky interface.</p>\n<p>Ale enforcing tech limitu ma uplne common path.</p>\n<p>Moc bys mi pomohl, kdybys mel chut jim to tam poslat :)</p>\n<p>Diky moc za komentar :) Budeme pokracovat v diskusi po mailu.</p>\n",
+    "id": 4639,
+    "parent_id": 0
+  }
+]

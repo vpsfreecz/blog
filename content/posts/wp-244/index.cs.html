@@ -1,0 +1,25 @@
++++
+title = "Jak využít 256 GB RAM na serveru"
+date = "2016-01-28T12:06:29+00:00"
+lastmod = "2016-01-28T12:28:15+00:00"
+draft = false
+url = "/jak-vyuzit-256-gb-ram-na-serveru/"
+translationKey = "wp-244"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-244"
+source_body_sha256 = "782557956c878aa4225723c9aa47948ac3a4c2943f8a3bc69daaff3b06bf4545"
++++
+
+<p>Všechny naše servery už mají 256 GB paměti. Co všechno se dá na serveru s takovým množstvím paměti dělat?<br>
+<!--more--><span id="more-244"></span></p>
+<p>Dnes v noci jsme dokončili akci rozšiřování paměti ve všech našich nodech. Trvala asi rok a všechny naše servery teď mají čtvrt terabajtu paměti. Mít v serveru hodně paměti dává smysl, protože nám to umožňuje dělat zajímavé věci.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/RAM.jpg"><img alt="RAM" class="aligncenter size-medium wp-image-245" height="200" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/RAM-300x200.jpg" width="300"></a></p>
+<p>Část paměti samozřejmě spotřebují sami uživatelé, kteří dnes mají na každém serveru spuštěno mezi 60 a 100 virtuálů. Každý VPS spotřebuje <strong>průměrně 1067 MB</strong> paměti. Medián je při tom 680 MB a polovina všech virtuálů se vejde do jednoho GB paměti.</p>
+<p>Ve výchozím stavu mají virtuály nastavený limit na <strong>4 GB</strong> paměti a maximálně je možné jednomu přidělit 16 GB. Navýšenou paměť má ovšem jen 9 VPS, drtivá většina uživatelů se bez problémů vejde do 4 GB paměti. Reálné využití ukazuje následující graf:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram.png"><img alt="ram" class="aligncenter size-medium wp-image-246" height="196" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram-300x196.png" width="300"></a></p>
+<p>Zbytek paměti (ten větší zbytek) se pak používá pro cache. Používáme <abbr title="Adaptive Replacement Cache">ARC</abbr> cache, která je součástí souborového systému ZFS. Na rozdíl od výchozí jaderné <abbr title="Least Recently Used">LRU</abbr> cache si udržuje podrobnější informace o jednotlivých stránkách. Kromě toho, kdy byly <strong>naposledy</strong> využívány také statistiku o tom, jak <strong>často</strong> jsou využívány.</p>
+<p>Když má pak systém některé stránky z paměti vyhodit a nahradit jinými, postupuje šetrněji. Nesmaže zbytečně hodně používanou část paměti, která se ale zrovna teď chvíli nepoužívá. Podle statistiky ví, že je i přesto důležitá a raději zvolí méně používané stránky.</p>
+<p>Vyhozené stránky se navíc nemažou úplně, ale jdou ještě do L2ARC cache, která leží na rychlém SSD. Pokud je systém potřebuje, může je obnovit rychleji než z rotačních disků.</p>
+

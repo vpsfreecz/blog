@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "rene.la",
+    "date": "2023-07-17T07:17:58+00:00",
+    "html": "<p>Zdravím, z článku není jasné, ke čemu se jasně vztahuje automatické zvětšování datasetu ve VPS a následnému případnému vypínání VPS. Tedy konkrétně vztahy a chování k datasetu ve VPS jako takovému s chování k subdatasetu ve VPS.<br>\nTaké jako člen mám přidělenou nějakou kapacitu k využití a následně se dozvídám, pokud to chápu správně, že nyní již jí nemohu využívat prakticky celou přidělenou kapacitu, tedy pouze jen na přechodnou dobu. Tedy vždy musím nechat volné místo 512 MiB (či méně než 1 % celkové kapacity), prakticky ale 1 GiB (či 5 % volného místa celkové kapacity), pokud nechci riskovat vypnutí VPS. Z mého pohledu to není správné a měly se dané restrikce nastavit tak, aby docházelo k omezení daného člena až nad přidělenou kapacitu, nikoliv již pod tuto úrovně. Předem děkuji k vyjádření.</p>\n",
+    "id": 10675,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Jakub Skokan",
+    "author_url": "https://vpsfree.cz",
+    "date": "2023-11-14T14:21:03+00:00",
+    "html": "<p>Komentář někde zapadnul a objevil se až teď, takže reaguji nyní. Automatické zvětšování se týká všech datasetů VPS, tj. včetně subdatasetů. K vypnutí VPS dojde jen pokud překročíš původní velikost a je tam i 5 GB rezerva, tj. sepne to až když překročíš původní velikost o 5 GB a uplyne 30 dní od rozšíření. Když se pohybuješ takhle na hraně, dataset bude dlouhodobě rozšířen, s tím se počítá.</p>\n",
+    "id": 10684,
+    "parent_id": 10675
+  }
+]

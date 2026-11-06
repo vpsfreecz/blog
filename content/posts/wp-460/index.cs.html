@@ -1,0 +1,20 @@
++++
+title = "Výpadky a nestartující služby v systemd"
+date = "2016-11-10T07:19:19+00:00"
+lastmod = "2016-11-10T07:19:34+00:00"
+draft = false
+url = "/vypadky-a-nestartujici-sluzby-v-systemd/"
+translationKey = "wp-460"
+categories = ["podpora"]
+tags = []
+[params]
+article_id = "wp-460"
+source_body_sha256 = "3a950ca97eac12b837011418ef299293f5005dcce138c5f029a70a5736a7cde8"
++++
+
+<p>Pokud máte problém s tím, že po výpadku nestartují některé služby a používáte systemd, čtěte dále.<br>
+<!--more--><span id="more-460"></span></p>
+<p>Při bootu nodu se postupně zapínají všechny VPS a systém je po nějakou dobu zpomalený. VPS se systemd mají problém s tím, že se služby nestihnou zapnout včas. Výchozí timeout je <strong>90 sekund</strong> a to leckdy nestačí. systemd takovou dlouho startující službu považuje za selhanou a ukončí ji. Týká se to všech možných služeb jako nastavení sítě, databáze, web servery, apod.</p>
+<p>Z tohoto důvodu doplníme do všech šablon distribucí se systemd nastavení delšího timeoutu, asi <strong>900 sekund</strong>. To ale pomůže jen nově vytvořeným/reinstalovaném VPS, ostatní si to musí přenastavit sami. Jedná se o volbu <a href="https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html">DefaultTimeoutStartSec</a> v <code>/etc/systemd/system.conf</code>.</p>
+<p>Protože se to celkem špatně testuje, dejte prosím vědět, jestli máte i s vyšším timeoutem problémy.</p>
+

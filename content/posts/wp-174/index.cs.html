@@ -1,0 +1,34 @@
++++
+title = "Propojte si servery pomocí GRE tunelu"
+date = "2015-11-04T10:08:10+00:00"
+lastmod = "2015-11-04T10:33:15+00:00"
+draft = false
+url = "/propojte-si-servery-pomoci-gre-tunelu/"
+translationKey = "wp-174"
+categories = ["technologie"]
+tags = ["gre"]
+[params]
+article_id = "wp-174"
+source_body_sha256 = "635b2d87010efc08b6dc5f40844b856bdf548e32d5177e5d2ac836b212660a1e"
++++
+
+<p>Přidali jsme na naše servery podporu GRE tunelů. Můžete si tak snadno propojit víc VPS.<br>
+<!--more--><span id="more-174"></span></p>
+<p>Pokud potřebujete propojit jednoduše dva různé servery (virtuální nebo fyzické), je nejjednodušší použít <a href="https://en.wikipedia.org/wiki/Generic_Routing_Encapsulation">GRE</a>. Jedná se o tunelovací protokol původně vyvinutý v Cisco. Do jader na našich nodech jsme přidali moduly <code>ip_gre</code> a vy máte možnost si tvořit vlastní tunely.</p>
+<p>Na prvním serveru (185.8.165.156) provedete následující konfiguraci:</p>
+<pre>[root@185.8.165.156]# ip tunnel add tunnel0 mode gre local 185.8.165.156 remote  37.205.10.152
+[root@185.8.165.156]# ip a add 192.168.1.1/24 dev tunnel0
+[root@185.8.165.156]# ip link set up dev tunnel0</pre>
+<p>Na tom druhém (37.205.10.152) pak analogicky:</p>
+<pre>[root@37.205.10.152]# ip tunnel add tunnel0 mode gre remote 185.8.165.156 local 37.205.10.152
+[root@37.205.10.152]# ip a add 192.168.1.2/24 dev tunnel0
+[root@37.205.10.152]# ip link set up dev tunnel0</pre>
+<p>Teď už by vám měl fungovat:</p>
+<pre>[root@37.205.10.152]# ping 192.168.1.1</pre>
+<p>Velmi jednoduché schéma toho, jak GRE funguje:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/11/GRE_scheme.png"><img alt="GRE_scheme" class="aligncenter size-medium wp-image-175" height="105" src="https://blog.vpsfree.cz/wp-content/uploads/2015/11/GRE_scheme-300x105.png" width="300"></a></p>
+<p>Pravděpodobně si budete chtít udělat statickou konfiguraci. Prostudujte si <a href="https://kb.vpsfree.cz/navody/server/gre">návody na naší knowledge base</a>, které jsou určeny pro RHEL/CentOS a Debian/Ubuntu.</p>
+<p>V rámci našeho datacentra je provoz uzavřen v privátní síti, takže se odposlechu nemusíte bát. Mezi Prahou a Brnem máme provoz z routeru na router kompletně šifrován pomocí IPSec, takže tady nebezpečí také nehrozí. Kdybyste si ale tvořili tunel mimo tento náš prostor (není to nijak omezeno), data si musíte ochránit na vyšší vrstvě sami.</p>
+<p>Bohužel nám s OpenVZ nefunguje IPSec, takže není možné provozovat GRE ven bezpečně. Bug je <a href="https://bugs.openvz.org/browse/OVZ-6549">nahlášen v upstreamu</a>, ale zatím bez odezvy. Doufáme, že vám IPSec časem budeme moci nabídnout.</p>
+<p>K čemu je to dobré? Pokud provozujete na naší infrastruktuře více VPS, získáte jednoduchou možnost přímého propojení mezi nimi. GRE se také hodí pro spojení dvou <a href="https://kb.vpsfree.cz/navody/vps/kvm">KVM virtuálů</a> uvnitř kontejnerů – stačí dát tunelová rozhraní do bridge s těmi vedoucími do KVM.</p>
+

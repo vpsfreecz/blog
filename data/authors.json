@@ -1,1 +1,30 @@
-{}
+{
+  "wp-user-1": {
+    "name": "Petr Krčmář",
+    "slug": "krcmar",
+    "url": "https://www.vpsfree.cz/"
+  },
+  "wp-user-2": {
+    "name": "Jiří Medvěd",
+    "slug": "medved"
+  },
+  "wp-user-3": {
+    "name": "Pavel Šnajdr",
+    "slug": "snajpa",
+    "url": "http://vpsfree.cz"
+  },
+  "wp-user-6": {
+    "name": "Jakub Skokan",
+    "slug": "aither",
+    "url": "https://vpsfree.cz"
+  },
+  "wp-user-8": {
+    "name": "Jakub Jirůtka",
+    "slug": "jirutka"
+  },
+  "wp-user-9": {
+    "name": "Martin Myška",
+    "slug": "myska",
+    "url": "https://www.martinmyska.cz/"
+  }
+}

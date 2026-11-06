@@ -1,0 +1,22 @@
++++
+title = "Automatické rozšiřování disků VPS"
+date = "2023-07-10T11:43:43+00:00"
+lastmod = "2023-07-10T11:43:43+00:00"
+draft = false
+url = "/automaticke-rozsirovani-disku-vps/"
+translationKey = "wp-811"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-811"
+source_body_sha256 = "d4c3a12579faac9087797bc343ad5eb683f94cb5aee294c194b736e89a3615a6"
++++
+
+<p>Docela často se nám stává, že na některém virtuálu dojde místo na disku. Aby neutrpěly aplikace ani souborové systémy, rozhodli jsme se pro automatiku.<br>
+<!--more--><span id="more-811"></span></p>
+<p>Pravidelně se stává, že někomu ve VPS dojde místo na disku. vpsAdmin sice posílá upozornění od 90 % zaplnění, ani to ale ve všech případech nepomůže tomu předejít. S plným diskem přestávají fungovat vaše aplikace, které s diskem pracují, a také to může znemožnit přihlášení do VPS a manuální uvolnění místa.</p>
+<p>Každou jednotlivou VPS řešíme i my jako administrátoři vpsFree.cz, protože ZFS s prací nad plnými datasety (disky VPS) aspoň historicky mívalo problémy. Souvisí to s tím, že ZFS kvůli dynamické velikosti bloku a kompresi dopředu neví, kolik místa budou data na disku zabírat. Aby nebyla překročena nastavená kvóta datasetu, dochází k předčasnému uzavírání txgs – transakční skupiny, v rámci kterých se data v pravidelných intervalech zapisují na disk. Vyšší frekvence txgs potom zpomaluje chod všech VPS.</p>
+<p>Další faktor je, že jsme v těchto situacích naráželi na chyby souběhu, které mohou vést k zastavení IO na nodu a nutnosti resetu. Naše ZFS je upravené tak, aby se txgs neuzavíraly předčasně a naopak umožňujeme v jedné txg nastavenou kvótu překročit. I tak ale nechceme riskovat výpadek a při zaplnění datasetu VPS nám monitoring posílá SMS. Když se takových VPS najde víc a členové nereagují, je to pro nás dost vyčerpávající.</p>
+<p>vpsAdmin proto nyní bude automaticky zvětšovat datasety ve VPS, kde dochází místo. Ke zvětšení dojde, když bude zbývat méně než 512 MiB, popř. méně než 1 % celkové kapacity. Disk navyšujeme o 20 GiB nebo o 10 % kapacity podle toho, co je větší. K rozšíření může dojít až 3x a k řešení máte 30 dní od prvního rozšíření. Po uplynutí této doby se bude VPS vypínat, dokud se využití datasetu nevrátí do mezí původní velikosti, nebo se nedomluvíme na trvalém rozšíření kapacity.</p>
+<p>Ke zmenšení na původní velikost dojde automaticky, když bude k dispozici alespoň 1 GiB a 5 % volného místa. Velikost můžete taky upravit kdykoli ve vpsAdminu v detailu VPS. </p>
+

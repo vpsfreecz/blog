@@ -1,0 +1,30 @@
++++
+title = "vpsAdmin 2.8.0 vylepšuje hlášení výpadků"
+date = "2017-03-29T10:03:53+00:00"
+lastmod = "2017-04-02T21:27:12+00:00"
+draft = false
+url = "/vpsadmin-2-8-0-vylepsuje-hlaseni-vypadku/"
+translationKey = "wp-500"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-500"
+source_body_sha256 = "290505dcd0898acee833e7644d0890d7179f298c0f868c852cf42963dcaceea9"
++++
+
+<p>Nová verze vpsAdmin 2.8.0 integruje hlášení výpadků, takže vždy ví, koho výpadek postihuje a kam je potřeba odeslat oznámení.</p>
+<p><!--more--><span id="more-500"></span></p>
+<p><a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.8.0/">vpsAdmin v2.8.0</a> integruje hlášení výpadků. vpsAdmin nyní přesně ví, koho výpadek postihuje a může tak informovat konkrétní členy e-mailem. Díky tomu už si nemusíte pamatovat, na kterém nodu máte VPS. Pokud se vás výpadek týká, budete informováni, jinak ne.</p>
+<p>Na outage-list budeme výpadky hlásit stejně jako doposud. Abyste o každém výpadku, který se vás týká, nebyli informování 2x (přímo a přes outage-list), můžete se buď z outage-listu odhlásit, nebo si vypnout <a href="https://kb.vpsfree.cz/navody/vps/uzivatele#detailni_nastaveni">maily o výpadcích ve vpsAdminu</a>.</p>
+<p>Všechny doposud hlášené výpadky, které šly naparsovat, jsem <a href="https://vpsadmin.vpsfree.cz/?page=outage&amp;action=list">nahrál do vpsAdminu</a>.</p>
+<p>Aktuální a plánované výpadky se zobrazují na titulní straně, u každého můžete vidět, jestli se vás týká, nebo ne (pokud jste přihlášeni).</p>
+<p>U výpadků je nově uvedeno, jakým způsobem postihuje VPS. Zatím to může být jedno z následujících:</p>
+<p> - tbd: to be determined; teprve zjišťujeme, o co jde<br>
+ - restart: ve VPS se projeví jako čistý restart<br>
+ - reset: ve VPS se projeví jako reset<br>
+ - network: výpadek konektivity, DDoS, apod.<br>
+ - performance: dočasné snížení výkonu<br>
+ - maintenance: VPS běží, jen s ním třeba nejde manipulovat</p>
+<p>Dále můžeme průběžně informovat o tom, jak postupujeme v řešení výpadku a členové, kterých se to týká, budou dostávat mail. Minimálně budeme informovat o vyřešení výpadku.</p>
+<p>Samozřejmě všechny informace o výpadcích jdou <a href="https://kb.vpsfree.cz/navody/vps/api">vytáhnout přímo z API</a>, takže si to místo našich mailů můžete implementovat jak chcete.</p>
+

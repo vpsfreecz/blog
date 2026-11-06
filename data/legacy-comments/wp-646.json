@@ -1,0 +1,244 @@
+[
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-20T13:20:58+00:00",
+    "html": "<p>Děkujeme.</p>\n",
+    "id": 3468,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Michal Talman",
+    "date": "2020-03-21T09:20:52+00:00",
+    "html": "<p>Škoda, že moderátor nemůže ovlivňovat MUTE mikrofonů ostatních. Pokud se tam připojí víc lidí, kde je hluk, tak už to není moc komfortní.<br>\nMohlo by to fungovat ne jako přepínač, ale jako jednorázove ztlumení mikrofonů všech mimo prezentujícího s tím, že kdo by chtěl, tak by si jej mohl zase zapnout.</p>\n<p>Vypadá to, že školáci budou doma ještě dlouho a hledám něco, co by umožňovalo nějaký krátký interaktivní kontakt se žáky, ale celý meeting by měl mít možnost nějak korigovat prezentující.</p>\n<p>držím palce a hezký den</p>\n<p>Děkuji</p>\n<p>Michal Talman</p>\n",
+    "id": 3475,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-22T07:17:51+00:00",
+    "html": "<p>S tím mikrofonem jsme udělali stejnou zkušenost - 17 lidí v chatu.</p>\n",
+    "id": 3488,
+    "parent_id": 3475
+  },
+  {
+    "author_name": "Kryl",
+    "date": "2020-03-22T12:46:37+00:00",
+    "html": "<p>Nastavte si v parametrech místnosti \"po vstupu všem vypnout mikrofon\" :)</p>\n",
+    "id": 3491,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-22T19:22:40+00:00",
+    "html": "<p>Díky za tip. To jsem přehlédl. Co znamenají ty další dvě volby?:<br>\n* Všechny připojovat jako skryté - nikde totiž nevidím možnost, že bych se během hovoru mohl udělat skrytým<br>\n* Všichni sledují mě - to znamená, že obraz nebude přeblikávat na řečníka?</p>\n",
+    "id": 3496,
+    "parent_id": 3491
+  },
+  {
+    "author_name": "Michal Talman",
+    "date": "2020-03-22T20:17:16+00:00",
+    "html": "<p>Ano, toho jsem si všiml, ale nicméně jsem měl v plánu to použít k výuce a tam se počítá s nekázní posluchačů, čili takové nouzové tlačítko \"Mute NOW\" by bylo super.</p>\n<p>Asi nejblíže k tomu má zoom.us ale to už je komplikovanější na ovládání.</p>\n",
+    "id": 3497,
+    "parent_id": 3491
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-22T21:05:41+00:00",
+    "html": "<p>Ono to není jenom o neukázněnosti. On si člověk neuvědomí, že má zvuky na pozadí, což je problém právě v této situaci, kdy máme home office, ale doma taky může být manželka a děti. Zvuky kávovaru, dveří, pračky, myčky, dětí to člověk moc nevnímá, ale ten systém se s tím poprat neumí a chrčí apod. Jediné řešení je, aby si všichni navykli vypínat mikrofony když nemluví, což nejde při živém hovoru. Tam asi pak mezerník.</p>\n",
+    "id": 3498,
+    "parent_id": 3497
+  },
+  {
+    "author_name": "Michal Talman",
+    "date": "2020-03-22T21:16:31+00:00",
+    "html": "<p>No jo, funkce Push-To-Talk ... pak by to bylo IDEÁLNÍ ... ale to jedině napsat vývojářům :(</p>\n",
+    "id": 3499,
+    "parent_id": 3498
+  },
+  {
+    "author_name": "Michal Talman",
+    "date": "2020-03-22T21:18:52+00:00",
+    "html": "<p>edit: ono to tam je!!<br>\nSPACE = zmáčkni a mluv!!<br>\nhttps://ctrlv.cz/bnXg</p>\n",
+    "id": 3500,
+    "parent_id": 3499
+  },
+  {
+    "author_name": "Jose_D",
+    "date": "2020-03-23T13:04:24+00:00",
+    "html": "<p>myslím, že takhle to přesně funguje, v jistsi v běžícím callu, když si myší najedete nad danou osobu, tak je tam možnost mute..<br>\nKdyžtak napište sem, pokud to nenajdete, zkusím to ještě jednou dohledat.</p>\n",
+    "id": 3507,
+    "parent_id": 3475
+  },
+  {
+    "author_name": "Martin M",
+    "author_url": "https://brozkeff.net",
+    "date": "2020-03-23T21:19:01+00:00",
+    "html": "<p>Pokus o online přednášku s 60 studenty ve středu odpoledne dopadl bohužel nevalně (sekal se i zvuk) a museli jsme se přestěhovat ke komerční \"konkurenci\" velkého Googlu. Ale třeba časem se to vyladí a bude to kapacitnější.</p>\n",
+    "id": 3508,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-23T21:35:20+00:00",
+    "html": "<p>Push-to-talk jsem myslel tím mezerníkem.</p>\n",
+    "id": 3509,
+    "parent_id": 3499
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-25T21:34:46+00:00",
+    "html": "<p>Instalace Jitsi na https://meet.jit.si/ funkci \"mute all\" pro umlčení všech má. Pak tam také u každého má \"mute everyone else\" tedy umlč ostatní (a jen tohoto nech).<br>\nTaky se zdá, že tato instalace nemá žádného moderátora, protože \"mute all\" tam mají všichni - což je zajímavé.<br>\nS intalací meet.vpsfree.cz máme trochu problémy, protože uživatelé z nějakých důvodů z místnosti nekorektně vypadávají a zůstanou tam viset a po přihlášení vytvoří nového uživatele se stejným jménem. Dneska nám na spojení asi 20 žáků vygenerovalo přes 100 připojení. Podle všeho to vypadalo, že to dělají záměrně. Moderátor může zamrzlé účty vyhodit, ale nejhorší je, když zamrzne sám moderátor. Pak to musí řešit na serveru. Tohle by to vyřešilo, ale hrozí tam, že někdo vyhodí učitele nebo ho mutne.</p>\n",
+    "id": 3515,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Pr",
+    "author_url": "https://semtix.cz",
+    "date": "2020-03-27T16:14:19+00:00",
+    "html": "<p>Zdravim,  jitsi mame jako privátní instalaci a v konfiguraci se nechá zapnout, ze jen admin ma pusteny zvuk, ostatni jsou vypnute... docela vhodne pokud mate 20 lidi a vstoupi do vyuky nekdo komu steka doma pes... konec konference:)</p>\n",
+    "id": 3524,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Mirka",
+    "date": "2020-03-31T17:20:02+00:00",
+    "html": "<p>Při připojení na video hovor již 4 osob se seká zvuk a přestanou se některé osoby pohybovat.<br>\nProsím, kolik osob naráz se může přihlásit, aby bylo vše kvalitní.<br>\nDěkuji. Mirka</p>\n",
+    "id": 3546,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-03-31T19:06:28+00:00",
+    "html": "<p>To se nedá jednoduše určit, záleží na mnoha okolnostech, jako je výkon a zatížení počítačů účastníků a také aktuální zatížení našeho serveru. Máme hlášeno 20 lidí ve funkční konferenci, takže i takové číslo je možné. Neustále server ladíme, aby zvládl co největší zátěž.</p>\n",
+    "id": 3547,
+    "parent_id": 3546
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-01T12:16:50+00:00",
+    "html": "<p>Měli jsme videokonferenci, kdy jeden sdílel desktop a ostatní to sledovali a měli vypnuté kamery a mutnuté mikrofony. Dostali jsme se až na číslo přes 100 - furt to jelo, ale už se nedalo pracovat s prohlížečem.<br>\nKolik tam bylo reálných účastníku nevíme, protože někteří tam byli vícekrát třeba i 20x, protože našli nějaký způsob jak z místnosti odejít a nechat se tam viset a přihlásit se znovu. Zkoušeli, co to ustojí.</p>\n",
+    "id": 3550,
+    "parent_id": 3546
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-01T12:21:44+00:00",
+    "html": "<p>Znovu velice děkuji za to, že jste systém zprovoznili a uvedli ho ve známost v ČR.<br>\nVelice nám pomáhá.</p>\n",
+    "id": 3551,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-01T17:50:49+00:00",
+    "html": "<p>Mirko,<br>\na jaké jste používali prohlížeče? Neměl někdo Firefox?</p>\n",
+    "id": 3556,
+    "parent_id": 3546
+  },
+  {
+    "author_name": "Tomáš Hnyk",
+    "date": "2020-04-03T09:34:41+00:00",
+    "html": "<p>Je možné nebo v plánu připojení do konference pomocí klasického telefonního čísla? V mezinárodní verzi to jde, jen se musí volat do zahraničí, což se opravdu hodně prodraží. Ale netuším, zda to lze nějak jednoduše a pro vás zdarma nebo tak, abyste z toho měli nějaký příjem, zřídit.</p>\n",
+    "id": 3559,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-04-03T09:40:56+00:00",
+    "html": "<p>Nic takového nemáme v plánu zřizovat, je to technicky náročné a raději se zaměřujeme na volání po internetu, které je dnes všeobecně poptáváno.</p>\n",
+    "id": 3560,
+    "parent_id": 3559
+  },
+  {
+    "author_name": "Tereza",
+    "author_url": "http://meet.vpsfree.cz",
+    "date": "2020-04-06T12:14:46+00:00",
+    "html": "<p>Dobrý den,<br>\nmám problém s kamerou. Nemůžu ji spustit...vlevo dole se mi objevuje hláška Chyba při přístupu ke kameře Cannot use camera for unknown reason. Nevíte prosím, čím by to mohlo být a jak bych mohla kameru zprovoznit. Jinak je kamera normálně funkční. Děkuji</p>\n",
+    "id": 3576,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-14T08:47:10+00:00",
+    "html": "<p>Zprovozňoval jsem Jitsi na hodně počítačích a na jednom se mi stalo, že kameru to taky odmítalo a navíc to nechtělo pustit dál do stránky s videopřenosem. Ten člověk měl v Chrome nainstalované různé adblocky apod., ale ani po jejich odstranění a reinstalacích se mi to nepodařilo vyřešit. Nakonec pomohla aplikace na Jitsi, ale v ní kamera taky nejela, ale alespoň to postilo dál a byla možná alespoň zvuková komunikace.<br>\nKamera může být bloknutá v prohlížeči. Třeba se to někdy v minulosti na nějaké jiné stránce zeptalo a zakázala jsi to plošně. Dostaneš se k tomu přes ikonku kamerky vpravo nahoře případně pak kliknout na \"Spravovat\".</p>\n",
+    "id": 3619,
+    "parent_id": 3576
+  },
+  {
+    "author_name": "Martin Myška",
+    "author_url": "https://www.martinmyska.cz/",
+    "date": "2020-04-21T17:03:44+00:00",
+    "html": "<p>S novou verzí kterou jsme před pár dny nasadili je tato funkce zanesená a najdete ji v podmenu náhledu daného účastníka (zpravidla vpravo dole/nahoře) &gt; Umlčet všechny ostatní.</p>\n",
+    "id": 3681,
+    "parent_id": 3507
+  },
+  {
+    "author_name": "Martin Myška",
+    "author_url": "https://www.martinmyska.cz/",
+    "date": "2020-04-21T17:06:22+00:00",
+    "html": "<p>To mě mrzí :-( Největší problém nastane když jeden z té skupinky má horší připojení, případně to úplně odrovná užití Firefoxu. Vývojáři jitsi pracují s Chrome tak rozhodně doporučujeme využívat nejlépe ten :)</p>\n",
+    "id": 3682,
+    "parent_id": 3508
+  },
+  {
+    "author_name": "Martin Myška",
+    "author_url": "https://www.martinmyska.cz/",
+    "date": "2020-04-21T17:08:30+00:00",
+    "html": "<p>Ano, tato funkce obsažená v nové verzi je už aktualizovaná i na naší instanci. Problém s duchy je často při nekorektním ukončení na straně klienta - např. zavření TABu prohlížeče, místo přátelského tlačítka \"Ukončit hovor\".</p>\n",
+    "id": 3683,
+    "parent_id": 3515
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-23T21:41:33+00:00",
+    "html": "<p>Taky se mi zdá, že to dělala apka v mobilu.</p>\n",
+    "id": 3711,
+    "parent_id": 3683
+  },
+  {
+    "author_name": "Tomáš Jarý",
+    "date": "2020-04-25T06:19:07+00:00",
+    "html": "<p>Dobrý den , jakou dobu je platný odkaz na schůzku v meet? Když vytvořím odkaz a naplánuji schůzku na daný den v týdnu, odkaz je nefunkční po několika minutách  \"kód schůzky zadaný v url je neplatný\" Funguje to tak, že musím vytvořit schůzku a být ihned připojen? a čekat na ostatní? nedávno to tak nebylo...odkaz jsem nachystal a klikl na něj po několika dnech a vše jelo jak má</p>\n",
+    "id": 3739,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Martin Myška",
+    "author_url": "https://www.martinmyska.cz/",
+    "date": "2020-04-25T07:59:50+00:00",
+    "html": "<p>Dobrý den, u jaké místnosti dochází k problémům, v jakém prohlížeči ji otevíráte?<br>\nMístnosti se vytváří automaticky otevřením meet.vpsfree.cz/*název místnosti* proto mi nedává rozum co je špatně :)<br>\nDíky předem za info</p>\n",
+    "id": 3740,
+    "parent_id": 3739
+  },
+  {
+    "author_name": "Koumák",
+    "date": "2020-05-04T13:55:52+00:00",
+    "html": "<p>Dobrý den, máme ve trídě videokonference ve dvou skupinkách po 6 - 7 a jde přenos celkem dobře. Hlavně s vypnutím mikrofonu a pokud se sekne, ihned restart a pokračujeme.<br>\nAle dnes dopoledne se nám nepodařilo vidět se a ani mluvit spolu. Každý byl sám s sebou a už nic víc. Prosím, poraďte mi, ráda bych pokračovala se svými druháčky - koumáčky!</p>\n",
+    "id": 3804,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-05-04T17:55:41+00:00",
+    "html": "<p>Bohužel jsme zaznamenali výpadek, kdy přestalo fungovat video a audio. Fungoval jen textový chat. Ráno to ale bylo opraveno a služba běží. Díky za přízeň.</p>\n",
+    "id": 3808,
+    "parent_id": 3804
+  },
+  {
+    "author_name": "Emil Zahálka",
+    "author_url": "http://www.12zscv.cz",
+    "date": "2020-05-14T09:52:37+00:00",
+    "html": "<p>Zdravím.<br>\nAno stává se to poměrně často. Nepodařilo se mi vysledovat, za jakých podmínek meet zanikne.  Zaniká ať založím meet v kalendáři tak i na webu. Postřehl jsem jedinou souvislost. Místnost zanikne v případě, když nejvíc potřebuji, aby nezanikla :-).<br>\nKdyž jsme v březnu začínali, k zanikání místnosti nedocházelo... Poprvé zánik mestnosti u nás nastal v neděli myslím na konci března.<br>\nPředem díky za jakékoli informace k tomuto tématu.</p>\n",
+    "id": 3870,
+    "parent_id": 3740
+  },
+  {
+    "author_name": "Petr",
+    "date": "2020-10-23T21:56:28+00:00",
+    "html": "<p>Dobrý den,nemohl by mi někdo poradit, zda jde nastavit, aby v místnosti byl pouze jeden moderátor, a to ten, který místnost založil? Každý příchozí totiž automaticky dostává moderátorská práva, tzn. může ztlumit mikrofon ostatním a v nejhorším případě i vyhodit z místnosti...<br>\nDíky Petr</p>\n",
+    "id": 4915,
+    "parent_id": 0
+  }
+]

@@ -1,0 +1,28 @@
++++
+title = "HaveAPI má nové webové rozhraní"
+date = "2016-10-18T12:34:17+00:00"
+lastmod = "2016-10-18T12:34:17+00:00"
+draft = false
+url = "/haveapi-ma-nove-webove-rozhrani/"
+translationKey = "wp-448"
+categories = ["technologie"]
+tags = ["haveapi"]
+[params]
+article_id = "wp-448"
+source_body_sha256 = "c3555af122a5125b718cf7c063897692903e787ada754b60f85c64fb8c5d6f8d"
++++
+
+<p>HaveAPI vychází v nové verzi 0.6, která přináší webové rozhraní.<br>
+<!--more--><span id="more-448"></span></p>
+<p>HaveAPI ve <a href="https://github.com/vpsfreecz/haveapi">verzi 0.6</a> obsahuje především nové webové rozhraní <a href="https://github.com/vpsfreecz/haveapi-webui">haveapi-webui</a>. Jedná se o rozhraní, přes které je možné spravovat jakékoliv API založené na HaveAPI. Přirovnal bych to např. k phpMyAdmin, kterým lze spravovat jakoukoliv MySQL databázi.</p>
+<p>Rozhraní haveapi-webui potřebuje znát pouze URL k API serveru. Jedná se o plnohodnotného klienta – lze procházet všechny objekty, autentizovat se, volat libovolné akce, zadávat vstupní parametry a vidět výstup.</p>
+<p>Vyzkoušet to můžete s naším API (fungují přihlašovací údaje z vpsAdminu,<br>
+resp. je to alternativní UI k vpsAdminu):</p>
+<p><a href="https://projects.vpsfree.cz/haveapi-webui/master/vpsfree/">https://projects.vpsfree.cz/haveapi-webui/master/vpsfree/</a></p>
+<p>Např. veřejný status clusteru:</p>
+<p><a href="https://projects.vpsfree.cz/haveapi-webui/master/vpsfree/2.0/node/public_status/?_exec=1">https://projects.vpsfree.cz/haveapi-webui/master/vpsfree/2.0/node/public_status/?_exec=1</a></p>
+<p>Nebo obecně s jakýmkoliv jiným API:</p>
+<p><a href="https://projects.vpsfree.cz/haveapi-webui/master/general/">https://projects.vpsfree.cz/haveapi-webui/master/general/</a></p>
+<p>Celé je to napsané v JavaScriptu, takže to bez něj samozřejmě nefunguje. Zatím jsem to nijak neoptimalizoval, počítejte se stahováním cca 1,5 MB JS balastu.</p>
+<p>Do budoucna bych chtěl využít komponenty z této aplikace a postavit na tom nové webové rozhraní <a href="https://vpsadmin.vpsfree.cz/">vpsAdminu</a>, pokud se toho tedy nechce chopit někdo jiný.</p>
+

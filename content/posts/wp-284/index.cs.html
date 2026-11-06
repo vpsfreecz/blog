@@ -1,0 +1,34 @@
++++
+title = "Stáhněte si zálohy v příkazové řádce"
+date = "2016-03-21T09:19:10+00:00"
+lastmod = "2016-03-21T09:25:10+00:00"
+draft = false
+url = "/stahnete-si-zalohy-v-prikazove-radce/"
+translationKey = "wp-284"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-284"
+source_body_sha256 = "b807c31f0a5535e0500755d5a68c1ee85700be4bc3d384255370406f3ccb021e"
++++
+
+<p>Vydali jsme novou verzi našeho rozhraní vpsAdmin. Hlavní novinkou je možnost stažení záloh z CLI.<br>
+<!--more--><span id="more-284"></span></p>
+<p><a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.3.0/">vpsAdmin v2.3.0</a> přináší pohodlné <a href="https://kb.vpsfree.cz/navody/vps/api#cli">stahování záloh VPS/NASu v CLI</a>. Do teď se muselo čekat na zaslání odkazu pro stažení zálohy e-mailem, nyní už nemusíme čekat, stahuje se ihned. Lze si také vybrat mezi klasickým tar.gz a ZFS data streamem, ten umíme poslat i inkrementálně (posílají se jen změněná data od předchozího snapshotu).</p>
+<p><a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfree-client</a> obsahuje čtyři nové příkazy pro manuální i automatizované stahování záloh.</p>
+<p>Stažení zálohy do souboru:</p>
+<pre># vpsfreectl snapshot download [&lt;id&gt;] -- --format archive/stream</pre>
+<p>Nemusíme se bát stahování přerušit. Program se při dalším spuštění zeptá, jestli má ve stahování pokračovat.</p>
+<p>Stažení data streamu (jako zfs send):</p>
+<pre># vpsfreectl snapshot send &lt;id&gt; | zfs recv &lt;dataset&gt;</pre>
+<p>Inkrementální stream vyžádáme přepínačem -I, --from-snapshot:</p>
+<pre># vpsfreectl snapshot send &lt;id2&gt; -- --from-snapshot &lt;id1&gt; | zfs recv</pre>
+<p>A nakonec klient za vás umí vyřešit veškerou logiku stahování záloh pomocí příkazu</p>
+<pre># vpsfreectl backup vps [&lt;id&gt;] &lt;cílový dataset&gt;</pre>
+<p>nebo</p>
+<pre># vpsfreectl backup dataset [&lt;id&gt;] &lt;cílový dataset&gt;</pre>
+<p>Program sám vyhodnotí, které snapshoty má stáhnout a jestli to jde inkrementálně, nebo musí stáhnout zálohu plnou. Stahuje se přímo do ZFS datasetu, je tedy nutné mít ZFS nainstalováno a mít připojen zpool. Snapshoty se i rotují, tzn. mažou se staré snapshoty a uvolňuje se tak místo pro nové. Tento příkaz stačí umístit do crontabu a o stahování<br>
+záloh je postaráno.</p>
+<p>Všechny tyto příkazy mají přepínač <code>--max-rate</code> pro omezení rychlosti stahování. K dispozici je také checksum stahovaného souboru, který program vždy ověřuje.</p>
+<p>Před vlastním použitím se ještě doporučuji <a href="https://kb.vpsfree.cz/navody/vps/datasety#stahovani_zaloh">podívat do KB</a>, kde jsou tyto příkazy a jejich možnosti popsány podrobněji i s ukázkami použití.</p>
+

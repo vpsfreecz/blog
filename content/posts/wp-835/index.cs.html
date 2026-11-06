@@ -1,0 +1,33 @@
++++
+title = "Primární DNS servery"
+date = "2024-08-19T11:34:14+00:00"
+lastmod = "2024-08-19T11:34:14+00:00"
+draft = false
+url = "/primarni-dns-servery/"
+translationKey = "wp-835"
+categories = ["server"]
+tags = ["dns"]
+[params]
+article_id = "wp-835"
+source_body_sha256 = "70669444d29cc072bac387ec10bc423ce5121c200470b88e2fa3d6fc964d27ab"
++++
+
+<p>Po reverzních záznamech a sekundárních zónách přichází podpora i pro primární zóny. V případě zájmu můžete DNS záznamy svých domén spravovat přes vpsAdmin.</p>
+<p><!--more--><span id="more-835"></span></p>
+<ol>
+<li>V menu <em>DNS</em> → <em>Primary zones</em> si vytvoříš zónu pro tvou doménu. Název zóny je jednoduše název domény, tj. nejčastěji doména druhého řádu. Můžeš však delegovat i domény vyšších řádů.</li>
+<li>U registrátora domény je potřeba přenastavit nameservery na naše sdílené, přidělené servery uvidíš v detailu zóny (např. <em>ns3.vpsfree.cz</em> a <em>ns4.vpsfree.cz</em>).</li>
+<li>DNS záznamy dále nastavuješ přes rozhraní vpsAdminu.</li>
+</ol>
+<p>Podporujeme následující DNS záznamy: A, AAAA, CNAME, MX, NS, PTR, SRV a TXT.</p>
+<h2>Dynamické záznamy</h2>
+<p>Pro A a AAAA záznamy si můžeš nechat vygenerovat unikátní odkaz, jehož navštívením se hodnota daného DNS záznamu přenastaví na adresu, ze které byl HTTP požadavek vykonán. Použiješ to např. když máš doma veřejnou adresu, která ale není statická a může se měnit. Na routeru v cronu nebo v reakci na změnu adresy spustíš wget/curl a udržíš tak DNS záznamy aktuální.</p>
+<h2>DNSSEC</h2>
+<p>DNSSEC podporujeme, pro nastavení však musíš předat DNSKEY/DS záznam nadřazené zóně, o postupu se informuj u svého registrátora. DNSSEC se aktivuje v detailu zóny ve vpsAdminu, klíče jsou automaticky vygenerovány a zóna podepsána; používáme výchozí politiku BINDu. DNSKEY/DS záznamy si zobrazíš kliknutím na <strong>View DNSKEY and DS records</strong> v detailu zóny.</p>
+<h2>Vlastní sekundární servery</h2>
+<p>Ve VPS si můžeš spustit vlastní DNS server a použít ho jako další sekundární server. Ve vpsAdminu jej přidáš v detailu zóny přes formulář <strong>Secondary servers</strong>. vpsAdmin ti pak ukáže, jak by mohla vypadat jeho konfigurace. Až budeš mít server funkční, můžeš ho u registrátora domény přidat mezi nameservery.</p>
+<p>Alternativně můžeš tímto způsobem exportovat záznamy z našich serverů a importovat je k sobě.</p>
+<h2><a class="anchor" href="#shrnut-4" name="shrnut-4"></a>Shrnutí</h2>
+<p>Chceš si ve VPS provozovat vlastní autoritativní DNS server a potřebuješ k tomu sekundarní server? Můžeš použít <a href="https://discourse.vpsfree.cz/t/reverzni-zaznamy-a-sekundarni-dns-servery-reverse-records-and-secondary-dns-servers/250#sekundrn-dns-servery-2">sekundární zóny ve vpsAdminu</a>.</p>
+<p>Pokud chceš DNS záznamy spravovat přes vpsAdmin, použiješ primární zóny.</p>
+

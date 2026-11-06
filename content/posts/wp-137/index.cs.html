@@ -1,0 +1,25 @@
++++
+title = "Dostupnost 99,986 %"
+date = "2015-11-03T08:54:56+00:00"
+lastmod = "2015-11-03T08:54:56+00:00"
+draft = false
+url = "/dostupnost-99-986-procent/"
+translationKey = "wp-137"
+categories = ["technologie", "vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-137"
+source_body_sha256 = "6c51241b05d9da9b9ecb470a01bff7de37a22434691a293885db50a6a1225202"
++++
+
+<p>Potenciální členové se nás často ptají na uptime a dostupnost našich serverů. Ukážeme statistiky.<br>
+<!--more--><span id="more-137"></span></p>
+<p>Dlouhodobě měříme dostupnost na několika různých bodech naší infrastruktury a máme tak k dispozici přesná data o naší dostupnosti a o trvání jednotlivých výpadků. Zprávy z těchto měření jsou poměrně dobré.</p>
+<p>Nejjednodušší měření představuje ping na některé naše servery. Ten dlouhodobě dosahuje hodnoty <strong>99,986 %</strong>. To znamená, že měsíčně jsou naše servery dohromady nedostupné asi <strong>6 minut</strong> (<a href="http://uptime.is/">kalkulačka</a>). Nezohledňuje to ovšem celkovou funkčnost všech komponent, ale jen to, že síť funguje a server odpovídá na ping.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/11/dostupnost_ns1.png"><img alt="dostupnost_ns1" class="aligncenter size-medium wp-image-170" height="129" src="https://blog.vpsfree.cz/wp-content/uploads/2015/11/dostupnost_ns1-300x129.png" width="300"></a></p>
+<p>Hlubší test pak představují pravidelné dotazy na HTTP server. Ty dokáží zjistit, že funguje celá aplikační část, odpovídá databáze a souborový systém vydává data. Tam se nám daří dlouhodobě držet dostupnost na 99,875 %. Měsíčně jsou pak měřené servery nedostupné po <strong>54 minut</strong>, což je 12 minut týdně. Je tu vidět, že každá setina procenta znamená velký <a href="https://en.wikipedia.org/wiki/High_availability#Percentage_calculation">posun v absolutních číslech</a>.</p>
+<p>Reálně se ale většina výpadků odehraje v době kratší než deset minut. Tyto krátké výpadky tvoří dohromady téměř 80 % případů. Naopak jen pět výpadků za poslední rok bylo delších než 30 minut. Není to tedy nijak dramatické, i když prostor ke zlepšení tu v každém případě je.</p>
+<p>Dosáhnout vyšších hodnot je velmi těžké, platí tu <a href="https://cs.wikipedia.org/wiki/Paret%C5%AFv_princip">Paretův princip</a>, který říká, že pro dosažení 80% úspěšnosti stačí 20 % vynaložené síly. Ovšem čím víc stoupáte ke 100 %, tím strměji roste potřeba vloženého úsilí. My ovšem nepolevujeme a snažíme se v tomto ohledu dělat postupně další změny, které nám postupnými krůčky pomáhá dostupnost zvyšovat.</p>
+<p>V současné době nám největší problém způsobuje kombinace Linuxu a ZFS. Linuxové jádro totiž není stavěné na velkou paměťovou zátěž a někdy <a href="https://github.com/zfsonlinux/zfs/issues/3961">dojde k deadlocku</a> – Solaris s tím například problémy nemá. Protože ale intenzivně reportujeme chyby a ladíme ve spopuráci s vývojáři <a href="http://zfsonlinux.org/">ZFS on Linux</a>, podařilo se nám většinu velkých problémů vyřešit. Záseků už je teď v praxi minimum, ale ladíme dál.</p>
+<p>Časem bychom se rádi dostali do stavu, kdy v Brně v <a href="http://base48.cz/">hackerspace Base48</a> spustíme vlastní testovací QA cluster, který nám dovolí odhalit problémy dříve než nasadíme nové jádro do produkce. Budeme si pak udržovat vlastní sadu otestovaných komponent, u kterých si budeme jisti, že fungují a že do nich během posledního vývoje nebyla zavlečena žádná nová chyba.</p>
+

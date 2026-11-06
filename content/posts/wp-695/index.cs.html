@@ -1,0 +1,25 @@
++++
+title = "Vyzkoušejte si podporu nových certifikátů od Let's Encrypt na test.vpsfree.cz"
+date = "2020-11-24T10:14:15+00:00"
+lastmod = "2020-11-24T10:20:18+00:00"
+draft = false
+url = "/vyzkousejte-si-podporu-novych-certifikatu-od-lets-encrypt-na-test-vpsfree-cz/"
+translationKey = "wp-695"
+categories = ["bezpecnost"]
+tags = ["lets-encrypt"]
+[params]
+article_id = "wp-695"
+source_body_sha256 = "de8936a312086185615b50f617d800c85ab4f3e271224c035a1ec989dbafb659"
++++
+
+<p>Od ledna příštího roku bude autorita Let's Encrypt vystavovat certifikáty na základě nového kořene. Vyzkoušejte svůj Android, zda už podporu obsahuje.</p>
+<p><!--more--><span id="more-695"></span></p>
+<p>Od 11. ledna 2021 začne autorita Let's Encrypt <a href="https://letsencrypt.org/2020/11/06/own-two-feet.html">vystavovat certifikáty na základě nového kořene</a>. Ten existuje už od roku 2015 a většina zařízení již má potřebné aktualizace a nový kořen ISRG Root X1 obsahuje.</p>
+<p>Problémy mají ovšem majitelé přístrojů s operačním systémem Android <a href="https://www.root.cz/clanky/let-s-encrypt-se-stavi-na-vlastni-nohy-zmena-korene-odrizne-tretinu-androidu/">starším než 7.1.1</a>. Ten vyšel v prosinci roku 2016. Pokud máte ještě starší Android, weby s novým certifikátem pro vás budou nedůvěryhodné.</p>
+<p>Připravili jsme pro vás stránku <a href="https://test.vpsfree.cz/">test.vpsfree.cz</a>, na které je možné si vše vyzkoušet. Tato stránka už používá nový kořen <strong>ISRG Root X1</strong>. Stačí ji otevřít ve vybraném prohlížeči.</p>
+<p>Pokud uvidíte chybovou hlášku o neplatné certifikační autoritě, máte problém. Váš přístroj má starý software a ten novou certifikační autoritu Let's Encrypt nezná. Řešením je buď starý přístroj bez bezpečnostních aktualizací vyměnit nebo alespoň nainstalovat <strong>mobilní Firefox</strong>. Ten si řeší certifikáty po svém a aktualizuje si je bez ohledu na operační systém.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2020/11/testvpsfree.png"><img alt="" class="aligncenter size-medium wp-image-696" height="166" src="https://blog.vpsfree.cz/wp-content/uploads/2020/11/testvpsfree-300x166.png" width="300"></a></p>
+<p>Pokud si chcete vyzkoušet nový kořen sami a používáte klienta ACME.sh, můžete použít pro vygenerování certifikátu následující přepínač.</p>
+<pre>$ acme.sh --issue -d test.vpsfree.cz --preferred-chain "ISRG"</pre>
+<p>Do září příštího roku bude ještě možné si ručně <a href="https://github.com/acmesh-official/acme.sh/wiki/Preferred-Chain">vyžádat certifikát</a> postavený na starém kořenu DST Root CA X3. Poté ale bude definitivní konec, protože platnost tohoto původního kořene vyprší.</p>
+

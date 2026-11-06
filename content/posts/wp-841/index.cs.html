@@ -1,0 +1,22 @@
++++
+title = "Dvoufaktorové přihlášování s passkey"
+date = "2025-03-03T10:20:17+00:00"
+lastmod = "2025-03-03T10:20:54+00:00"
+draft = false
+url = "/dvoufaktorove-prihlasovani-s-passkey/"
+translationKey = "wp-841"
+categories = ["technologie", "vpsfree-cz"]
+tags = ["passkey", "vpsadmin"]
+[params]
+article_id = "wp-841"
+source_body_sha256 = "33d828ea5ce8f7525990e8b590b183285af27fbb41458c914485bdd172d1f5bb"
++++
+
+<p>Připravili jsme pro vás nový bezpečný způsob přihlašování do vpsAdminu. Nyní je možné použít technolgii Passkey.<br>
+<!--more--><span id="more-841"></span></p>
+<p>Pro přihlášení do vpsAdminu lze nyní jako druhý faktor využít <a href="https://en.wikipedia.org/wiki/WebAuthn">passkey</a>. Lze použít jak hardwarové tokeny (YubiKey, GoTrust IdemKey, apod.,), tak softwarové klíčenky (KeePassXC, KeePassium, iCloud Keychain, Google Password Manager, Microsoft Windows Hello, 1Password, atp.).</p>
+<p>Passkey je možné kombinovat s TOTP, autentizačních zařízení si můžete nastavit více a pro přihlášení pak stačí jedno z nich. V nastavení profilu ve vpsAdminu přibyla možnost dvoufaktorové ověřování vypnout nebo zapnout:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2025/03/vpsAdmin_passkey.png"><img alt="" class="aligncenter size-full wp-image-843" height="157" src="https://blog.vpsfree.cz/wp-content/uploads/2025/03/vpsAdmin_passkey.png" width="275"></a></p>
+<p>Dvoufaktorové ověřování je ale aktivní jen když existuje aspoň jedno TOTP zařízení nebo passkey. Pro nastavení tedy nejdříve přidejte všechny passkeys, které chcete používat, a až potom si v profilu zapněte dvoufaktorové ověření.</p>
+<p>TOTP naopak dvoufaktorové ověřování aktivuje automaticky, neboť číselný kód lze na rozdíl od passkey opsat i z jiného zařízení.</p>
+

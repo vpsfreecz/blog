@@ -1,0 +1,21 @@
++++
+title = "Umíme přidělit každému serveru vlastní blok /64 adres z IPv6"
+date = "2021-03-18T14:09:23+00:00"
+lastmod = "2021-03-18T14:09:42+00:00"
+draft = false
+url = "/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/"
+translationKey = "wp-717"
+categories = ["server"]
+tags = ["vpsadmin", "vpsadminos"]
+[params]
+article_id = "wp-717"
+source_body_sha256 = "520a19c8a89f14a472822a9899dce45105940795fd633800d076f6d67668268d"
++++
+
+<p>Ke každému VPS teď umíme díky vpsAdminOS přidělit vlastní /64 blok IPv6 adres.<br>
+<!--more--><span id="more-717"></span></p>
+<p>Donedávna jsme museli každému virtuálnímu serveru přidělovat jen samostatné adresy (/128) pro IPv6.  Původní OpenVZ totiž bloky větší neuměl a proto nebylo zbytí. Ačkoliv přiřazovat /64 rozsahy je pouze doporučení, blacklisty v praxi toto doporučení vynucují – blokují tak nejen spammery, ale i ostatní v zasažených rozsazích.</p>
+<p>Pokud máte zájem o svůj vlastní /64 blok IPv6 adres, stačí tak učinit po přihlášení ve vpsAdminu. Každý uživatel má možnost si ke svému VPS sám přidělovat celé bloky adres. V každém z nich je jich k dispozici 18,45×10<sup>18</sup>.</p>
+<p>Nezapomeňte při přidávání novou adresu nejen naroutovat, ale také přidat na rozhraní VPS. To lze také zařídit ve vpsAdminu tlačítkem „Add route and an address to interface venet0“ v posledním kroku. Tím bude /64 blok přidělen na konkrétní rozhraní.</p>
+<p>Využití tohoto bloku je pak na každém uživateli a jeho aplikacích. Umíme také nastavit příslušné reverzní záznamy, stačí napsat na podporu.</p>
+

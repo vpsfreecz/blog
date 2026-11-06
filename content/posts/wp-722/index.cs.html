@@ -1,0 +1,22 @@
++++
+title = "První server s vpsAdminOS v Brně"
+date = "2021-09-20T14:52:39+00:00"
+lastmod = "2021-09-20T17:23:48+00:00"
+draft = false
+url = "/prvni-server-s-vpsadminos-v-brne/"
+translationKey = "wp-722"
+categories = ["server"]
+tags = ["brno", "vpsadminos"]
+[params]
+article_id = "wp-722"
+source_body_sha256 = "faf99667ed77a3bd52fdbe5ccb4ba891b45f42824edd683a3e1fa490233e3bf4"
++++
+
+<p>Dnes jsme zprovoznili node5.brq, první node s vpsAdminOS v Brně.<br>
+<!--more--><span id="more-722"></span></p>
+<p>Kdo máte zájem o přesun z OpenVZ, můžete <a href="https://kb.vpsfree.cz/informace/podpora">napsat na podporu</a>. Na vpsAdminOS přidělujeme také /64 IPv6 adresy, můžete si je vyměnit i sami přes vpsAdmin za ty /128 z OpenVZ, viz <a href="https://blog.vpsfree.cz/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/">starší blogpost</a>.</p>
+<p><s>Prozatím to bude složitější s přístupem na NAS. Z vpsAdminOS v Brně se teď na NAS dostanete, jen když máte jako první na síťovém rozhraní privátní adresu. To ale znamená, že provoz do internetu půjde přes NAT, tj. jako zdrojová adresa se nepoužije ta veřejná, protože není první.</s></p>
+<p><s>Je to kvůli tomu, že na vpsAdminOS se exporty NASu připojují zevnitř VPS. Na OpenVZ mounty připojoval vpsAdmin z hostitele a na síti uvnitř VPS tak nezáleželo.</s></p>
+<p><i>Mezitím jsme upravili nastavení sítě tak, aby nebyla potřeba privátní adresa, potřeba mountovat NFS zevnitř VPS ale pro vpsAdminOS zůstává beze změny.</i></p>
+<p>Časem bychom to chtěli vyřešit tak, že na privátní adresy/NAS uděláme druhé síťové rozhraní. To by ale zase trvalo dlouho a už jsme nechtěli nasazení vpsAdminOS v Brně odkládat.</p>
+

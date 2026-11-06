@@ -1,0 +1,24 @@
++++
+title = "Jsme v půlce migrace na vpsAdminOS, teď přijde na řadu Brno"
+date = "2021-03-08T09:30:57+00:00"
+lastmod = "2021-09-20T14:53:01+00:00"
+draft = false
+url = "/jsme-v-pulce-migrace-na-vpsadminos-ted-prijde-na-radu-brno/"
+translationKey = "wp-713"
+categories = ["server"]
+tags = ["brno", "vpsadminos"]
+[params]
+article_id = "wp-713"
+source_body_sha256 = "668b22cf0e5efb21ab2c31a3b6f5564c748e3b0c10438d9c57eb9ae0c90f9a77"
++++
+
+<p>Náš velký projekt migrace na platformu vpsAdminOS je právě v polovině. Nebojte se připojit a migrovat své projekty, nebolí to.<br>
+<!--more--><span id="more-713"></span></p>
+<p>Novou platformu vpsAdminOS jsme <a href="https://blog.vpsfree.cz/predstavili-jsme-vpsadminos-system-pro-provoz-kontejneru/">představili před třemi lety</a> a před rokem jsme ji začali <a href="https://blog.vpsfree.cz/vpsadminos-v-produkci-v-praze/">nasazovat na produkci</a>. Jsme teď ve stavu, kdy máme polovinu serverů v Praze už na vpsAdminOS a v plánu je co nejdříve se zbavit opouštěné technologie OpenVZ.</p>
+<p>Rychlost migrace do velké míry závisí na členech, kteří se musí rozhoupat a své servery přesunout na novou platformu. Nebolí to a <strong>není potřeba systém přeinstalovávat</strong>. Stačí <a href="https://kb.vpsfree.cz/informace/podpora">napsat na podporu</a>, že chcete migraci udělat a my se postaráme o automatický přesun z jednoho prostředí na druhé. Máme deset serverů na OpenVZ a deset na vpsAdminOS. Umíme mezi nimi přesouvat VPS bez výměny IP adres a bez nutnosti dělat nějaké větší zásahy.</p>
+<p>Před migrací je jen potřeba <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/storage">zkontrolovat nastavení NFS</a> a případné připojené svazky si připojit uvnitř VPS. Na OpenVZ se jejich připojování spravovalo ve vpsAdminu a na nové platformě to zařídíte uvnitř systému sami standardním způsobem. Po migraci pak budete mít super nové jádro se spoustou funkcí (WireGuard, Nftables a další) a celou novou naleštěnou platformu.</p>
+<p>vpsAdminOS jsme doposud nenasazovali v Brně, mělo by k tomu dojít během následujících dnů. Půjde o docela velkou akci, protože Brno byla produkčně horší lokace co do připojení i stavu serverů. Většina našich členů chce totiž hostovat v Praze a Brno tedy bylo doposud na druhé koleji. To se právě teď změní.</p>
+<p>Ve středu jdeme osadit dedikovaný rack v Brně novými PDUčkami (rackové zásuvky) a ve čtvrtek v noci vypneme všechny čtyři stroje s OpenVZ přesuneme je do samostatného racku. Tam už na ně bude čekat nový server, na kterém poběží vpsAdminOS. Tím začneme i v Brně postupně migrovat na novou platformu.</p>
+<p>Je to velký milník z hlediska Brna i vpsFree jako takového. Přesun čtyř nebo pěti serverů do samostatného racku pro nás byl donedávna nezaplatitelný luxus. Teď budeme trochu investovat, ať dostaneme Brno na stejnou úroveň, na jaké je teď Praha. Mimo jiné to znamená i nasadit nové 10Gbitové switche.</p>
+<p>Jdeme to celé konečně rozseknout a určitě vás budeme informovat o postupu. Snad se nám podaří udělat i nějaké fotky z celé přesouvací akce, abyste viděli, jak vypadá naše noční šichta.</p>
+

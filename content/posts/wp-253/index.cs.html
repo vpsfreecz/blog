@@ -1,0 +1,25 @@
++++
+title = "vpsAdmin 2.1.0: konzole VPS v terminálu"
+date = "2016-01-25T10:53:39+00:00"
+lastmod = "2016-04-19T09:29:21+00:00"
+draft = false
+url = "/vpsadmin-2-1-0-konzole-vps-v-terminalu/"
+translationKey = "wp-253"
+categories = ["server", "vpsfree-cz"]
+tags = ["haveapi", "vpsadmin"]
+[params]
+article_id = "wp-253"
+source_body_sha256 = "4ac9f0d36cf662f41adb2107570e674361b5c9eb30b70a6e2784223c603a45bd"
++++
+
+<p>Nasadili jsme novou verzi rozhraní vpsAdmin 2.1, která umožňuje mimo jiné vzdálené připojení na konzoli VPS.<br>
+<!--more--><span id="more-253"></span></p>
+<p><a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a> 2.1.0 je založen na <a href="https://github.com/vpsfreecz/haveapi">HaveAPI v0.4</a>, má tedy hlavně <a href="https://github.com/vpsfreecz/haveapi-client#cli">přepracované CLI</a>. To nyní navíc umožňuje připojit se na <a href="https://kb.vpsfree.cz/navody/vps/konzole">vzdálenou konzoli VPS</a>:</p>
+<pre>$ vpsfreectl vps remote_console &lt;vps id&gt;</pre>
+<p>Tato konzole funguje mnohem lépe než ve webovém prohlížeči - vykresluje ji jednoduše váš terminál, nemusí se to složitě řešit v JavaScriptu. Konzole se také přizpůsobuje velikosti okna terminálu. Implementace je popsána v <a href="https://projects.vpsfree.cz/vpsadmin-doc/vps/remote_console/">dokumentaci vpsAdminu</a>.</p>
+<p>Video s ukázkou:</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/Eg_i_iX7l6I?rel=0" title="Embedded video" width="560"></iframe></p>
+<p>Nové možnosti CLI jsou popsány v <a href="http://lists.vpsfree.cz/pipermail/community-list/2016-January/003456.html">mailu o HaveAPI v0.4</a> a v <a href="https://kb.vpsfree.cz/navody/vps/api#cli">článku na KB</a>.</p>
+<p>Další změna se týká nastavování hostname VPS. To se vždy spravovalo přes vpsAdmin a při každém startu VPS došlo k jeho nastavení a přepsání /etc/hosts. Nyní je možné spravovat hostname manuálně, mimo vpsAdmin.</p>
+<p>Kompletní popis změn je k nahlédnutí v <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.1.0/">poznámkách o vydání</a>. Návod v KB o konzoli <a href="https://kb.vpsfree.cz/navody/vps/konzole#zajisteni_spravne_funkce">obsahuje pár tipů</a>, jak ji správně nastavit.</p>
+

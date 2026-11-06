@@ -1,0 +1,138 @@
+#!/usr/bin/env python3
+"""Focused offline safety/ownership checks, plus an optional generated-corpus check."""
+import argparse
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+import re
+import tempfile
+import tomllib
+import unittest
+
+loader = importlib.machinery.SourceFileLoader('wpimport', str(Path(__file__).with_name('import-wordpress')))
+spec = importlib.util.spec_from_loader(loader.name, loader)
+wp = importlib.util.module_from_spec(spec)
+loader.exec_module(wp)
+
+
+class Safety(unittest.TestCase):
+    def clean(self, source, article=False):
+        p = wp.Sanitizer(article=article)
+        p.feed(source)
+        return p.result()
+
+    def test_active_content_and_schemes(self):
+        output = self.clean('<p onclick="bad()">Visible<script>hidden</script><a href="java&#x0a;script:bad()">link</a><img src="x" onerror="bad()"></p>')
+        self.assertEqual(output, '<p>Visible<a>link</a><img src="x"></p>')
+
+    def test_provider_boundary_and_comments(self):
+        source = '<iframe src="http://www.youtube.com/embed/example" allow="autoplay"></iframe>'
+        output = self.clean(source, article=True)
+        self.assertIn('src="https://www.youtube.com/embed/example"', output)
+        self.assertNotIn('autoplay', output)
+        self.assertEqual(self.clean(source), '')
+        self.assertEqual(self.clean('<iframe src="https://unapproved.example/embed"></iframe>', True), '')
+        self.assertIsNone(wp.safe_url('https://name:secret@www.youtube.com/embed/x', iframe=True))
+
+    def test_code_entities_and_more(self):
+        source = '<pre><code>if (x &lt; y) {\n  f(&amp;value);\n}</code></pre><!--more--><span id="more-1"></span>'
+        self.assertEqual(self.clean(source, article=True), source)
+
+    def test_manual_and_english_preservation(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            english = root / 'content/posts/wp-1/index.en.html'
+            english.parent.mkdir(parents=True)
+            english.write_text('Reviewed English stays untouched')
+            files = {'content/posts/wp-1/index.cs.html': b'Generated Czech'}
+            wp.write_output(files, root)
+            self.assertEqual(english.read_text(), 'Reviewed English stays untouched')
+            wp.write_output(files, root)
+            (root / 'content/posts/wp-1/index.cs.html').write_text('Manual correction')
+            with self.assertRaisesRegex(ValueError, 'manual edit'):
+                wp.write_output(files, root)
+
+    def test_private_query_field_exclusions(self):
+        for field in ('user_pass', 'user_email', 'user_login', 'comment_author_email',
+                      'comment_author_IP', 'comment_agent', 'user_activation_key'):
+            self.assertNotIn(field, wp.SQL)
+
+
+def check_corpus(root, private_posts=None):
+    manifest = json.loads((root / 'data/migration/source-manifest.json').read_text())
+    assert manifest['counts'] == {'articles': 125, 'authors': 6, 'comments': 107,
+                                  'comment_replies': 43, 'uploads': 569,
+                                  'upload_bytes': 50375369, 'attachments': 144}
+    banned = {'user_pass', 'user_email', 'user_login', 'comment_author_email',
+              'comment_author_IP', 'comment_agent', 'user_activation_key', 'roles'}
+
+    def keys(value):
+        if isinstance(value, dict):
+            assert not banned.intersection(value), 'Private field in public JSON'
+            for item in value.values():
+                keys(item)
+        elif isinstance(value, list):
+            for item in value:
+                keys(item)
+
+    for name, expected in manifest['generated_files'].items():
+        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
+        assert not name.endswith('index.en.html')
+        if name.endswith('.json'):
+            keys(json.loads((root / name).read_text()))
+    raw = {p['id']: p for p in json.loads(private_posts.read_text())} if private_posts else None
+    comment_count = replies = 0
+    seen_paths = set()
+    for article in manifest['articles']:
+        # Preserve original preformatted CRLF bytes for complete-file hashing.
+        content = (root / article['cs_file']).read_bytes().decode('utf-8')
+        assert content.startswith('+++\n')
+        _, frontmatter, body = content.split('+++', 2)
+        fm = tomllib.loads(frontmatter)
+        assert article['cs_path'] == fm['url'] and fm['url'] not in seen_paths
+        seen_paths.add(fm['url'])
+        assert fm['params']['article_id'] == fm['translationKey'] == article['article_id']
+        assert fm['params']['source_body_sha256'] == article['source_body_sha256']
+        assert hashlib.sha256(content.encode()).hexdigest() == article['cs_file_sha256']
+        assert '<!--more-->' in body and 'id="more-' + str(article['legacy_post_id']) + '"' in body
+        assert not re.search(r'<script\b|\son\w+\s*=', body, re.I)
+        if raw:
+            original = raw[article['legacy_post_id']]['body']
+            assert hashlib.sha256(original.encode()).hexdigest() == article['source_body_sha256']
+            a, b = wp.VisibleText(), wp.VisibleText()
+            a.feed(original)
+            b.feed(body)
+            assert re.sub(r'\s+', ' ', ''.join(a.parts)).strip() == re.sub(r'\s+', ' ', ''.join(b.parts)).strip(), article['article_id']
+        comments = json.loads((root / 'data/legacy-comments' / (article['article_id'] + '.json')).read_text())
+        assert comments == sorted(comments, key=lambda c: (c['date'], c['id']))
+        ids = {c['id'] for c in comments}
+        by_id = {c['id']: c for c in comments}
+        for c in comments:
+            assert set(c) <= {'id', 'parent_id', 'author_name', 'date', 'html', 'author_url'}
+            assert c['parent_id'] == 0 or c['parent_id'] in ids
+            ancestors = {c['id']}
+            parent = c['parent_id']
+            while parent:
+                assert parent not in ancestors, 'Comment ancestry cycle'
+                ancestors.add(parent)
+                parent = by_id[parent]['parent_id']
+            assert not re.search(r'<(?:script|iframe)\b|\son\w+\s*=', c['html'], re.I)
+        comment_count += len(comments)
+        replies += sum(bool(c['parent_id']) for c in comments)
+    assert comment_count == 107 and replies == 43 and len(seen_paths) == 125
+    assert not manifest['missing_upload_references']
+    print('Passed: 125 source/file hashes and routes, public field schemas, 107 threaded comments, 569 asset digests' + ('; full visible-text source parity' if raw else ''))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--source', type=Path)
+    parser.add_argument('--private-posts', type=Path, help='Optional PRIVATE allowlisted raw source JSON, never a build input')
+    options = parser.parse_args()
+    result = unittest.TextTestRunner(verbosity=1).run(unittest.defaultTestLoader.loadTestsFromTestCase(Safety))
+    if not result.wasSuccessful():
+        raise SystemExit(1)
+    if options.source:
+        check_corpus(options.source, options.private_posts)

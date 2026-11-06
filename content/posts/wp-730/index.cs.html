@@ -1,0 +1,23 @@
++++
+title = "Migrujte na vpsAdminOS, už je čas na aktuální virtualizaci s novým jádrem"
+date = "2021-12-13T14:10:28+00:00"
+lastmod = "2021-12-13T20:51:22+00:00"
+draft = false
+url = "/migrujte-na-vpsadminos-uz-je-cas-na-aktualni-virtualizaci-s-novym-jadrem/"
+translationKey = "wp-730"
+categories = ["server"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-730"
+source_body_sha256 = "806f7e02948571c1cf749c06ff5befdec5dd10555e2399192beed840ce65cca0"
++++
+
+<p>Náš přechod na novou virtualizační platformu vpsAdminOS zdárně běží. Teď je to na vás, abyste udělali další krok a migrovali své servery.<br>
+<!--more--><span id="more-730"></span></p>
+<p>Několik posledních let pracujeme na vlastní platformě vpsAdminOS a průběžně o tom <a href="/tag/vpsadminos/">píšeme tady na blogu</a>. Vývoj původní platformy OpenVZ už <a href="/prechazime-z-openvz-na-vpsadminos-spoustime-testovaci-prostredi/">dávno uhnul komerčním směrem</a> a je jasné, že pro nás tento projekt nemá budoucnost. Právě proto vznikl <a href="https://vpsadminos.org/">vpsAdminOS</a>, který staví na aktuálních linuxových kontejnerových technologiích a umožňuje nám běžet na aktuálních jádrech.</p>
+<p>V tuto chvíli už máme <a href="https://blog.vpsfree.cz/jsme-v-pulce-migrace-na-vpsadminos-ted-prijde-na-radu-brno/">většinu uzlů na nové platformě</a> a jet na vpsAdminOS je možné v <a href="https://blog.vpsfree.cz/prvni-server-s-vpsadminos-v-brne/">obou našich lokalitách</a>. Teď je na vás, abyste se <strong>rozhodli migrovat své servery</strong>.</p>
+<p>Co vám to přinese? Aktuální linuxové jádro, bezproblémovou podporu nejnovějších distribucí, hladký běh Dockeru, možnost přidělit <a href="https://blog.vpsfree.cz/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/">blok IPv6 adres</a>, <a href="https://blog.vpsfree.cz/sprava-pameti-na-vpsadminos/">lepší správu paměti</a> a <a href="https://blog.vpsfree.cz/novinky-ve-vpsadminu-vychozi-vlastnosti-vps-a-oom-reporty/">další užitečné novinky</a>. Hlavně ale vpsAdminOS pro nás znamená bezproblémový budoucí rozvoj a sledování novinek v linuxovém světě.</p>
+<p>Migrace ovšem vyžaduje akci od vás, abychom mohli váš server přesunout ze staré platformy na novou. To podstatné je, že <strong>data i IP adresy vám zůstanou</strong>. Co pro to musíte udělat? V první řadě je potřeba upravit nastavení <strong>exportů z NAS</strong> (pokud ho používáte). Ten se nepřipojuje přes vpsAdmin, ale namountujete si ho sami do systému pomocí NFS. Všechno je <a href="https://kb.vpsfree.cz/navody/vps/exporty">podrobně popsáno v naší dokumentaci</a>. V administraci se objeví podrobné instrukce, jak si máte export do systému připojit. Nezapomeňte nainstalovat klienta NFS, to je častá chyba.</p>
+<p>Poté už stačí jednoduše <a href="https://kb.vpsfree.cz/informace/podpora">napsat na podporu</a>, že máme váš server migrovat. Je dobré nám také připsat, kdy je pro přesun serveru vhodná doba. Migrace znamená krátký výpadek vašeho serveru, protože dojde k vypnutí na starém uzlu a zapnutí na tom novém.</p>
+<p>Pokud se migrace bojíte kvůli riziku nefunkčnosti některé služby, můžete svou VPS zkusit naklonovat na playground (v detailu VPS vpravo je tlačítko clone). Tam už vpsAdminOS je, takže si můžete vše v klidu vyzkoušet na kopii svého serveru. Pokud vše proběhne v pořádku, s největší pravděpodobností bude migrace úspěšná i na produkci. Přesto je dobré vše ještě po restartu zkontrolovat.</p>
+

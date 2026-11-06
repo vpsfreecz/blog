@@ -1,0 +1,475 @@
+#!/usr/bin/env python3
+"""Project public WordPress fields from a PRIVATE local restore; never parse SQL."""
+import argparse
+from collections import Counter, defaultdict
+from datetime import datetime, timezone
+import hashlib
+import html
+import getpass
+from html.parser import HTMLParser
+import json
+from pathlib import Path, PurePosixPath
+import re
+import subprocess
+import tarfile
+from urllib.parse import urlsplit, urlunsplit, unquote
+from zoneinfo import ZoneInfo
+
+FORMATTING_SHA256 = '350f6b32303915df970bb0e3ea360fcd54bb0b8a7ecc3d504c3d860ab9468d32'
+HERE = Path(__file__).resolve().parent
+SQL = """
+SET SESSION TRANSACTION READ ONLY;
+START TRANSACTION WITH CONSISTENT SNAPSHOT;
+SELECT JSON_OBJECT('kind','post','id',ID,'author_id',post_author,'title',post_title,
+ 'slug',post_name,'date',post_date,'date_gmt',post_date_gmt,'modified',post_modified,
+ 'modified_gmt',post_modified_gmt,'body',post_content,'excerpt',post_excerpt,
+ 'guid',guid,'source_sha256',SHA2(post_content,256)) FROM wp_posts
+ WHERE post_type='post' AND post_status='publish' AND post_password='' ORDER BY ID;
+SELECT JSON_OBJECT('kind','author','id',ID,'name',display_name,'slug',user_nicename,
+ 'url',user_url) FROM wp_users WHERE ID IN (SELECT post_author FROM wp_posts
+ WHERE post_type='post' AND post_status='publish' AND post_password='') ORDER BY ID;
+SELECT JSON_OBJECT('kind','comment','id',c.comment_ID,'post_id',c.comment_post_ID,
+ 'parent_id',c.comment_parent,'author_name',c.comment_author,'author_url',c.comment_author_url,
+ 'date',c.comment_date,'date_gmt',c.comment_date_gmt,'body',c.comment_content)
+ FROM wp_comments c JOIN wp_posts p ON p.ID=c.comment_post_ID
+ WHERE c.comment_approved='1' AND c.comment_type='comment'
+ AND p.post_type='post' AND p.post_status='publish' AND p.post_password=''
+ ORDER BY c.comment_date_gmt,c.comment_ID;
+SELECT JSON_OBJECT('kind','term','id',x.term_taxonomy_id,'source_term_id',t.term_id,'taxonomy',x.taxonomy,
+ 'name',t.name,'slug',t.slug) FROM wp_term_taxonomy x JOIN wp_terms t ON t.term_id=x.term_id
+ WHERE x.taxonomy IN ('category','post_tag') ORDER BY x.term_taxonomy_id;
+SELECT JSON_OBJECT('kind','relationship','post_id',r.object_id,'term_id',r.term_taxonomy_id)
+ FROM wp_term_relationships r JOIN wp_posts p ON p.ID=r.object_id
+ WHERE p.post_type='post' AND p.post_status='publish' AND p.post_password=''
+ ORDER BY r.object_id,r.term_taxonomy_id;
+SELECT JSON_OBJECT('kind','attachment','id',p.ID,'slug',p.post_name,'parent_id',p.post_parent,
+ 'guid',p.guid,'mime',p.post_mime_type,'file',m.meta_value) FROM wp_posts p
+ JOIN wp_postmeta m ON m.post_id=p.ID AND m.meta_key='_wp_attached_file'
+ WHERE p.post_type='attachment' ORDER BY p.ID;
+SELECT JSON_OBJECT('kind','old_slug','post_id',m.post_id,'slug',m.meta_value)
+ FROM wp_postmeta m JOIN wp_posts p ON p.ID=m.post_id
+ WHERE m.meta_key='_wp_old_slug' AND p.post_type='post' AND p.post_status='publish'
+ AND p.post_password='' ORDER BY m.post_id,m.meta_value;
+SELECT JSON_OBJECT('kind','option','name',option_name,'value',option_value)
+ FROM wp_options WHERE option_name IN ('posts_per_page','permalink_structure',
+ 'category_base','tag_base','timezone_string','blog_charset','wp_attachment_pages_enabled')
+ ORDER BY option_name;
+COMMIT;
+"""
+
+
+def encoded(value):
+    return (json.dumps(value, ensure_ascii=False, sort_keys=True, indent=2) + '\n').encode()
+
+
+def digest(value):
+    return hashlib.sha256(value).hexdigest()
+
+
+def safe_url(value, iframe=False):
+    value = html.unescape(value).strip()
+    if any(ord(c) < 32 for c in value) or '\\' in value:
+        return None
+    u = urlsplit(value)
+    if u.username or u.password:
+        return None
+    if iframe:
+        if u.hostname not in ('www.youtube.com', 'www.superlectures.com'):
+            return None
+        if u.scheme not in ('http', 'https', '') or not u.netloc or u.port not in (None, 80, 443):
+            return None
+        return urlunsplit(('https', u.netloc, u.path, u.query, u.fragment))
+    if u.scheme and u.scheme.lower() not in ('http', 'https', 'mailto'):
+        return None
+    if not u.scheme and value.startswith('//'):
+        return 'https:' + value
+    return value
+
+
+class Sanitizer(HTMLParser):
+    TAGS = set('a abbr b blockquote br caption cite code col colgroup dd del details div dl dt em figcaption figure h1 h2 h3 h4 h5 h6 hr i img ins kbd li ol p pre q s samp small span strong sub summary sup table tbody td tfoot th thead tr u ul var'.split())
+    VOID = {'br', 'hr', 'img', 'col'}
+    COMMON = {'title', 'class', 'id', 'lang', 'dir'}
+    ATTRS = {'a': {'href', 'name', 'target', 'rel'}, 'img': {'src', 'srcset', 'sizes', 'alt', 'width', 'height', 'loading', 'data-base62-sha1'},
+             'td': {'colspan', 'rowspan'}, 'th': {'colspan', 'rowspan', 'scope'},
+             'ol': {'start', 'reversed'}, 'li': {'value'},
+             'iframe': {'src', 'width', 'height', 'allowfullscreen', 'frameborder', 'allow'}}
+
+    def __init__(self, article=False):
+        super().__init__(convert_charrefs=False)
+        self.article = article
+        self.output, self.exceptions, self.references = [], Counter(), set()
+        self.suppressed = []
+        self.stack = []
+
+    def handle_starttag(self, tag, attrs):
+        if self.suppressed:
+            if tag in ('script', 'style', 'iframe'):
+                self.suppressed.append(tag)
+            return
+        if tag in ('script', 'style'):
+            self.exceptions['removed_active_' + tag] += 1
+            self.suppressed.append(tag)
+            return
+        if tag == 'iframe':
+            src = safe_url(dict(attrs).get('src', ''), iframe=True) if self.article else None
+            if not src:
+                self.exceptions['unsupported_iframe'] += 1
+                self.suppressed.append(tag)
+                return
+        if tag not in self.TAGS and not (tag == 'iframe' and self.article):
+            self.exceptions['unwrapped_tag_' + tag] += 1
+            return
+        clean = {}
+        for key, value in attrs:
+            if key not in self.COMMON | self.ATTRS.get(tag, set()):
+                self.exceptions['removed_attribute_' + tag + '_' + key] += 1
+                continue
+            value = value or ''
+            if key in ('href', 'src'):
+                value = safe_url(value, iframe=(tag == 'iframe'))
+                if value is None:
+                    self.exceptions['removed_unsafe_url'] += 1
+                    continue
+                self.references.add(value)
+            if key == 'srcset':
+                parts = []
+                for item in value.split(','):
+                    bits = item.strip().split()
+                    if not bits or safe_url(bits[0]) is None or not all(re.fullmatch(r'[0-9.]+[wx]', x) for x in bits[1:]):
+                        self.exceptions['removed_unsafe_srcset'] += 1
+                        continue
+                    self.references.add(bits[0])
+                    parts.append(' '.join(bits))
+                value = ', '.join(parts)
+            if key == 'target' and value != '_blank':
+                continue
+            clean[key] = value
+        if tag == 'iframe':
+            clean['src'] = src
+            # Preserve provider media; do not grant autoplay or arbitrary features.
+            clean.pop('allow', None)
+            clean['loading'] = 'lazy'
+            clean['referrerpolicy'] = 'strict-origin-when-cross-origin'
+            clean['title'] = 'Embedded video'
+        if clean.get('target') == '_blank':
+            clean['rel'] = 'noopener noreferrer'
+        self.output.append('<' + tag + ''.join(' ' + k + '="' + html.escape(v, quote=True) + '"' for k, v in sorted(clean.items())) + '>')
+        if tag not in self.VOID:
+            self.stack.append(tag)
+
+    def handle_startendtag(self, tag, attrs):
+        self.handle_starttag(tag, attrs)
+        if tag not in self.VOID:
+            self.handle_endtag(tag)
+
+    def handle_endtag(self, tag):
+        if self.suppressed:
+            if tag == self.suppressed[-1]:
+                self.suppressed.pop()
+            return
+        if tag not in self.stack:
+            return
+        # Balance only emitted elements; visible text is never dropped.
+        while self.stack:
+            current = self.stack.pop()
+            self.output.append('</' + current + '>')
+            if current == tag:
+                break
+
+    def handle_data(self, value):
+        if not self.suppressed:
+            self.output.append(html.escape(value, quote=False))
+
+    def handle_entityref(self, value):
+        if not self.suppressed:
+            self.output.append('&' + value + ';')
+
+    def handle_charref(self, value):
+        if not self.suppressed:
+            self.output.append('&#' + value + ';')
+
+    def handle_comment(self, value):
+        if not self.suppressed and re.fullmatch(r'\s*more\s*', value):
+            self.output.append('<!--more-->')
+
+    def result(self):
+        while self.stack:
+            self.output.append('</' + self.stack.pop() + '>')
+        return ''.join(self.output)
+
+
+class VisibleText(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.parts, self.hidden = [], 0
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ('script', 'style'):
+            self.hidden += 1
+        elif tag in ('p', 'div', 'br', 'li', 'pre', 'blockquote'):
+            self.parts.append(' ')
+
+    def handle_endtag(self, tag):
+        if tag in ('script', 'style'):
+            self.hidden = max(0, self.hidden - 1)
+        else:
+            self.parts.append(' ')
+
+    def handle_data(self, value):
+        if not self.hidden:
+            self.parts.append(value)
+
+
+def words(body):
+    p = VisibleText()
+    p.feed(body)
+    return len(re.findall(r'\S+', ''.join(p.parts)))
+
+
+def stamp(local, utc):
+    if utc and not utc.startswith('0000-'):
+        return datetime.fromisoformat(utc).replace(tzinfo=timezone.utc).isoformat()
+    return datetime.fromisoformat(local).replace(tzinfo=ZoneInfo('Europe/Prague')).isoformat()
+
+
+def clean_name(value):
+    # Author display fields are public; reject accidental private account fields.
+    if re.search(r'[^\s@]+@[^\s@]+\.[^\s@]+', value):
+        raise ValueError('Email-shaped public display name requires an explicit correction')
+    return value
+
+
+def query(client, socket, user=None):
+    args = [client, '--no-defaults', '--protocol=socket', '--socket=' + socket,
+            '--user=' + (user or getpass.getuser()), '--default-character-set=utf8mb4', '--batch', '--raw',
+            '--skip-column-names', 'wordpress']
+    result = subprocess.run(args, input=SQL, text=True, capture_output=True, check=False)
+    if result.returncode:
+        raise ValueError('Allowlisted local database query failed; SQL contents are not printed')
+    rows = defaultdict(list)
+    for line in result.stdout.splitlines():
+        item = json.loads(line)
+        rows[item.pop('kind')].append(item)
+    return rows
+
+
+def project(rows, archive, formatting, php='php', selected=None):
+    posts = rows['post']
+    assert len(posts) == 125 and len(rows['comment']) == 107 and len(rows['author']) == 6
+    assert len({p['slug'] for p in posts}) == 125
+    for p in posts:
+        assert digest(p['body'].encode()) == p['source_sha256']
+        assert re.fullmatch(r'[a-z0-9_-]+', p['slug'])
+        assert p['guid'] == 'https://blog.vpsfree.cz/?p=' + str(p['id'])
+    if selected:
+        posts = [p for p in posts if p['id'] in selected]
+        assert len(posts) == len(selected)
+    ids = {p['id'] for p in posts}
+    comments = [c for c in rows['comment'] if c['post_id'] in ids]
+    comments_by_id = {c['id']: c for c in comments}
+    for c in comments:
+        if c['parent_id']:
+            assert comments_by_id[c['parent_id']]['post_id'] == c['post_id']
+    adapter_input = [p['body'] for p in posts] + [c['body'] for c in comments]
+    result = subprocess.run([php, str(HERE / 'import-wordpress-format.php'), str(formatting)],
+                            input=json.dumps(adapter_input), text=True, capture_output=True)
+    if result.returncode:
+        raise ValueError('Pinned offline formatting failed; no source body is printed')
+    formatted = json.loads(result.stdout)
+    assert len(formatted) == len(adapter_input)
+    output = {}
+    assets = {}
+    with tarfile.open(archive, 'r:gz') as tar:
+        for member in tar.getmembers():
+            if not member.name.startswith('uploads/') or not member.isfile():
+                if member.issym() or member.islnk():
+                    raise ValueError('Archive symlink refused')
+                continue
+            rel = PurePosixPath(member.name)
+            assert not rel.is_absolute() and '..' not in rel.parts
+            assert not any(p.startswith('.') for p in rel.parts)
+            path = 'static/wp-content/' + rel.as_posix()
+            content = tar.extractfile(member).read()
+            output[path] = content
+            assets['/wp-content/' + rel.as_posix()] = {'sha256': digest(content), 'bytes': len(content)}
+    assert len(assets) == 569 and sum(x['bytes'] for x in assets.values()) == 50375369
+    authors = {}
+    for a in rows['author']:
+        author = {'name': clean_name(a['name']), 'slug': a['slug']}
+        u = safe_url(a['url']) if a['url'] else None
+        if u and urlsplit(u).scheme in ('http', 'https'):
+            author['url'] = u
+        authors['wp-user-' + str(a['id'])] = author
+    taxonomies = {'categories': {}, 'tags': {}}
+    terms = {}
+    for t in rows['term']:
+        kind = 'categories' if t['taxonomy'] == 'category' else 'tags'
+        terms[t['id']] = (kind, t['slug'])
+        taxonomies[kind][t['slug']] = {'name': t['name']}
+    associations = defaultdict(lambda: {'categories': [], 'tags': []})
+    for r in rows['relationship']:
+        if r['term_id'] in terms:
+            kind, slug = terms[r['term_id']]
+            associations[r['post_id']][kind].append(slug)
+    articles, entries, all_references = {}, [], set()
+    for p, body in zip(posts, formatted):
+        ident = 'wp-' + str(p['id'])
+        # Native Hugo summary delimiter plus original WordPress jump anchor.
+        marker = '<!--more-->'
+        body, count = re.subn(r'<!--more(?:\s+.*?)?-->', marker, body, count=1)
+        assert count == 1, 'Unexpected WordPress more marker'
+        body = body.replace(marker, marker + '<span id="more-' + str(p['id']) + '"></span>', 1)
+        sanitized = Sanitizer(article=True)
+        sanitized.feed(body)
+        body = sanitized.result()
+        assert '<!--more-->' in body and 'id="more-' + str(p['id']) + '"' in body
+        all_references.update(sanitized.references)
+        exceptions = dict(sanitized.exceptions)
+        exceptions['wptexturize_not_applied'] = 1
+        fm = {'title': p['title'], 'date': stamp(p['date'], p['date_gmt']),
+              'lastmod': stamp(p['modified'], p['modified_gmt']), 'draft': False,
+              'url': '/' + p['slug'] + '/', 'translationKey': ident,
+              **{k: sorted(set(v)) for k, v in associations[p['id']].items()},
+              'params': {'article_id': ident, 'source_body_sha256': p['source_sha256']}}
+        # Match the authoring and native archive adapter's TOML contract.
+        toml = ['+++']
+        for key, value in fm.items():
+            if key != 'params':
+                toml.append(key + ' = ' + json.dumps(value, ensure_ascii=False))
+        toml.append('[params]')
+        for key, value in fm['params'].items():
+            toml.append(key + ' = ' + json.dumps(value, ensure_ascii=False))
+        toml.append('+++\n')
+        content = ('\n'.join(toml) + '\n' + body + '\n').encode()
+        path = 'content/posts/' + ident + '/index.cs.html'
+        output[path] = content
+        articles[ident] = {'discussion_url': 'https://blog.vpsfree.cz/' + p['slug'] + '/',
+                           'author_ids': ['wp-user-' + str(p['author_id'])],
+                           'legacy_post_id': p['id'], 'feed_guids': {'cs': p['guid'], 'en': 'urn:vpsfree:blog:' + ident + ':en'}}
+        entries.append({'article_id': ident, 'legacy_post_id': p['id'], 'cs_path': fm['url'],
+                        'cs_file': path, 'source_body_sha256': p['source_sha256'],
+                        'cs_file_sha256': digest(content), 'visible_word_count': words(p['body']),
+                        'exceptions': exceptions})
+    comment_arrays = defaultdict(list)
+    for c, body in zip(comments, formatted[len(posts):]):
+        sanitized = Sanitizer()
+        sanitized.feed(body)
+        item = {'id': c['id'], 'parent_id': c['parent_id'], 'author_name': clean_name(c['author_name']),
+                'date': stamp(c['date'], c['date_gmt']), 'html': sanitized.result()}
+        u = safe_url(c['author_url']) if c['author_url'] else None
+        if u and urlsplit(u).scheme in ('http', 'https'):
+            item['author_url'] = u
+        comment_arrays[c['post_id']].append(item)
+    for p in posts:
+        output['data/legacy-comments/wp-' + str(p['id']) + '.json'] = encoded(sorted(comment_arrays[p['id']], key=lambda c: (c['date'], c['id'])))
+    output['data/articles.json'] = encoded(articles)
+    output['data/authors.json'] = encoded(authors)
+    output['data/taxonomies.json'] = encoded(taxonomies)
+    missing = []
+    for reference in all_references:
+        u = urlsplit(reference)
+        if (not u.netloc or u.hostname == 'blog.vpsfree.cz') and u.path.startswith('/wp-content/uploads/'):
+            if unquote(u.path) not in assets:
+                missing.append(u.path)
+    paths = {p['id']: '/' + p['slug'] + '/' for p in posts}
+    routes = [{'source': '/?p=' + str(i), 'target': path, 'kind': 'post-query'} for i, path in paths.items()]
+    for row in rows['old_slug']:
+        if row['post_id'] in paths and row['slug'] and '/' + row['slug'] + '/' != paths[row['post_id']]:
+            routes.append({'source': '/' + row['slug'] + '/', 'target': paths[row['post_id']], 'kind': 'old-slug'})
+    options = {r['name']: r['value'] for r in rows['option']}
+    attachments = [{'id': a['id'], 'parent_id': a['parent_id'], 'guid': a['guid'],
+                    'mime': a['mime'], 'file': '/wp-content/uploads/' + a['file'],
+                    'query': '/?attachment_id=' + str(a['id']),
+                    'legacy_path': paths.get(a['parent_id'], '/') + a['slug'] + '/'} for a in rows['attachment']]
+    for a in attachments:
+        if a['file'] not in assets:
+            raise ValueError('Missing attachment file; original ID ' + str(a['id']))
+        routes.append({'source': a['query'], 'target': a['file'], 'kind': 'attachment-query'})
+        routes.append({'source': a['legacy_path'], 'target': a['file'], 'kind': 'attachment-permalink'})
+    for a in rows['author']:
+        routes.append({'source': '/?author=' + str(a['id']), 'target': '/author/' + a['slug'] + '/', 'kind': 'author-query'})
+    for t in rows['term']:
+        if t['taxonomy'] == 'category':
+            routes.append({'source': '/?cat=' + str(t['source_term_id']), 'target': '/category/' + t['slug'] + '/', 'kind': 'category-query'})
+    for c in comments:
+        routes.append({'source': paths[c['post_id']] + '?replytocom=' + str(c['id']),
+                       'target': paths[c['post_id']] + '#comment-' + str(c['id']), 'kind': 'comment-reply-query'})
+    archives = {'authors': ['/author/' + a['slug'] + '/' for a in authors.values()],
+                'categories': ['/category/' + s + '/' for s in taxonomies['categories']],
+                'tags': ['/tag/' + s + '/' for s in taxonomies['tags']],
+                'years': sorted({'/' + p['date'][:4] + '/' for p in posts}),
+                'months': sorted({'/' + p['date'][:4] + '/' + p['date'][5:7] + '/' for p in posts}),
+                'days': sorted({'/' + p['date'][:4] + '/' + p['date'][5:7] + '/' + p['date'][8:10] + '/' for p in posts})}
+    archive_members = defaultdict(set)
+    for p in posts:
+        archive_members['/'].add(p['id'])
+        archive_members['/author/' + authors['wp-user-' + str(p['author_id'])]['slug'] + '/'].add(p['id'])
+        for kind, prefix in [('categories', 'category'), ('tags', 'tag')]:
+            for slug in associations[p['id']][kind]:
+                archive_members['/' + prefix + '/' + slug + '/'].add(p['id'])
+        for date_path in ('/' + p['date'][:4] + '/', '/' + p['date'][:4] + '/' + p['date'][5:7] + '/',
+                          '/' + p['date'][:4] + '/' + p['date'][5:7] + '/' + p['date'][8:10] + '/'):
+            archive_members[date_path].add(p['id'])
+    per_page = int(options.get('posts_per_page', '10'))
+    archives['pagination'] = sorted(path + 'page/' + str(page) + '/'
+                                    for path, members in archive_members.items()
+                                    for page in range(2, (len(members) + per_page - 1) // per_page + 1))
+    manifest = {'schema': 1, 'formatting': {'wordpress_version': '7.1.2', 'formatting_sha256': FORMATTING_SHA256,
+                'functions': ['convert_chars', 'wpautop'], 'wptexturize': 'not applied; requires localized WordPress hooks'},
+                'counts': {'articles': len(posts), 'authors': len(authors), 'comments': len(comments),
+                           'comment_replies': sum(bool(c['parent_id']) for c in comments),
+                           'uploads': len(assets), 'upload_bytes': sum(a['bytes'] for a in assets.values()),
+                           'attachments': len(attachments)},
+                'word_count_method': 'HTMLParser text, script/style excluded, whitespace tokens; code included',
+                'articles': entries, 'assets': dict(sorted(assets.items())),
+                'missing_upload_references': sorted(set(missing)), 'legacy_aliases': routes,
+                'attachments': attachments, 'source_public_options': options, 'archives': archives}
+    manifest['generated_files'] = {path: digest(value) for path, value in sorted(output.items())}
+    output['data/migration/source-manifest.json'] = encoded(manifest)
+    return output, manifest
+
+
+def write_output(output, root):
+    manifest_path = root / 'data/migration/source-manifest.json'
+    prior = json.loads(manifest_path.read_text()) if manifest_path.exists() else {}
+    tracked = prior.get('generated_files', {})
+    for name, value in output.items():
+        p = root / name
+        if p.is_symlink() or any(x.is_symlink() for x in p.parents if x != root.parent):
+            raise ValueError('Symlink output refused')
+        if p.exists() and p.read_bytes() != value:
+            if name == 'data/migration/source-manifest.json':
+                continue
+            if name in ('data/articles.json', 'data/authors.json') and p.read_text().strip() == '{}':
+                continue
+            if name not in tracked or digest(p.read_bytes()) != tracked[name]:
+                raise ValueError('Refusing to overwrite untracked/manual edit at ' + name)
+    for name, value in output.items():
+        p = root / name
+        p.parent.mkdir(parents=True, exist_ok=True)
+        p.write_bytes(value)
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--client', required=True, help='MariaDB client executable')
+    parser.add_argument('--socket', required=True, help='PRIVATE restored database socket; never a production target')
+    parser.add_argument('--db-user', help='Local restore administrator; defaults to current Unix user')
+    parser.add_argument('--uploads-archive', type=Path, required=True)
+    parser.add_argument('--formatting', type=Path, required=True, help='Pinned WordPress formatting.php, never wp-load.php')
+    parser.add_argument('--php', default='php')
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--ids', help='Representative comma-separated original IDs; omit for the full corpus')
+    args = parser.parse_args()
+    assert digest(args.formatting.read_bytes()) == FORMATTING_SHA256
+    rows = query(args.client, args.socket, args.db_user)
+    selected = set(map(int, args.ids.split(','))) if args.ids else None
+    output, manifest = project(rows, args.uploads_archive, args.formatting, args.php, selected)
+    write_output(output, args.output.resolve())
+    print(json.dumps({'counts': manifest['counts'], 'missing_upload_references': len(manifest['missing_upload_references']),
+                      'generated_files': len(output)}, sort_keys=True))
+
+
+if __name__ == '__main__':
+    main()

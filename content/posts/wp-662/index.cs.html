@@ -1,0 +1,37 @@
++++
+title = "Přejděme na IPv6 společně, potřebujeme to"
+date = "2020-06-04T07:35:00+00:00"
+lastmod = "2020-07-09T19:29:08+00:00"
+draft = false
+url = "/prejdeme-na-ipv6-spolecne-potrebujeme-to/"
+translationKey = "wp-662"
+categories = ["server", "technologie", "vpsfree-cz"]
+tags = ["ipv6"]
+[params]
+article_id = "wp-662"
+source_body_sha256 = "092fbf2a06e3092e455fe274c10b07e9c5f31cb8aaa304355d151067226c609d"
++++
+
+<p>Světu a nakonec i Evropě došly volné IPv4 adresy, infrastruktura je na IPv6 připravena. Jste i vy?<br>
+<!--more--><span id="more-662"></span></p>
+<p>Dnešní symbolické datum 4.6. nabádá znovu k zamyšlení nad tím, proč ještě celý svět nepřešel na IPv6. Nemáme k tomu daleko, ale přeci jen nám ještě kus chybí. Google například tvrdí, že <a href="https://www.google.com/intl/en/ipv6/statistics.html">třetina uživatelů k němu chodí po IPv6</a>. To není špatné, ale není to ani úplně dobré.</p>
+<p>Ve středu 25. listopadu 2019 v 15:35 <a href="https://www.ripe.net/publications/news/about-ripe-ncc-and-ripe/the-ripe-ncc-has-run-out-of-ipv4-addresses">došly poslední IPv4 adresy přidělené pro Evropu</a>. Není kde brát, další adresy ze starého světa už prostě nezískáme. Postupně to dostihne všechny, už teď většina trhu řeší, jak se poprat s nedostatkem adres.</p>
+<p>Nakonec z toho budou těžit zase ti největší, kteří mají obrovské zásoby nebo si jednoduše <a href="https://www.ampr.org/amprnet/">další adresy od někoho koupí</a>, protože na to prostě mají. Nastal čas přejít plně na IPv6, infrastruktura je připravená, chybí už jen přípojky koncových uživatelů. <strong>Napište svému poskytovateli</strong> a zeptejte se ho, kdy budete připraveni na nový internet.</p>
+<p>My ve vpsFree.cz jsme IPv6 ready od samého počátku, každý člen dostává automaticky ke svému serveru adresu a o další si stačí požádat. Naopak s IPv4 je to čím dál složitější, adresy ubývají a jejich zásoba se nám tenčí. Proto rada rozhodla, že už nebude přidělovat členům více než jednu IPv4 adresu. Bez ohledu na zdůvodnění a záměry, jedna IPv4 adresa na člena. Zbytek adres si necháme pro <strong>nové členy</strong>, kteří je zatím ještě potřebují.</p>
+<p><strong>Aktualizace:</strong> Vzhledem ke zpětné vazbě od členů, kterým jsme narušili produkční plány, musíme tento plán odložit minimálně o rok. Necháme si ho na dobu, kdy nám budou IPv4 adresy opravdu akutně docházet. Zatím je na požádání členovi přidělíme.</p>
+<p>Je čas přejít na IPv6 a musíme to udělat společně. Musíme na tom pracovat jak na zmíněných koncových stanicích, tak i na svých serverech a službách. Už dnes je možné provozovat virtuální server pouze na IPv6 a přístup pro uživatele přicházející po IPv4 zajistit pomocí společné reverzní proxy.</p>
+<p>Například s <a href="https://nginx.org/">webovým serverem Nginx</a> je to velmi jednoduché, stačí na něm nastavit, aby byl obsah pro dané domény získáván ze serveru, který má jen IPv6. Takto se nám provoz pro IPv4 koncentruje na jednu adresu a my se na skutečném serveru můžeme soustředit čistě na IPv6.</p>
+<pre>
+server {
+	listen   443 ssl http2; # poslouchej na IPv4
+	listen   [::]:443 ssl http2; # poslouchej na IPv6
+	server_name  example.com example.org www.example.com www.example.org;
+			# obsluhuj tyto domény
+	
+	location / {
+		proxy_pass https://2a01:430:17:1::ffff:149:443; # směruj provoz na tuto adresu
+	    }
+}
+</pre>
+<p>Protokol IPv4 nemá budoucnost, to už je jasné velmi dlouho. Letošní rok je přelomový, nepropásněte jej a přestaňte se starat o to, kde vzít adresy. IPv6 adres je dostatek.</p>
+

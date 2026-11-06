@@ -1,0 +1,33 @@
++++
+title = "Aktuality ze serverovny: co děláme teď a co chystáme dál"
+date = "2020-06-26T18:21:16+00:00"
+lastmod = "2020-07-01T07:39:33+00:00"
+draft = false
+url = "/aktuality-ze-serverovny-co-delame-ted-a-co-chystame-dal/"
+translationKey = "wp-667"
+categories = ["vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-667"
+source_body_sha256 = "af0f4fb96b1b993dea119ca3ec119b68287518fc5e1d8000adde3a3baffe7dc3"
++++
+
+<p>V pátek 26. června proběhla členská schůze v restauraci U Balbínů v Praze. Následující článek shrnuje to podstatné, ze shrnutí, kterého se ujal Pavel Šnajdr.</p>
+<p><!--more--><span id="more-667"></span></p>
+<p><strong>Co se událo v roce 2019</strong></p>
+<p>V roce 2019 jsme prakticky nerostli, protože na naší infrastruktuře s OpenVZ nefungoval Docker. <q>Lidi dnes nechtějí adminovat servery, chtějí mít vše na jedno kliknutí.</q> Začali jsme ale přecházet na vpsAdminOS, kde už s Dockerem není problém.</p>
+<p>Příjmy v loňském roce činily 6,8 milionů korun a výdaje 6,7 milionů korun. <q>Snažíme se to nepřehánět s výdajovou stránkou, abychom měli rezervu.</q> Stejně tak netlačíme na členy se splatností, protože současná situace je složitá. Výdaje jsme vloni snížili o konference, na kterých jsme omezili účast.</p>
+<p>Podívejte se na aktuální <a href="https://foto.vpsfree.cz/?f=2020%2FFotky_z_DC">fotky ze serverovny</a> a <a href="https://foto.vpsfree.cz/?f=2020%2FClenska_schuze_26_06_2020">obrázky z členské schůze</a>. Můžete si také stáhnout <a href="https://vpsfree.cz/download/schuze_26_6_2020.ogg">audio nahrávku</a> z členské schůze.</p>
+<p>Spolek splácí půjčku jeden milion korun od jednoho z členů, doplaceno bychom měli mít v říjnu 2021. <q>Koupili jsme za to tři nové servery.</q> Nekupujeme nové servery, ale bazarové, dává nám to větší smysl. Zatím vyčkáváme, jak se vyvine trh, jestli bude dávat smysl do budoucna kupovat AMD nebo ARM.</p>
+<p>Stále platí, že se chceme přiblížit k živnostenskému oprávnění, registraci k DPH a certifikaci. Chceme firemní zákazníky účtovat lépe, aby si nás mohli dávat do nákladů, což v případě členských poplatků nemůžou. <q>Dáváme dohromady účetnictví, po předchozím účetním zůstala spousta problémů. Už se blížíme do finále.</q> Není rozhodně v plánu zakládat servisní organizaci a komercionalizovat se, spolek zůstává stále nás všech a tak to zůstane.</p>
+<p>Oznámili jsme, že každý člen <a href="https://blog.vpsfree.cz/prejdeme-na-ipv6-spolecne-potrebujeme-to/">dostane jen jednu IPv4 adresu</a>. Nechystáme se k žádným dramatickým krokům, nebudeme odebírat adresy současným členům a k něčemu podobnému budeme nuceni zřejmě až v roce 2024. <q>Chceme si do té doby zvyknout na proxy, protože to bude časem cesta, jak se připojit ke starému IPv4 světu.</q> Nechceme z adres dělat obchodní artikl, ale chceme dát šanci novým členům získat v budoucnu adresu.</p>
+<p>V loňském roce se podařilo připravit <a href="https://blog.vpsfree.cz/terraform-provider-pro-vpsadmin-spravujte-infrastrukturu-automatizovane/">plugin pro Terraform</a>, který umožňuje jednoduše konfigurovat a udržovat infrastrukturu, dále vznikla podpora pro dvoufaktorovou autentizaci s TOTP. Postupně jsme část infrastruktury převedli do NixOS. <q>Není to zdaleka všechno, ale co máme na NixOS, to máme zveřejněné na GitHubu.</q></p>
+<p>Díky tomu jsme zinventarizovali náš hardware, všechny informace jsou na naší <a href="https://kb.vpsfree.cz/informace/infrastruktura">knowledge base</a>. Máme také <a href="https://blog.vpsfree.cz/migrace-nasi-infrastruktury-na-20-gigabitu/">10GE páteřní síť</a> a nové hraniční routery od Dellu.</p>
+<p>V Praze už máme v datacentru tři racky, do samostatného racku jsme přesunuli backup server a NAS. <q>Získali jsme tak místo pro switche ve dvou hlavních racích, k tomu třetímu vedeme jen kabeláž.</q></p>
+<p>Velkým projektem je <a href="https://blog.vpsfree.cz/tag/vpsadminos/">vývoj vpsAdminOS</a>, což je náš vlastní operační systém pro provoz kontejnerové infrastruktury. <q>Dnes je to jeden z nejlepších způsobů, jak provozovat kontejnery.</q> V kontejnerech už podporujeme LXD, Docker, NFS, Ceph a kernel message buffer (dmesg).</p>
+<p>Máme vlastní patche: 49 v linuxovém jádře, 14 v ZFS a 5 v LXC. <q>Nezvládáme je ale dostat do upstreamu, chybí nám testy, bez kterých nám to nikdo nepřijme.</q>Potřebujeme oslovit lidi, kteří se chtějí naučit něco nového, aby nám s vývojem pomohli.</p>
+<p><strong>Plány na rok 2020 a dál</strong></p>
+<p>Původně jsme chtěli pracovat také na novém rozhraní pro vpsAdmin, ale to vyžaduje nějakého šikovného člověka, který chce dělat uživatelské rozhraní v JavaScriptu. Letos chceme pracovat na zmíněném živnostenském oprávnění, certifikaci a DPH.</p>
+<p>Chceme se tím přiblížit ke cloudovému přístupu: když chci něco rychle spustit, chci to udělat okamžitě bez schvalování a dalších problémů. <q>Technicky je to řešitelné, ale musíme to udělat čistě z hlediska finančního úřadu.</q></p>
+<p>Postupně dolaďujeme vpsAdminOS a migrujeme z OpenVZ. Postupně s přidáváním dalších členů přicházíme na různé problémy v jádře a řešíme je za pochodu. Dnes máme čtyři produkční servery, na kterých už běží ostré VPS. Chceme mít přemigrováno do konce roku 2021. <q>Z uživatelského hlediska se po migraci zvýší verze jádra a NFS se připojuje uvnitř VPS a ne z vpsAdminu.</q></p>
+

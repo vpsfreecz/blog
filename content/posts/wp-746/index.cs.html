@@ -1,0 +1,46 @@
++++
+title = "Post mortem: pár slov k výpadku"
+date = "2022-06-03T20:37:55+00:00"
+lastmod = "2022-06-03T20:58:40+00:00"
+draft = false
+url = "/post-mortem-par-slov-k-vypadku/"
+translationKey = "wp-746"
+categories = ["server"]
+tags = ["master"]
+[params]
+article_id = "wp-746"
+source_body_sha256 = "eb55a9334a1b084752862c0395790e7ea249ec149f9aecc76a9ef9387f8d38be"
++++
+
+<p>Ve čtvrtek 2. června nám vypadly kompletně všechny servery v Praze a několik hodin jsme byli nedostupní. Proč se to stalo a jak se to seběhlo.</p>
+<p><!--more--><span id="more-746"></span></p>
+<p>Čtvrtek začal jako běžný den, kdy jsme si s ostatními adminy začali psát o provozních věcech. Někdo poznamenal, že na českém internetu vypadla část webů a služeb. Rychle jsme došli k tomu, že problém je v našem datacentru MasterDC. Vypadla jedna z napájecích větví.</p>
+<p>Výpadek souvisel s energetickými problémy, které zasáhly velkou část Prahy a proto i naše datacentrum muselo přejít do nouzového režimu. To se běžně stává, není na tom vlastně nic divného. V tu chvíli nám ještě naše infrastruktura normálně běžela, protože všechen hardware potřebný pro provoz VPS provozujeme s <strong>duálním napájením</strong>. Máme tedy zdvojené zdroje a výpadek jedné větve nás nijak neohrožuje.</p>
+<p>Bohužel pak nastala souhra dalších okolností a nakupilo se několik dalších problémů, které způsobily výpadek druhé napájecí větve a byla tma. Všechny naše servery v Praze do jednoho zhasly. Tím pádem jsme přišli také o maily, nástroje pro podporu a veškerou běžnou komunikaci. Začali jsme tedy informace <a href="https://twitter.com/vpsfree_cz/">zveřejňovat na Twitteru</a> a posílat aktualizace. Máme ještě druhou lokalitu v Brně, která byla po celou dobu normálně v provozu. Administrační panel a NAS se zálohovacím polem máme ovšem v Praze.</p>
+<p>Okamžitě jsme také vyrazili do datacentra, protože bylo jasné, že bude potřeba problémy vyřešit na místě. Tam už ale bylo několik desítek dalších zákazníků a jejich technici postupně nahazovali, co bylo možné nahodit. Nějakou dobu tedy trvalo, než jsme se vůbec dostali ke svým rackům a mohli začít provoz obnovovat.</p>
+<p>V tu chvíli se ovšem projevily další problémy, zejména pomalu startující switche, které nabíhaly pomaleji než servery samotné. Servery ale bootují ze sítě a protože ta ještě nefungovala, nezabralo PXE a servery nestartovaly. Bylo třeba tedy počkat na start sítě a až potom servery znovu otočit a nechat nastartovat.</p>
+<p>Aby toho nebylo málo, odporoučel se nám jeden 10GE switch a už vůbec nenaběhl. Situaci jsme prozatím vyřešili a plánujeme hardwarové i softwarové vylepšení sítě tak, abychom ji měli více pod kontrolou a už nemohly podobné problémy nastat.</p>
+<p>Postupně se tedy podařilo všechny servery nastartovat, kromě node6 s OpenVZ. V průběhu let jsme na něm postupně měnili systémová SSD a nenainstalovali jsme na ně zavaděče. Po restartu už tedy ze současných disků odmítl nastartovat a bylo ho potřeba na místě trochu přemlouvat. Proto jeho start trval nejdéle.</p>
+<p>Co dál? Hledáme řeseni pro PXE, aby nám najíždělo spolehlivě. OpenVZ už se chceme nadobro zbavit, aby bylo všechno na aktuální platformě vpsAdminOS. Zajímavé je, že jsme v několika posledních týdnech tenhle problém teoreticky rozebírali a bavili jsme se o tom, co by se stalo, kdyby tahle extrémně nepravděpodobná situace nastala. Aspoň jsme teď věděli, co máme přesně dělat.</p>
+<p>Kolegové z datacentra MasterDC celou situaci zvládli velmi dobře, celou dobu komunikovali veřejně i s námi a nesnažili se nic trapně zakrývat. Postavili se k věci čelem, přiznali chybu a tak by to mělo být vždycky. Tohle my sami děláme od samotného začátku naší organizace. Upřímnost by měla být normou a nikdo slušný by se neměl schovávat za nic neříkající formulace.</p>
+<p>MasterDC se nemá za co stydět, je to jen technika a ta prostě někdy selhává, ať děláte pro její provoz maximum.</p>
+<p>Níže následuje celé vyjádření MasterDC:</p>
+<hr>
+<p><em><br>
+Vážení zákazníci,</em></p>
+<p>zdravím vás den poté, co naše pražské DC zasáhly následky masivního výpadku dodávek elektřiny v části Prahy. Hned v úvodu se jménem MasterDC všem omlouvám za způsobené komplikace a zároveň děkuji, že jste nám dali čas. Jak jsme včera avizovali, byl nezbytně nutný k důkladnému prošetření celého incidentu a sestavení časové osy. Rozhodl jsem se celou situaci transparentně komunikovat.</p>
+<p>Níže tedy najdete následující: 1. k čemu došlo, 2. jaká je aktuální situace, 3. co nás v nejbližších dnech čeká a 4. jaké kroky jsme přijali do budoucna.</p>
+<p>Ve čtvrtek 2. 6. 2022 v 8:49 ráno zaznamenal náš monitoring výpadek napájení z distribuční sítě dodavatele PRE. Automatický systém zálohovaného napájení okamžitě převzal na větvi B systém UPS v režimu N+1 a následně motorgenerátor na větvi B. Na napájecí větvi A došlo ve stejnou chvíli k selhání soustavy N+1 UPS jednotek z důvodů, které jsou v tuto chvíli stále v šetření (jedním ze scénářů je abnormální přepětí v síti – zcela potvrdit to nyní však nemůžeme). Jeden z motorgenerátorů v soustavě N+1 nastartoval, ale problém na soustavě UPS byl natolik vážný, že neproběhl bypass UPS a napájení větve A selhalo.</p>
+<p>V souladu s krizovým plánem pro tyto situace přistoupili pracovníci technického týmu k přesouvání vybraných zařízení větve A na sekundární větev B. Jeden z přepojovaných prvků způsobil zkrat, který vyhodil hlavní jistič (na trase byl i podružný jistič, který však nevybavil). Tím nastal v čase 10:43 výpadek i větve B.</p>
+<p>Jednalo se tedy o extrémní případ souběžného selhání několika záložních a jisticích prvků v soustavě. Zde bych rád uvedl, že všechny tyto technologie splňovaly kvalitativní standard datacentra včetně pravidelných revizí a testování, rovněž i postup personálu se po vyšetřování ukázal být v souladu s krizovým plánem.</p>
+<p>Včera jsme zmínili, že ke zprovoznění napájení došlo před 13. hodinou. Musíme upřesnit, že v tomto čase jsme již evidovali kompletně obnovený provoz datacentra. Ke zprovoznění napájecí větve A došlo v čase 11:11, napájení na větvi B bylo zprovozněno v 11:16. V průběhu odpoledne jsme se pak věnovali primárně asistenci zákazníkům s obnovou provozu jejich aplikací.<br>
+ <br>
+Stav k 3. 6. 2022, 18:10 je následující:<br>
+-       všechny zákaznické služby v provozu;<br>
+-       se servisní organizací jsme naplánovali revizní a servisní práce na obou větvích, které proběhnou příští týden v úterý 7. 6. 2022, 19:00 - 21:00 na větvi B a ve středu 8. 6. 2022, 5:00 - 7:00 na větvi A. Středeční ranní zásah na větvi A se neobejde bez servisní odstávky celé větve. Prosím sledujte dál naši komunikaci, o zásazích vás budeme ještě informovat standardní cestou.</p>
+<p>Kromě výše zmíněných kroků jsme se rozhodli přistoupit ke kompletní obnově soustavy UPS jednotek pro větev A od nového dodavatele. Další opatření aktuálně nezamýšlíme – konfigurace veškerých prvků (MTG, UPS, klimatizace a další) je v módu minimálně N+1 a příčinou tohoto výpadku tedy nebyla nedostatečná redundance.</p>
+<p>Děkujeme za podporu, které se nám od mnohých z vás dostalo i veřejnou cestou.</p>
+<p>Za MasterDC<br>
+Filip Špaček, provozní ředitel<br>
+</p>
+

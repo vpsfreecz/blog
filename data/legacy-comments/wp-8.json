@@ -1,0 +1,31 @@
+[
+  {
+    "author_name": "S",
+    "date": "2015-01-04T20:14:55+00:00",
+    "html": "<p>Parada, uz se chystam na nasazeni!</p>\n",
+    "id": 3,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Jimm",
+    "date": "2015-05-19T15:07:40+00:00",
+    "html": "<p>Dobry den, mohu pozadat o info, zda-li se da na Centos 7 prejit nejakym upgradem, nebo je nutno preinstalovat a prakticky tak znovu konfigurovat server od zacatku? To by byla bida. :)</p>\n",
+    "id": 20,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "http://www.vpsfree.cz",
+    "date": "2015-05-19T16:57:38+00:00",
+    "html": "<p>Tohle je dotaz na podporu nebo do community listu, ne pod starý blogpost. Ale obecně ano, je možné distribuce normálně aktualizovat.</p>\n",
+    "id": 21,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Jimm",
+    "date": "2015-05-19T23:58:11+00:00",
+    "html": "<p>Moc děkuji!</p>\n",
+    "id": 22,
+    "parent_id": 21
+  }
+]

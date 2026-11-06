@@ -1,0 +1,47 @@
+[
+  {
+    "author_name": "Stanislav Slačka",
+    "author_url": "http://sslacka.webnode.sk/",
+    "date": "2020-04-01T12:44:45+00:00",
+    "html": "<p>Pozdravujem,<br>\nje možné zdielať vo VPS, prezentácie v Power pointe, excelovské tabuľky a iné lokálne aplikácie?</p>\n",
+    "id": 3553,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-04-02T08:11:09+00:00",
+    "html": "<p>VPS znamená Virtuální Privátní Server, to je typ serveru. Jestli máte na mysli službu meet.vpsfree.cz, ta umožňuje během hovoru vysílat místo obrazu z kamery vysílat obsah libovolného okna. Přepíná se to ikonou vlevo dole, můžete tak ostatním ukázat třeba prezentaci.</p>\n",
+    "id": 3558,
+    "parent_id": 3553
+  },
+  {
+    "author_name": "mcmiazga",
+    "date": "2020-04-06T19:01:56+00:00",
+    "html": "<p>Caute, velmi moc vam fandim. Ked som videl na root.cz ze ste spustili sluzbu pre hocikoho a zdarma, oblial ma studeny pot. Asi tri dni pred tym som chcel pre seba jitsi nasadit a ked som videl to vase, rozmyslel som si to. Obrovsky vam vsetkym dakujem za meet.vpsfree.cz! Drzim palce pri nasadzovani novej verzie. Teraz po par dnoch fungovania viete odpovedat ci je lepsie firefoxy sa uplne vyhnut? Dakujem.</p>\n",
+    "id": 3580,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-14T08:57:02+00:00",
+    "html": "<p>Je to psané v příspěvcích na předchozích stránkách. S Firefoxem jsou problémy. Mě se přetížil asi při pátém uživateli.</p>\n",
+    "id": 3620,
+    "parent_id": 3580
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-04-14T09:10:59+00:00",
+    "html": "<p>Moc díky za Jitsi na vpsfree.cz - udělali  jste tomu velkou propagaci a to je dobře.</p>\n",
+    "id": 3621,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Martin Myška",
+    "author_url": "https://www.martinmyska.cz/",
+    "date": "2020-04-21T17:00:12+00:00",
+    "html": "<p>Přesně tak, Firefox je obecně problém, nakolik vývojáři Jitsi pracují s Chrome. V něm je vše plynulé a funkční.</p>\n",
+    "id": 3680,
+    "parent_id": 3620
+  }
+]

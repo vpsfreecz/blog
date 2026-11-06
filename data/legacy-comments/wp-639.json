@@ -1,0 +1,95 @@
+[
+  {
+    "author_name": "Jirka",
+    "date": "2020-03-17T19:27:20+00:00",
+    "html": "<p>Výborně! povedlo se vám nějak vyřešit CPU náročnost na serveru? Případně vznikající packetloss, latence a vypadávající video co se objevuje od 8 účastníků výš? děkuji</p>\n",
+    "id": 3445,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Miklik",
+    "date": "2020-03-17T21:31:15+00:00",
+    "html": "<p>Tak jsem to teď testoval a nějak se mi nepřenáší obraz. Zkoušel jsem meeting NB vs mobil (meet aplikace) a NB vs chrombook (firefox). Lokálně obraz z kamery vidím, ale na druhém zařízení ne.<br>\nA ještě jsem se přihlásil i v ff anonymním režimu, jako uživatel Anonymous a ten mi tam teď visí jako správce.</p>\n",
+    "id": 3446,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Pavel Šnajdr",
+    "author_url": "http://vpsfree.cz",
+    "date": "2020-03-18T18:38:59+00:00",
+    "html": "<p>Udelal jsem pak nakonec botu v konfigu, shodil jsem to na 8 jader... uz fixnuto; tu je to dobre videt: https://prasiatko.vpsfree.cz/munin/vpsfree.cz/meet.vpsfree.cz/cpu.html</p>\n",
+    "id": 3449,
+    "parent_id": 3446
+  },
+  {
+    "author_name": "Václav Maněna",
+    "date": "2020-03-19T09:42:28+00:00",
+    "html": "<p>Pavle teď mi psal jeden učitel, že by tenhle skvělý nástroj chtěl použít jako takový projektor, že on by vysílal zvuk a obraz z počítače, a studenti by ho sledovali. Jen sledovali, protože ti studenti nemají webkamery ani mikrofony, ale prý to tak nefunguje. Je možné nástroj takhle použít? Včera jsem o vpsfree a tomhle nástroji mluvil na webináři pro učitele, tak snad jsem aspoň trochu přispěl k propagaci téhle skvělé práce!</p>\n",
+    "id": 3453,
+    "parent_id": 3449
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-19T10:23:14+00:00",
+    "html": "<p>Ve čtvrtek 9:30 jsem to zkoušel se svými žáky. Žáci opravdu nemají webkamerky a nebo je nechtějí pouštět. Ale mikrofon puštěný měli. To že jsem některé neviděl není moc psychologicky příjemné.<br>\nPři vstupu 4 žáka se mi sekl prohlížeč, po restartu to jelo, ale probliklo tam \"internet issue\". Spotřeba paměti Firefoxu 2 GiB. Provoz na Win10. Jel jsem z domácího připojení jen download/upload 8/2 Mbit/s.<br>\nZatím se na vysílání výuky (to jest jedním směrem) nechystám. Použití v mém případě vidím vhodné pro konzultace k úkolům, které zasílám tj. žáci se připojí a já provedu shrnutí myšlenek a žáci pak dávají dotazy.</p>\n",
+    "id": 3454,
+    "parent_id": 3453
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-19T10:35:54+00:00",
+    "html": "<p>Prosím, o malý technický úvod, který by mi pomohl zvážit využití - chci provádět konzultace (vzájemná interakce) se žáky (teoreticky až 30 účastníků). Určitě musí vidět oni mne. Z jejich strany mikrofon a u některých video.<br>\nUtáhne to váš systém?<br>\nJaké jsou technické požadavky na mojí straně: procesor, paměť, internetové připojení)?<br>\nKaždý účastník tahá tolik přenosů kolik účastníků je připojeno? Nebo zakladatel místnosti slouží jako server, který je nejvíce vytížený (během i datově)?<br>\nJe doporučený nějaký prohlížeč?<br>\nZkoušel jsem to a při připojení 4 žáka se mi sekl prohlížeč, ale nevím proč. Po restartu jsem zahlédl text \"internet issue\" nebo tak něco. Nevím, jestli se sekl kvůli paměti (prohlížeč obsazoval 2 GiB) nebo kvůli internetu (download/upload 8/2 Mbit/s).<br>\nPokud by byl problém pouze internet, tak to mám možnost řešit.</p>\n",
+    "id": 3455,
+    "parent_id": 0
+  },
+  {
+    "author_name": "GeBu",
+    "date": "2020-03-19T21:24:57+00:00",
+    "html": "<p>Jitsi nemá rádo Firefox: https://community.jitsi.org/t/jitsi-meet-complains-firefox-is-too-old-in-debian-10-2/21040/3</p>\n<p>Ve Firefoxu to má pár bugů: One of the main issue that people see is that there is no media at all, no incoming and no outgoing and you need to refresh. As there is also no simulcast enabled it can increase overall bandwidth in the meeting that can degrade quality for the rest of the participants.</p>\n<p>Ten druhý bug bude zřejmě můj problém.</p>\n",
+    "id": 3462,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Vlada",
+    "date": "2020-03-20T09:38:01+00:00",
+    "html": "<p>Ahoj,<br>\ndíky za to co děláte. Vypadá to dobře, jen teď dopoledne dnes se nemůžu dostat do místnosti (včera a dnes ráno OK). Hlásí to, že \"Bohužel, něco se pokazilo\" a zkouší to kolem dokola... V jiné místnosti je to cajk. Co s tím?</p>\n",
+    "id": 3465,
+    "parent_id": 0
+  },
+  {
+    "author_name": "lebaux",
+    "author_url": "https://theseoframework.com",
+    "date": "2020-03-22T12:19:39+00:00",
+    "html": "<p>Přidáno do listu Jitsi instancí Framasoft https://framatalk.org/accueil/en/info</p>\n",
+    "id": 3489,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Robert",
+    "date": "2020-03-26T16:46:02+00:00",
+    "html": "<p>Ja jsem se dival na navod jak rozjet stream na youtubu a asi bude potreba pouzit https://meet.jit.si . Tam je  moznost zahajit zivy prenost na youtube podle navodu https://jitsi.org/live-streaming-and-recording-a-jitsi-conference/<br>\nU vpsfree potrebnou ikonku nemam.</p>\n",
+    "id": 3520,
+    "parent_id": 3455
+  },
+  {
+    "author_name": "Robert",
+    "date": "2020-03-26T16:47:29+00:00",
+    "html": "<p>navod je na https://jitsi.org/live-streaming-and-recording-a-jitsi-conference/ ale tlacitko pro streamovani nevidim. Na serveru z clanku to tlacitko je.</p>\n",
+    "id": 3521,
+    "parent_id": 3453
+  },
+  {
+    "author_name": "TEchor",
+    "date": "2020-04-19T15:35:43+00:00",
+    "html": "<p>Funguje to na bázi WEbRTC / P2P ? Slouží vps free k sestavení spojení - předání parametrů (STUN / ICE) nebo přes něj de i obraz/zvuk? A pokud ano, je i multiplexován (aby to ke klientům šlo z jednoho místa)...  V tom případě si pak nedokážu představit náročnost a kolik to utáhne sessions</p>\n",
+    "id": 3663,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Jiří Macík",
+    "date": "2020-11-10T00:10:09+00:00",
+    "html": "<p>Príma, děkuji. Je ale možný převrátit kameru? Když chci někoho učit na klavír, tak je to docela v háji :). Nechci se vidět a snímat jako v zrcadle. U klavíru je to velmi na obtíž, hraji C, D a přitom ruka směřuje doleva :D</p>\n",
+    "id": 5062,
+    "parent_id": 0
+  }
+]

@@ -1,0 +1,36 @@
++++
+title = "Služba pro sdílení úryvků kódu paste.vpsfree.cz"
+date = "2016-08-16T07:53:04+00:00"
+lastmod = "2016-08-16T07:53:59+00:00"
+draft = false
+url = "/sluzba-pro-sdileni-uryvku-kodu-paste-vpsfree-cz/"
+translationKey = "wp-397"
+categories = ["vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-397"
+source_body_sha256 = "3e91e667fa4f480b2a751023f7573a55c7fcb4b7f95ed0f9d4f465268aa99e98"
++++
+
+<p>Spustili jsme vlastní službu pro sdílení úryvků kódu/výstupu programů/textu obecně.<br>
+<!--more--><span id="more-397"></span></p>
+<p>Novou službu najdete na adrese <a href="https://paste.vpsfree.cz">paste.vpsfree.cz</a>. Nepřihlášený uživatel může vkládat text jen s omezenou dobou platnosti. Členové se mohou přihlásit údaji z vpsAdminu a poté lze ukládat text i na delší dobu.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/08/paste.png"><img alt="paste" class="aligncenter size-medium wp-image-398" height="202" src="https://blog.vpsfree.cz/wp-content/uploads/2016/08/paste-300x202.png" width="300"></a></p>
+<p>Služba využívá aplikaci <a href="https://github.com/aither64/havesnippet">HaveSnippet</a>, kterou jsem napsal před pár lety jako školní projekt a teď jsem to doladil. Má to taky <a href="https://github.com/aither64/havesnippet-client">klienta v příkazové řádce</a>, texty se pak dají vkládat jako:</p>
+<pre>
+$ cat soubor.txt | havesnippet
+$ havesnippet soubor.txt
+</pre>
+<p>Program má i verzi se zkráceným názvem <code>hs</code>:</p>
+<pre>
+# cat soubor.txt | hs
+</pre>
+<p>Klient se nejdříve musí nastavit:</p>
+<ol>
+<li><code>gem install havesnippet-client</code></li>
+<li>Přihlásit se na paste.vpsfree.cz ve webovém prohlížeči, settings a vytvořit si klíč k API</li>
+<li><code>havesnippet -s https://paste.vpsfree.cz -k &lt;vytvořený api klíč&gt; --save</code></li>
+<li><code>echo hotovo | havesnippet</code></li>
+</ol>
+<p>Další možnosti programu jsou popsány v README.</p>
+

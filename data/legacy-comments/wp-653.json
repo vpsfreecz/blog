@@ -1,0 +1,39 @@
+[
+  {
+    "author_name": "Jindřich",
+    "date": "2020-05-04T17:14:08+00:00",
+    "html": "<p>Dobrý den, pravidelně jsem od spuštění meet.vpsfree konferoval každou neděli s našimi kamarády (4), včera se každý z nás připojil, ostatní viděl jako prázdná okna bez obrazu i zvuku (nebylo vypnuto). Nezměnili jste něco? Díky</p>\n",
+    "id": 3806,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-05-04T17:54:41+00:00",
+    "html": "<p>Bohužel jsme zaznamenali částečný výpadek, který znemožňoval navázání audio a video komunikace. Server fungoval jen částečně v režimu chatu. Už je to ale v pořádku a všechno běží.</p>\n",
+    "id": 3807,
+    "parent_id": 3806
+  },
+  {
+    "author_name": "Luboš",
+    "date": "2020-09-27T03:53:35+00:00",
+    "html": "<p>Dobrý den, v naší škole promýšlíme využití meet.vpsfree.cz v případě distanční výuky. V nejexponovanějších časech by to znamenalo až 30 konferencí najednou. Je to vzhledem ke kapacitě vpsfree OK, anebo je jistější využít jit.si? (Raději bychom vpsfree, je to jednodušší). Děkuji za odpověď.</p>\n",
+    "id": 4715,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Pavel Šnajdr",
+    "author_url": "http://vpsfree.cz",
+    "date": "2020-09-27T07:32:40+00:00",
+    "html": "<p>Dobry den, budeme za pouziti Meetu radi, od toho to delame ;)</p>\n<p>Diky za dotaz.</p>\n",
+    "id": 4716,
+    "parent_id": 4715
+  },
+  {
+    "author_name": "Luboš",
+    "date": "2020-09-27T11:59:58+00:00",
+    "html": "<p>Děkuji. A navíc oceňuji sdílený dokument (pad) s možností kdykoliv se k němu vrátit, zkopíruji-li si odkaz před opuštěním místnosti.</p>\n",
+    "id": 4717,
+    "parent_id": 4716
+  }
+]

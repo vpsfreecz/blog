@@ -1,0 +1,24 @@
++++
+title = "Migrace VPS mezi poskytovateli"
+date = "2016-05-02T11:19:57+00:00"
+lastmod = "2016-05-04T06:43:44+00:00"
+draft = false
+url = "/migrace-vps-mezi-poskytovateli/"
+translationKey = "wp-326"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-326"
+source_body_sha256 = "39b7f366c58e17805769cd6bdcc9a9fb450c12b81c95c1d4455966146a9f20f4"
++++
+
+<p>Často se nás noví členové ptají, jak mají vlastně migrovat od starého poskytovatele VPS.<br>
+<!--more--><span id="more-326"></span></p>
+<p>Poměrně často k nám přicházejí noví členové od jiných poskytovatelů VPS. Buďto jim přestaly jejich služby stačit nebo jsou na ně už příliš drahé. Důvody mohou být velmi různorodé, ale společné mají to, že potřebují celý VPS přesunout k nám.</p>
+<p>Nejlepší je, když poskytovatel přímo nabízí možnost stáhnout obraz celého počítače. Samozřejmě je možné jej pořídit i ze živého systému a přesunout k sobě na disk. Co ale pak dál?</p>
+<p>V naší znalostní bázi je <a href="https://kb.vpsfree.cz/navody/vps/oprava">článek o opravě VPS</a>, ve kterém se dočtete, že je možné disky (ZFS <a href="https://kb.vpsfree.cz/navody/vps/datasety">datasety</a>) připojovat k různým VPS. Nejjednodušší je tedy pustit si <a href="https://kb.vpsfree.cz/navody/vps/playgroundvps">dočasný testovací VPS</a> v playgroundu a do něj si připojit disk z produkčního serveru, který je v té době samozřejmě vypnutý. Obsah VPS pak stačí na disk rozbalit a zkopírovat.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/05/mounts_dataset.png"><img alt="mounts_dataset" class="aligncenter size-medium wp-image-327" height="160" src="https://blog.vpsfree.cz/wp-content/uploads/2016/05/mounts_dataset-300x160.png" width="300"></a></p>
+<p>Pak stačí jen ověřit, že je ve <a href="https://vpsadmin.vpsfree.cz/">vpsAdminu</a> u VPS nastavená správná verze distribuce. To má vliv na nastavení sítě, hostname a dalších systémových věcí. Pak už stačí produkční VPS zapnout a měla by naskočit. Funguje to u všech distribucí, které běží pod OpenVZ, což jsou všechny námi podporované distribuce.</p>
+<p>Instalaci distribuce z druhého virtuálního serveru ukazoval před půl rokem na konferenci <a href="http://www.openalt.cz/2015/cs/home.html">OpenAlt</a> Petr Krčmář (od 20. minuty):</p>
+<p><iframe allowfullscreen="" frameborder="0" height="500" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.superlectures.com/openalt2015/embed?id=33" title="Embedded video" width="100%"></iframe></p>
+

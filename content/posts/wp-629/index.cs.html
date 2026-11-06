@@ -1,0 +1,23 @@
++++
+title = "Let's Encrypt revokuje tři miliony certifikátů, zkontrolujte ty své"
+date = "2020-03-03T21:39:50+00:00"
+lastmod = "2020-03-03T21:44:32+00:00"
+draft = false
+url = "/lets-encrypt-revokuje-tri-miliony-certifikatu-zkontrolujte-ty-sve/"
+translationKey = "wp-629"
+categories = ["bezpecnost"]
+tags = ["lets-encrypt"]
+[params]
+article_id = "wp-629"
+source_body_sha256 = "a3d0a68fc6939e0362d8556750aa82c2c5cc34b31c721a29d7bb61166cc98a41"
++++
+
+<p>Hojně používaná certifikační autorita Let's Encrypt revokuje kvůli objevené chybě tři miliony certifikátů. Není mezi nimi ten váš?<br>
+<!--more--><span id="more-629"></span></p>
+<p>Let's Encrypt je dnes nejpoužívanější certifikační autoritou na světě. Bohužel ani jí se nevyhýbají bezpečnostní problémy. Její nástroj Software Boulder, který se stará o vystavování certifikátů, <a href="https://community.letsencrypt.org/t/2020-02-29-caa-rechecking-bug/114591">obsahoval bezpečnostní chybu</a>, kvůli které se špatně ověřovaly CAA záznamy v DNS.</p>
+<p>Tyto záznamy umožňují provozovatelům domén určit, která autorita má právo vystavovat pro doménu důvěryhodné certifikáty. Podle současných pravidel je platnost těchto záznamů osm hodin. Pokud má u sebe autorita uloženou informaci z CAA záznamu delší dobu, musí pří další žádosti o validaci záznam znovu zkontrolovat.</p>
+<p>Let's Encrypt navíc drží u každého účtu seznam domén, které byly pro daný účet validovány. Tento seznam je platný 30 dnů a pokud během této doby uživatel požádá o certifikát, dostane ho. Kvůli výše zmíněnému pravidlu je ovšem před vydáním zkontrolován ještě CAA záznam, jestli stále odkazuje na správnou autoritu.</p>
+<p>Jenže pokud probíhá žádost o ověření většího množství domén, software autority chybně ověřil CAA záznam jen u první z nich. Místo aby ověřil stav záznamu u deseti domén v řadě, zkontroloval desetkrát jen první doménu. Chyba se do kódu dostala 25. července 2019 a existuje tedy riziko, že na některá doménová jména byl certifikát vydán neoprávněně.</p>
+<p>Chyba byla opravena dvě hodiny po nahlášení, což bylo 29. února 2020. Stále je tu však 3 048 289 certifikátů, které mohly být nesprávně vydány. To je asi 2,6 % z celkových 116 milionů certifikátů platných v současné době. Všechny tyto certifikáty budou během 4. března <strong>revokovány</strong>. Prohlížeče je tedy mohou začít odmítat jako neplatné.</p>
+<p>Let's Encrypt <a href="https://checkhost.unboundtest.com/">vydal webový nástroj</a>, do kterého můžete zadat doménu a ověřit, zda se jejího certifikátu revokace také týká. Seznam zhruba 23 tisíc českých domén je <a href="https://gist.githubusercontent.com/spaze/e7b366c6bcb6145524b0764444f76274/raw/cz-stripped-subdomains.txt">zveřejněn na GitHubu</a> Michalem Špačkem. Jsou mezi nimi i domény některých našich členů, proto raději zkontrolujte, zda nemusíte znovu generovat certifikáty pro některou ze svých domén.</p>
+

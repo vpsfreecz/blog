@@ -1,0 +1,137 @@
++++
+title = "Linuxové distribuce: Rocky Linux rychle roste, Slackware úplně zmizel"
+date = "2023-01-05T11:13:49+00:00"
+lastmod = "2023-01-06T07:26:31+00:00"
+draft = false
+url = "/linuxove-distribuce-rocky-linux-rychle-roste-slackware-uplne-zmizel/"
+translationKey = "wp-792"
+categories = ["nezarazene"]
+tags = ["alpine", "debian", "devuan", "fedora", "gentoo", "opensuse"]
+[params]
+article_id = "wp-792"
+source_body_sha256 = "0742e1a105a98d427946dbe801595325214051e842fa12c94361e6f1a395761b"
++++
+
+<p>Po dvou letech přinášíme pravidelné statistiky z našich virtuálních serverů, konkrétně rozdělení jednotlivých distribucí.<br>
+<!--more--><span id="more-792"></span></p>
+<p>Už jsou to zase dva roky od doby, kdy jsme naposledy zveřejňovali <a href="https://blog.vpsfree.cz/linuxove-distribuce-ubuntu-roste-rychleji-nez-debian-stoupa-popularita-nixos/">statistiky používaných distribucí</a> našich členů. Je čas se podívat na současná data a porovnat je s těmi předchozími.</p>
+<p>V tuto chvíli u nás běží 2184 virtuálních serverů od 1481 členů. Oběhli jsme automatizovaně všechny virtuální servery a zjistili jsme, jak která distribuce hlásí svůj název a verzi. Je to <strong>přesnější</strong> než nahlížet do šablon, ze kterých byl systém původně nainstalován. V systému je vidět skutečný stav po všech aktualizacích a v některých případech i přechodu mezi větvemi distribucí.</p>
+<p>Tradičně vepředu zůstávají distribuce <strong>Debian</strong> a <strong>Ubuntu</strong>, které běží dohromady na 74 % našich virtuálů. Tohle číslo zůstává dlouhodobě stejné. Dříve jsme uváděli silnou trojku a počítali jsme do ní také CentOS. Ten se nám teď ale rozdělil mezi tři distribuce: <strong>CentOS</strong>, <strong>Rocky Linux</strong> a <strong>AlmaLinux</strong>. Ty mají dohromady zastoupení 11,8 %, což je opět velmi podobné tomu, jak to vypadalo před dvěma lety. Pokud všech těchto pět distribucí sečteme, získáme <strong>85,8 %</strong> všech nainstalovaných virtuálů.</p>
+<p>CentOS byl řadou uživatelů opuštěn kvůli zásadním změnám ve vývoji, uživatelé se dělí mezi zmíněný Rocky Linux a AlmaLinux. Rocky přitom vítězí, protože jej najdete na 25 našich serverech, Almu má proti tomu 10 uživatelů. Mnoho uživatelů stále ještě setrvává na starším CentOS 7 (134 instalací) a část už přešla na CentOS 8 Stream (27 instalací). Sedmičce bude končit podpora za rok a půl, takže se při příštím sčítání dočkáme dalšího posunu uživatelů.</p>
+<p>Minule byl velkým skokanem vyhlášen <strong>NixOS</strong> a i tentokrát potvrzuje, že je v hledáčku mnoha uživatelů. Ze 79 instalací vyrostl za dva roky na 130 a zřejmě ještě zdaleka neřekl poslední slovo. Už minule stagnující <strong>Alpine Linux</strong> stojí na svých číslech, stejně jako <strong>Arch Linux</strong>, <strong>Devuan</strong>, <strong>Fedora</strong>, <strong>openSUSE</strong> nebo <strong>Void Linux</strong>.</p>
+<p>O celou třetinu se propadl počet instalací <strong>Gentoo</strong>, kromě tří zbývajících kousků už mezi námi není <strong>Scientific Linux</strong> a úplně nás opustil <strong>Slackware</strong>, který teď nemá na naší infrastruktuře ani jednu instalaci. Všechna čísla najdete v následující tabulce:</p>
+<table>
+<tr>
+<th>Distribuce</th>
+<th>Zastoupení</th>
+<th>Počet</th>
+<th>Abs. změna</th>
+<th>Rel. změna</th>
+</tr>
+<tr>
+<td>AlmaLinux</td>
+<td>0,5 %</td>
+<td>10</td>
+<td>+10</td>
+<td>–</td>
+</tr>
+<tr>
+<td>Alpine Linux</td>
+<td>1,4 %</td>
+<td>30</td>
+<td>-2</td>
+<td>-6 %</td>
+</tr>
+<tr>
+<td>Arch Linux</td>
+<td>1,7 %</td>
+<td>35</td>
+<td>+1</td>
+<td>+3 %</td>
+</tr>
+<tr>
+<td>CentOS</td>
+<td>10,1 %</td>
+<td>207</td>
+<td>-86</td>
+<td>-30 %</td>
+</tr>
+<tr>
+<td>Debian</td>
+<td>42,3 %</td>
+<td>860</td>
+<td>-57</td>
+<td>-6 %</td>
+</tr>
+<tr>
+<td>Devuan</td>
+<td>0,4 %</td>
+<td>9</td>
+<td>+2</td>
+<td>+28,5 %</td>
+</tr>
+<tr>
+<td>Fedora</td>
+<td>1,3 %</td>
+<td>26</td>
+<td>+3</td>
+<td>+13 %</td>
+</tr>
+<tr>
+<td>Gentoo</td>
+<td>1,7 %</td>
+<td>34</td>
+<td>-16</td>
+<td>-32 %</td>
+</tr>
+<tr>
+<td>NixOS</td>
+<td>6,4 %</td>
+<td>130</td>
+<td>+51</td>
+<td>+40 %</td>
+</tr>
+<tr>
+<td>openSUSE</td>
+<td>0,5 %</td>
+<td>11</td>
+<td>+2</td>
+<td>+22 %</td>
+</tr>
+<tr>
+<td>Rocky Linux</td>
+<td>1,2 %</td>
+<td>25</td>
+<td>+25</td>
+<td>–</td>
+</tr>
+<tr>
+<td>Scientific</td>
+<td>0,1 %</td>
+<td>3</td>
+<td>-32</td>
+<td>-91 %</td>
+</tr>
+<tr>
+<td>Slackware</td>
+<td>0,0 %</td>
+<td>0</td>
+<td>-2</td>
+<td>-100 %</td>
+</tr>
+<tr>
+<td>Ubuntu</td>
+<td>31,7 %</td>
+<td>645</td>
+<td>+6</td>
+<td>+1 %</td>
+</tr>
+<tr>
+<td>Void</td>
+<td>0 %</td>
+<td>2</td>
+<td>+1</td>
+<td>+100 %</td>
+</tr>
+</table>
+

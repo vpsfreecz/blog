@@ -1,0 +1,62 @@
++++
+title = "Půl roku vývoje vpsAdminOS: blížíme se spuštění produkčního serveru"
+date = "2019-06-04T07:28:51+00:00"
+lastmod = "2019-07-13T08:43:28+00:00"
+draft = false
+url = "/pul-roku-vyvoje-vpsadminos-blizime-se-spusteni-produkcniho-serveru/"
+translationKey = "wp-606"
+categories = ["technologie", "vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-606"
+source_body_sha256 = "da1a73b29fc5d59d32b9f42e435f6c4eb000d5ebe1be0ceeb3aef1160ff4379b"
++++
+
+<p>TL;DR je, že migrace produkčních VPS je stále daleko, ale spuštění produkčního node jsme blíže. Postupně vylepšujeme staging, odstávky už nejsou tak často a poctivě je hlásíme dopředu. Kdo chce nebo potřebuje, VPS už tam může provozovat. Produkce to ale stále není.</p>
+<p><!--more--><span id="more-606"></span></p>
+<h1>Padající vpsAdmin</h1>
+<p>Na únorové schůzi jsem zmiňoval, že nám na vpsAdminOS nehorázně často padá vpsAdmin. A to na segfault v ruby, nic z čeho by se dalo zotavit. Bohužel to padalo vždy při ukládání výsledku vykonaných operací, což pak vedlo k tomu, že se vykonávaly vícekrát a vznikaly tak nesmysly na disku i v databázi. Nakonec se mi to podařilo vyřešit aktualizací všech komponent, zejména mysql connector byl v nixpkgs v nějaké zapomenuté verzi. Teď to... sice taky občas padá, ale ne tak často a ne v tu nejhorší chvíli.</p>
+<h1>NFS na stagingu</h1>
+<p>Další nekonečný příběh je zpřístupnění nasboxu, nebo obecně NFS. V čem je problém: VPS používají user namespace, tzn. váš root z VPS nemá na nodu uid 0, ale nějaké jiné číslo. Z pohledu nodu je to neprivilegovaný uživatel a jako superuživatel se tváří jen ve VPS. To taky znamená, že pokud připojíte NFS export, na NFS server chodí UID/GID z VPS tak jak je vidí node, čili jako neprivilegovaní uživatelé. Proto i na NFS serveru mapujeme UID/GID na vašich datasetech, aby to sedělo s user namespace ve VPS.</p>
+<p>V březnu jsem ve vpsAdminu dokončil implementaci správy user namespace, nastavování map u datasetů a mounty. Hned jsem to chtěl vyzkoušet a šel datasety na nasboxu exportovat i na adresu node1.stg... No a byl z toho <a href="https://vpsadmin.vpsfree.cz/?page=outage&amp;action=show&amp;id=511">několikahodinový výpadek</a>. Exporty na NFS serveru se mění jeden po druhém, takže každý bude mít krátký výpadek a jede se dál, že? Bohužel ani náhodou. Nevím čím to je, ale když takhle hromadně měníte exporty, NFS server přestane obsluhovat klienty. Všechny klienty. Ani po zastavení operace server nezačal klienty obsluhovat, takže panika, restarty NFSD a znovu všechno exportovat... Ponaučení: více trpělivosti a nesahat na exporty bez nahlášené odstávky někdy v noci. Jinak by stačilo chvíli počkat a server by začal pracovat, prostě to jen dlouho trvalo.</p>
+<p>Po téhle bitvě to nakonec na stagingu stejně nefungovalo správně. Protože root z VPS byl na NFS serveru co? Neprivilegovaný uživatel. Jako neprivilegovaný uživatel neměl oprávnění pracovat se soubory jiných uživatelů, atd. Prakticky nepoužitelné. Zde se nabízejí dvě řešení: NFS klient musí posílat UID/GID tak jak je vidí VPS, na NFS serveru by tak root byl privilegovaný uživatel. Druhá možnost by byla nastavit NFS server tak, aby určité neprivilegované UID bral jako privilegované.</p>
+<p>Protože jsem v tu dobu nenašel žádnou aktivitu vývojářů NFS v tomhle ohledu, rozhodl jsem se implementovat tu druhou variantu, neboť mi přišla jednodušší. Výsledkem je nový parametr u exportu root_uid, což by se nastavilo podle mapování roota v jednotlivých VPS:</p>
+<p>zfs set sharenfs="root_uid=666000" storage/vpsfree.cz/nas/...</p>
+<p>Potíž je, že to <a href="https://github.com/vpsfreecz/linux/commit/ab987ee27f0a57f0dae3f0847db2ce4da3fc183c">vyžaduje patch kernelu</a> i <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/packages/nfs-utils/patches/000-export_option_root_uid.patch">patch nfs-utils</a> v userspace. Funguje to pěkně, jenže na nasboxu není vpsAdminOS. Sice by to šlo napasovat i na OpenVZ, ale rozhodli jsme se rovnou přejít na vpsAdminOS. Protože nasbox používá kolem 700 VPS, nejdříve jsme si vpsAdminOS vyzkoušeli na backuperu, který v tomto ohledu není tak důležitý.</p>
+<p>Jeden problém s NFS při startu systému jsme skutečně odhalili a snad i opravili. Jinak to funguje velice pěkně. nasbox je další na řadě.</p>
+<p>Bohužel se to teď zase komplikuje, protože do Linuxu 5.2 <a href="https://lwn.net/Articles/788292/">přistály patche</a>, které implementují tu první možnost: UID/GID překládá už klient a na server chodí tak jak je vidí VPS. To je pro nás velká komplikace a než se k něčemu rozhodneme, musíme to vyzkoušet. Z NFS na stagingu tedy ještě nějaký měsíc nic nebude.</p>
+<h1>br_netfilter</h1>
+<p>Někdo se na IRC ptal na br_netfilter, který v Linuxu nepodporuje namespace a ve VPS tak nejde používat. Existuje ale patchset, který to implementuje. Do našeho kernelu jsme tento patchset přidali, nicméně... nevím k čemu se to používá, vím akorát že to používají nějaké aplikace v dockeru. Pokud to někdo potřebujete, řekněte nám prosím na co a jak je to důležité. Jinak není vyloučeno, že to budeme muset pustit, pokud se to nedostane do upstreamu.</p>
+<h1>Linux 5.0, 5.1, ZFS</h1>
+<p>Na stagingu průběžně přecházíme na nové verze kernelu. V produkci pak počítám že na delší dobu zakotvíme na nějakém LTS kernelu. Pro naše patche kernelu jsme <a href="https://github.com/vpsfreecz/linux/branches/all">vytvořili repozitář na GitHubu</a>.</p>
+<p>Mohli jste zaznamenat, že Linux 5.0 <a href="https://www.root.cz/zpravicky/zfs-on-linux-ma-mensi-zadrhel-s-kernelem-5-0/">omezil export funkcí</a> pro práci s FPU na GPL-only a odstřihl tak ZFS on Linux. Tímhle si nehodláme komplikovat život, ani snižovat výkon. Ten export jsme si v kernelu patchnuli, stejně jako to <a href="https://www.phoronix.com/scan.php?page=news_item&amp;px=NixOS-Linux-5.0-ZFS-FPU-Drop">pak udělal i NixOS</a>.</p>
+<p>V pátek jsme přešli na Linux 5.1 a ZFS on Linux 0.8.0. ZoL 0.8 je opravdu parádní vydání, doporučuju se <a href="https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.8.0">podívat na novinky</a>.</p>
+<h1>/sys/devices/system/cpu/online</h1>
+<p>... používají některé aplikace na detekci počtu procesorů, aby věděly kolik mají používat vláken, workerů, apod. Tyto údaje v Linuxu nejsou nijak virtualizované a řeší se to v userspace pomocí LXCFS. Co všechno máte ve VPS "virtualizováno" přes LXCFS zjístite s:</p>
+<p>grep lxcfs /proc/mounts</p>
+<p>V pátek jsme nasadili verzi LXCFS, která řeší i<br>
+/sys/devices/system/cpu/online. Používá to např. Python když zavoláte multiprocessing.cpu_count().</p>
+<h1>pty-wrapper</h1>
+<p>Aby měly všechny VPS otevřenou konzoli, pouštíme je ve wrapperu, který přichystá pseudoterminál a pak zprostředkovává komunikaci mezi osctld ve vpsAdminOS a vzdálenou konzolí ve vpsAdminu. Původně jsme tento program měli napsán v Ruby, jenže to na každou VPS zabíralo cca 15 MB paměti, které se účtovaly k zabrané paměti VPS. Sorki to <a href="https://github.com/vpsfreecz/pty-wrapper">přepsal do Haskellu</a> a jsme teď na 5 MB na VPS.</p>
+<h1>Deklarativní konfigurace ZFS datasetů</h1>
+<p>Při instalaci nodu je potřeba nastavit ZFS properties, jako např. zapnutí komprese, nebo vytvořit nějaké datasety na zpoolu. Vše je teď možné deklarativně <a href="https://vpsadminos.org/os/pools/#declarative-pool-structure">nastavit v konfiguračních souborech</a>, abychom na nic nezapomněli.</p>
+<h1>Parametry kernelu</h1>
+<p>Kernel má spoustu hejblátek, které omezují určité prostředky, jako velikost ARP tabulky, inotify, kernel keyring a počty procesů. Právě na maximální počet procesů jsme na node1.stg nedávno narazili. Pokusil jsem se s tím udělat pořádek a vpsAdminOS nyní <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/configs/tunables.nix">obsahuje doporučené nastavení</a> těchto voleb.</p>
+<h1>Zjednodušení vytváření kontejnerů</h1>
+<p>vpsAdminOS původně vyžadoval manuální správu mapování UID/GID v user namespace. Na stagingu to za vás řeší vpsAdmin, ale v OS samotném to bylo zbytečně komplikované. Aby šel vytvořit kontejner, muselo nejdřív existovat ono mapování:</p>
+<p>osctl user new --map 0:666000:65536 myuser<br>
+  osctl ct new --user myuser --distribution ubuntu myct</p>
+<p>Nově je nastavení UID/GID map volitelné. Ve výchozím stavu se pro každý kontejner alokuje unikátní blok UID/GID z definovaného rozsahu. --user se tak vůbec nemusí používat a stačí:</p>
+<p>osctl ct new --distribution ubuntu myct</p>
+<p>Díky tomu jsou od sebe kontejnery automaticky odděleny a zároveň to není žádná práce pro uživatele navíc.</p>
+<h1>nixos-modules</h1>
+<p>Máme už celkem dost konfigurace a modulů v Nixu. Aby se daly některé moduly použít na více místech, vytvořili jsme <a href="https://github.com/vpsfreecz/nixos-modules">repozitář nixos-modules</a>. Zatím obsahuje modul na použití libvirtu, který funguje i ve VPS.</p>
+<h1>build.vpsfree.cz</h1>
+<p>Máme nový (resp. je to nějaký starší HW) stroj na sestavování OS a bootovacích obrazů pro nody. I zde je vpsAdminOS, ale nainstalovaný na disku a bootuje ze ZFS. I takto se dá použít.</p>
+<p>Chystám se zde taky automatizovat build šablon distribucí pro VPS. Nyní se šablony musí sestavovat a testovat manuálně, což se nikomu nechce dělat a zejména rolling-release distribuce zaostávají. O tom zase někdy příště.</p>
+<h1>IPv6 na stagingu</h1>
+<p>Kdo máte VPS na stagingu, určitě jste si všimli problémů s IPv6. Bylo to tím, že neseděly BGP timeouty mezi Dell switchi a birdem na node1.stg. Už nějakou dobu to funguje stabilně.</p>
+<h1>Co dál</h1>
+<p>Ke spuštění produkčního node chybí: NFS (viz výše) a syslog namespace. Monitoring už tak nějak funguje -- při výpadku nám chodí SMS, ale ještě je co vylepšovat co se týče sledování zdrojů.</p>
+<p>syslog namespace je důležitý k tomu, abyste dostávali informaci o tom, že vaši VPS navštívil OOM killer. Teď vám mohou mizet procesy a nevíte o tom. <a href="https://github.com/torvalds/linux/compare/master...vpsfreecz:syslogns-5.1">Patchset už máme</a>, musí se to přidat do kernelu a vyzkoušet.</p>
+

@@ -1,0 +1,27 @@
++++
+title = "Proč chceme mít 20gigabitovou síť"
+date = "2016-09-21T07:16:34+00:00"
+lastmod = "2016-09-21T07:22:32+00:00"
+draft = false
+url = "/proc-chceme-mit-20gigabitovou-sit/"
+translationKey = "wp-408"
+categories = ["technologie"]
+tags = ["sit"]
+[params]
+article_id = "wp-408"
+source_body_sha256 = "d7ef35f52ffa696d7dffc528fba8b74801043ac18ee7d9092ffdaa8efa5bbcc4"
++++
+
+<p>Máme v plánu posílit propojení našich serverů. V současné době spolu komunikují 2 gigabity, v budoucnu to bude 20 gigabitů.</p>
+<p><!--more--><span id="more-408"></span></p>
+<p>V souvislosti s <a href="https://blog.vpsfree.cz/kdyz-se-rozbiji-disky-aneb-jak-nas-pozlobil-nas/">žonglování s disky</a> a doplňování diskových polí jsem si udělal takový malý průzkum mezi členy. Zeptal jsem se, jestli by upřednostňovali rychlejší síť nebo další NAS, kterým bychom mohli křížově zálohovat ten stávající. Drtivá většina měla stejný názor jako já – síť je užitečnější.</p>
+<p>V tuto chvíli máme nody mezi sebou propojené 2×1GE a začíná nás to limitovat. Při migracích VPS trvá přesun velmi dlouho a chtěli bychom ho výrazně zkrátit. Navíc při rychlejší síti budeme moci v případě výpadku oddumpovat celou paměť fyzického serveru a poté ji zkoumat. To můžeme sice i teď, ale během přenosu 256 GB RAM se server nedá používat a na stávající síti to trvá déle než třicet minut. S 10GE sítí bychom to měli za tři minuty hotové a mohli bychom pokračovat. Stažený dump pak můžeme offline zkoumat a odhalit příčinu výpadku.</p>
+<p>Máme vybrané 24portové switche od Netgear a Cisco. Mají 20 normálních portů a 4 uplinky, ale neumí stacking na L3. Jsou to „jen“ hloupé L2 switche, ale jeden stojí 93 tisíc korun. To je nejlevnější varianta, která nám umožní mít 10GE síť.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Cisco_SG550XG-24F-1.jpg"><img alt="Cisco_SG550XG-24F" class="aligncenter size-medium wp-image-421" height="120" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Cisco_SG550XG-24F-1-300x120.jpg" width="300"></a></p>
+<p>Důvod, proč potřebujeme 24 portů je ten, že už se teď se servery nevejdeme do jednoho racku a budeme muset vzít další. Kdybychom měli jeden velký 48portový switch, museli bychom tahat hodně kabeláže mezi racky a bylo by to drahé. Proto postupně koupíme čtyři 24portové switche a propojíme je mezi sebou.</p>
+<p>Pravděpodobně koupíme SFP variantu, která je pro nás v mnoha ohledech výhodnější. Po racku budeme tahat direct attach kabely, mezi racky uděláme propoj pomocí optiky. Takové řešení má navíc výrazně menší spotřebu – metalika potřebuje až 14 W na port, což by se nám projevilo na poplatcích za elektřinu.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Intel_x520_da2.jpg"><img alt="" class="aligncenter size-medium wp-image-423" height="200" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Intel_x520_da2-300x200.jpg" width="300"></a></p>
+<p>Do serverů budeme muset také přidat 10GE karty, které budou dvouportové a budeme opět využívat obě cesty najednou – stejně jako to děláme teď. Reálně tak získáme mezi jednotlivými servery 20gigabitovou konektivitu. Tu umí linuxové jádro (resp. jeho modul bonding) využít a pomocí round-robin posílat pakety dvěma cestami. Existuje sice i klasický standardní bonding podle standardu 802.3ad, ale ten vyžaduje stackovatelný switch, který by nás stál dvakrát tolik.</p>
+<p>Toto „softwarové“ řešení nám plně vyhovuje, má jen dvě nevýhody: když odpadne linka k jednomu node, bude mít spojení s ním 50% packetloss. Vyrovnat se s kompletním výpadkem jednoho switche ovšem Linux umí. Druhou nevýhodou je to, že se tím „zamykáme“ k routerům MikroTik, které jsou postavené na Linuxu a jako jediné umí linuxovým bondingem komunikovat s ostatními prvky v síti.</p>
+<p>Původně jsme měli do sítě investovat už letos, ale koupili jsme nový <a href="https://blog.vpsfree.cz/mame-prvni-server-s-ssd-a-512-gb-ram/">SSD node</a>, takže se upgrade sítě odložil. Počítáme s ním v první polovině příštího roku. Nechceme si totiž půjčovat peníze na hardware, který na sebe nevydělává. Na ten si musíme našetřit z provozních peněz, takže to bude chvíli trvat.</p>
+

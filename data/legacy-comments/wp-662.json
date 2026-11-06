@@ -1,0 +1,48 @@
+[
+  {
+    "author_name": "Xtomi",
+    "date": "2020-06-04T09:18:52+00:00",
+    "html": "<p>Zeptejme se nejdříve našich velkých hráčů - Vodafone/O2/T-Mobile. U Vodafone je ipv6 stále jen sprosté slovo. To samé předpokládám u zbytku.</p>\n",
+    "id": 3969,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Miloslav Ponkrác",
+    "author_url": "http://www.ponkrac.net",
+    "date": "2020-06-04T12:05:22+00:00",
+    "html": "<p>Síťaři se rozhodli při vymýšlení IPv6 udělal revoluci, nikoli evoluci. Záměrně, a škodolibě, navrhli IPv6 tak, aby se nedalo hladce přejít, ale byly nutné astronomické investice v biliónech dolarů. Stalo se co muselo - svět prostě nepřešel. To je důsledek toho, že si návrháři IPv6 mysleli, že jsou ředitelé zeměkoule a pupek světa. Důsledkem zbytnělého ega návrhářů IPv6 už několik desetiletí jedeme stále na IPv4 a ještě dlouho budeme.</p>\n<p>Svět nepotřebuje přejít na IPv6. Ta potřeba se řeší pouze v sociální bublině zvané síťaři. Ale ti nejsou sto dohlédnout do praxe. Naprosto nechápou o čem je svět. Kdyby to chápali, tak problémy s přechodem na IPv6 nebyly, protože už návrh IPv6 řeší hladký a levný přechod.</p>\n<p>A až si zase síťaři či jiná odborníci budou hrát na ředitele vesmíru, a budou si myslet, že pro jejich růžové oči a sny svět rád vydá astronomické peníze na jejich nový sen - tak to dopadne stejně jako IPv6. Svět opravdu nepotřebuje IPv6 natolik, kolik to stojí. Klidně zůstane ještě dlouho u IPv4. Poděkujte návrhářům IPv6.</p>\n",
+    "id": 3970,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Filip Jirsák",
+    "date": "2020-06-06T11:06:38+00:00",
+    "html": "<p>To, co píšete o vývoji IPv6, bylo už mnohokrát vyvráceno.</p>\n<p>Svět opravdu nepotřebuje přejít na IPv6. Svět nepotřebuje ani IPv4. Svět potřebuje jenom funkční internet. A na to IPv4 nestačí, IPv6 ano.</p>\n",
+    "id": 3976,
+    "parent_id": 3970
+  },
+  {
+    "author_name": "Miloslav Ponkrác",
+    "author_url": "http://www.ponkrac.net",
+    "date": "2020-06-06T19:08:36+00:00",
+    "html": "<p>Žijete v sociální bublině síťářů. V této sociální bublině se všichni přesvědčují, že bez IPv6 to nejde. Je to ale jen urban legend.</p>\n<p>Jak jsem už napsal, kdyby bylo od začátku postupováno rozumně, a s pokorou, celý svět už by 20 let jel na IPv6, a po IPv4 ani vidu ani slechu. Bohužel síťaři od začátku před desetiletími k tomu přistoupili tak, že není důležitější věci ve vesmíru, které by svět měl řešit, a na co by měl dávat peníze, než přechod na IPv6. A výsledek je jaký je.</p>\n<p>I vy to povtrzujete. Prostě nikdo nebude pochybovat o desateru, které dal Filip Jirsák. Není o tom třeba diskutovat, protože je to slovo Boží. A to není třeba podložit argumenty.</p>\n",
+    "id": 3978,
+    "parent_id": 3976
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2020-06-07T20:02:35+00:00",
+    "html": "<p>Tenhle argument se pravidelně a velmi často objevuje celých těch 20 let. Je pozoruhodné, že se nikdy nic tak překrásně jednoduchého a implementačně triviálního nikdy neobjevilo. Pokud by tomu tak bylo, jistě by celý svět přijal hromadu IP adres navíc jen tak, bez práce a složitého přechodu na jiný protokol síťové vrstvy. Jenže nic tak dokonalého se nikdy ve skutečnosti neobjevilo.</p>\n<p>Protokol IPv4 je totiž tak rozšířený a jeho vlastnosti tak pevně stanovené, že jakýkoliv zásah do něj znamená výměnu hardware, rozdělení sítě na dva světy a řešení přechodových mechanismů. To není problém IPv6, to je principiální problém jakékoliv změny v této oblasti.</p>\n",
+    "id": 3980,
+    "parent_id": 3978
+  },
+  {
+    "author_name": "Josef Marianek",
+    "author_url": "http://marianek.cz",
+    "date": "2020-06-15T10:38:07+00:00",
+    "html": "<p>Nemuzete sem prosim dat i odkaz pro apache, prip. odkaz jak konfiguraci poslouchani na IP v4 v obvyklych serverech rozsirit na IP v6?</p>\n",
+    "id": 4051,
+    "parent_id": 0
+  }
+]

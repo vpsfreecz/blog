@@ -1,0 +1,24 @@
++++
+title = "vpsAdmin v2.5.0: podpora pro privátní IP adresy, vylepšený přehled datových přenosů"
+date = "2016-10-25T08:59:00+00:00"
+lastmod = "2016-10-25T09:18:27+00:00"
+draft = false
+url = "/vpsadmin-v2-5-0-podpora-pro-privatni-ip-adresy-vylepseny-prehled-datovych-prenosu/"
+translationKey = "wp-455"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-455"
+source_body_sha256 = "842ed6b5e809f67298eac4b9e259eb1f7e016e7446480d2fc276b68625d63e4a"
++++
+
+<p>vpsAdmin ve verzi 2.5.0 přináší vylepšení hlavně v oblasti nastavení sítě, IP adres a sledování datových přenosů.<br>
+<!--more--><span id="more-455"></span></p>
+<p>vpsAdmin už nějakou dobu umožňuje <a href="https://kb.vpsfree.cz/navody/vps/sprava">rozdělit systémové prostředky</a> mezi více VPS, avšak za další veřejné IPv4 adresy je nutné si připlatit. Často ale veřejná IP adresa vůbec není potřeba a stačí adresa privátní, která je schovaná za NATem. vpsAdmin nyní veřejné a privátní adresy rozlišuje. O přidělení privátní adresy je potřeba požádat na podpoře a je nutné počítat s tím, že se privátní adresy při <a href="https://blog.vpsfree.cz/20-gigabitu-bude-uz-letos/">zavedení 10Gbit sítě</a> mohou změnit. Nejlépe tedy ještě počkat.</p>
+<p>V plánu je umožnit přidělování privátních adres ve větších blocích (/27, tj. 32 adres). Zatím to vypadá tak, že tuto funkci zpřístupníme právě se zavedením 10Gbit sítě. vpsAdmin už vše potřebné umí.</p>
+<p>S privátními adresami souvisí i změna v účtování přenesených dat. Přenosy v rámci naší sítě jsou účtovány jako privátní a nepočítají se do stanoveného limitu. Přenosy mezi VPS na stejném nodu nejsou účtovány vůbec.</p>
+<p>Přepracována byla implementace sběru a ukládání datových přenosů, protože stávající řešení už nedostačovalo. Tabulka v databázi s přenesenými daty už má cca 80 miliónů řádků a počítání měsíčních přenosů přestalo být efektivní, běžně se čekalo několik desítek sekund na zobrazení výsledku. Nové řešení spočívá v tom, že se měsíční přenosy ukládají průběžně do další tabulky, která je mnohem menší a pracuje se s ní rychleji.</p>
+<p>Monitor aktuálních datových přenosů konečně funguje jak má. Ve webovém rozhraní je k dispozici více možností filtrování a automaticky se aktualizuje. Datové přenosy lze sledovat i v terminálu, <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfreectl</a> obsahuje <a href="https://kb.vpsfree.cz/navody/vps/prenosy#monitor_v_cli">nový příkaz</a> <code>ip_traffic top</code>, což je TUI aplikace podobná iftop-u.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/10/net_monitor_cli.png"><img alt="net_monitor_cli" class="aligncenter size-medium wp-image-457" height="184" src="https://blog.vpsfree.cz/wp-content/uploads/2016/10/net_monitor_cli-300x184.png" width="300"></a></p>
+<p>Seznam všech změn je v <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.5.0/">poznámkách o vydání</a>.</p>
+

@@ -1,0 +1,24 @@
++++
+title = "Proč nemáme na VPS zapnutý swap"
+date = "2016-05-16T09:42:58+00:00"
+lastmod = "2016-05-16T09:42:58+00:00"
+draft = false
+url = "/proc-nemame-na-vps-zapnuty-swap/"
+translationKey = "wp-343"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-343"
+source_body_sha256 = "b6c6041038d4e5f6c8bd1393511d8ebb43727718a8db8d3657a0827981c114d0"
++++
+
+<p>Na swap (odkládací paměť) jsme zvyklí ze svých desktopů. Na VPS ho ale nenabízíme.<br>
+<!--more--><span id="more-343"></span></p>
+<p>Občas se nás někdo zeptá, zda by ke svým 4 GB paměti nemohl mít zapnutý ještě i swap. Uživatelům jej totiž vůbec nepřidělujeme, protože to nedává smysl.</p>
+<p>Ani naše fyzické servery ho nepoužívají, protože mají <a href="/jak-vyuzit-256-gb-ram-na-serveru/">256 GB RAM</a>. Pokud bychom tedy uživatelům swap ve VPS zapnuli, odkládaly by se stránky paměti zase jen do RAM fyzického serveru.</p>
+<p>Navíc kontejnerová virtualizace OpenVZ, kterou používáme, uměle zpomaluje přístupy do RAM označené jako swap (swapcache), aby se z pohledu kontejneru (VPS) emulovalo chování skutečného swapu.</p>
+<p>V takové situaci tedy nedává smysl odkládat paměť do uměle zpomalené paměti. To už má větší logiku přidat do VPS přímo více RAM, což v odůvodněných případech umíme. Ale praxe ukazuje, že to vyžadují jen opravdu špatně napsané aplikace. V drtivé většině případů si členové vystačí s přidělenými 4 GB paměti. Jen pár si jich nechává paměť zvětšit.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram.png"><img alt="ram" class="aligncenter size-medium wp-image-246" height="196" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram-300x196.png" width="300"></a></p>
+<p>Existuje jen jediná výjimka, kdy členovi tento emulovaný swap zapínáme. Instalace databáze Oracle totiž kontroluje, zda je na serveru swap přítomen. Pro dobu instalace jej tedy zapneme a pak jej můžeme zase vypnout. Oracle totiž kontrolu provádí skutečně jen při instalaci, za běhu už ho swap nezajímá.</p>
+<p><em>Další čtení: článek <a href="https://openvz.org/VSwap">VSwap</a> na webu OpenVZ.</em></p>
+

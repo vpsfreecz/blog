@@ -1,0 +1,28 @@
++++
+title = "Novinky ve vpsAdminu: hostitelské klíče SSH, úpravy v šablonách a cgroups"
+date = "2023-04-24T07:36:48+00:00"
+lastmod = "2023-04-24T07:36:48+00:00"
+draft = false
+url = "/novinky-ve-vpsadminu-hostitelske-klice-ssh-upravy-v-sablonach-a-cgroups/"
+translationKey = "wp-805"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-805"
+source_body_sha256 = "7dc1255e5d018213580256482b9a65232437f6c0bf56843f9dec9a31b4457df7"
++++
+
+<p>Připravili jsme několik technických novinek týkajících se vpsAdminu. Můžete se podívat na otisky hostitelských klíčů SSH, spravovat změny prováděné v šablonách a začínáme přechod na nové cgroups.<br>
+<!--more--><span id="more-805"></span></p>
+<h2>Otisky SSH klíčů</h2>
+<p>V detailu VPS ve vpsAdminu nově najdete otisky hostitelských klíčů v SSH (fingerprints). Při prvním přihlášení přes SSH tak můžete <strong>zkontrolovat identitu</strong> serveru. Otisky klíčů se vyčítají ze souborů <code>/etc/ssh/ssh_host_*.pub</code> ve VPS. Klíče se čtou po každém startu VPS a pak jednou za hodinu.</p>
+<h2>Úpravy VPS adminy vpsFree</h2>
+<p>Šablony distribucí, ze kterých se vytvářejí nové VPS, mohou mít nastavení specifické pro naše prostředí. Může se stát, že bug nebo nová vlastnost aplikací či našeho prostředí bude vyžadovat změnu konfigurace systému. Týká se to prakticky jen základního systému, tj. nastavení, které jsou součástí šablon.</p>
+<p>Ve vpsAdminu máte možnost si nastavit, jestli o takové úpravy máte zájem. Ve výchozím stavu je to <strong>povoleno</strong>. Pokud bychom ve VPS něco měnili, budeme o tom informovat emailem.</p>
+<p>Pro představu, nedávno jsme z kernelu odstranili cglimit cgroupu – náš vlastní controller, který se ukázal jako zbytečný. Distribuce se systemd si s tím poradily samy, ale třeba Alpine/Devuan/Void mají seznam cgroups zapsaný v init skriptu, takže jsme jej v existujících VPS museli upravit.</p>
+<h2>cgroups v2</h2>
+<p>Tento rok bychom rádi započali <strong>přechod na cgroups v2</strong>. Ty se v Linuxu používají na účtování a limitaci skupin procesů. V našem prostředí je to jeden ze základních prostředků pro izolaci VPS, používáme to primárně na nastavení limitu paměti a času CPU. Na cgroups samozřejmě staví všechna kontejnerová řešení jako třeba populární Docker.</p>
+<p>V současné době používáme cgroups v1 v hybridní hierarchii a protože naše VPS jsou kontejnery, verze cgroups je daná hostitelem. Balík systemd v roce 2024 nejspíše přestane cgroups v1 podporovat, takže na to chceme být připraveni. Aktuální distribuce už v2 podporují, ty starší jako CentOS 7 budeme nadále provozovat na nodech s v1.</p>
+<p>Ve vpsAdminu lze u VPS nastavit, jakou verzi cgroups VPS vyžaduje. Ve výchozím stavu se to řídí šablonou distribuce. Pokud mají aplikace ve VPS speciální požadavky, můžete si vynutit cgroups v1 a zabránit tak budoucí migraci na v2. Naším cílem bude přesunout všechno, co jde na cgroups v2. Více info a <a href="https://kb.vpsfree.cz/navody/vps/cgroups">seznam distribucí podporujících cgroups v2</a> najdete v KB.</p>
+<p>Žádnou akci z vaší strany to <strong>nevyžaduje</strong>, o případném přesunu VPS na cgroups v2 budeme informovat individuálně v následujících měsících.</p>
+

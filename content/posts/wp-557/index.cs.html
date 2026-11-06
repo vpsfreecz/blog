@@ -1,0 +1,21 @@
++++
+title = "vpsAdminOS: instalace, aktualizace, nasazení a síťování"
+date = "2018-09-03T08:15:08+00:00"
+lastmod = "2018-09-03T08:15:08+00:00"
+draft = false
+url = "/vpsadminos-instalace-aktualizace-nasazeni-a-sitovani/"
+translationKey = "wp-557"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-557"
+source_body_sha256 = "54923a39f2cb06a77b6ad8e887f954cc795b383a4d332b7552a3d691902469d9"
++++
+
+<p>Během prázdnin jsme pracovali na spoustě zajímavých věcí, které bychom vám chtěli ukázat.<br>
+<!--more--><span id="more-557"></span></p>
+<p>I když je vpsAdminOS primárně live systém, občas se hodí možnost nainstalovat systém na disk, např. když ho chcete provozovat na jednom serveru a nemáte PXE. Instalace probíhá stejně jako byste instalovali NixOS: naformátujete disky, vygenerujete config, upravíte ho a spustíte instalační program, <a href="https://vpsadminos.org/os/installation/">viz dokumentace</a>. Jako zavaděč je podporován grub a snadno lze integrovat i SSH v initrd pro odemykání šifrovaných disků, stejně jako v NixOS.</p>
+<p>Pro aktualizování běžícího nebo nainstalovaného systému jsme připravili dva nástroje: <a href="https://vpsadminos.org/os/updates/">os-rebuild</a> (ala <a href="https://vpsadminos.org/os/deployment/">nixos-rebuild</a>) a <a href="https://nixos.org/nixops/">nixops</a> (fork, který přidává podporu pro vpsAdminOS). os-rebuild se dá použít přímo z nainstalovaného systému, ale dá se tím aktualizovat i jiný stroj přes SSH. nixops pak řeší správu větší sítě serverů, asi něco jako terraform+ansible v jednom pro NixOS. S naší verzí nixops je možné spravovat v jedné síti NixOS i vpsAdminOS stroje.</p>
+<p>Pro migraci dat při aktualizaci OS jsme vytvořili <a href="https://man.vpsadminos.org/osup/man8/osup.8.html">nástroj zvaný osup</a>. vpsAdminOS se při aktualizaci „přeplácne“ novou verzí a níc víc se řešit nemusí, nicméně o konfiguraci a data kontejnerů na ZFS poolech je nutné se starat. Ne vše se podaří dobře navrhnout hned na začátku a změny mohou vyžadovat reorganizaci datasetů, adresářů, <a href="https://vpsadminos.org/containers/administration/#pools">atd</a>. Nástroj osup umožňuje takové změny provádět automatizovaně, spouští se spolu s aktualizací systému, ať už přes os-rebuild nebo nixops. Změny provádějí migrační skripty, kterými se pool buď aktualizuje na vyšší verzi, nebo se vrátí na verzi starší.</p>
+<p>Už jsem se tu zmiňoval o nutnosti předělat správu IP adres ve vpsAdminu, OS už teď k tomu umí vše potřebné. K síťovým rozhraním VPS se nyní dají zvlášť přidělovat routované adresy a adresy přiřazené na rozhraní, ala ip addr/route add. Takže je např. možné routovat síť /64 a na rozhraní přidělit jen vybrané adresy z dané sítě. Spojovací adresy nadále nebudou muset být na prvním místě, což komplikovalo nastavení sítě v dockeru a obecně maškarádu. Integrace do vpsAdminu je rozdělaná, ale je to poměrně složité a ještě to bude chvíli trvat.</p>
+

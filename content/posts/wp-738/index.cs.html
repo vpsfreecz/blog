@@ -1,0 +1,24 @@
++++
+title = "VPS start menu: náhrada za zavaděč GRUB"
+date = "2022-02-15T07:00:18+00:00"
+lastmod = "2022-02-14T20:59:38+00:00"
+draft = false
+url = "/vps-start-menu-nahrada-za-zavadec-grub/"
+translationKey = "wp-738"
+categories = ["server"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-738"
+source_body_sha256 = "b86e3aa0ff3f7230e9aa3574e63e51fce242749c5a2d57e70766ccdf097c2c65"
++++
+
+<p>Naše VPS běží v kontejnerech, nenabízí tak nic jako zavaděč GRUB. Připravujeme ale náhradu v podobě VPS start menu.</p>
+<p><!--more--><span id="more-738"></span></p>
+<p>Připravujeme nové menu, které se <a href="https://kb.vpsfree.cz/navody/vps/konzole">zobrazí v konzoli</a> při startu VPS. Kromě normálního startu VPS umožňuje spustit shell nebo upravit parametry init procesu. Je to taková alternativa např. GRUB menu v našem prostředí. Naše VPS jsou kontejnery a klasický zavaděč tak neobsahují.</p>
+<p>Uživatelé NixOS v menu najdou také možnost nastartovat systém ze starší verze. Každá úprava konfigurace či aktualizace NixOS vytváří novou generaci systému a standardně si v zavaděči můžete vybrat, kterou chcete použít, např. když nové nastavení nefunguje správně. Nyní je to možné i ve VPS pomocí start menu.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2022/02/vpsadminos_start_menu.jpg"><img alt="" class="aligncenter size-large wp-image-743" height="354" src="https://blog.vpsfree.cz/wp-content/uploads/2022/02/vpsadminos_start_menu-1024x503.jpg" width="720"></a></p>
+<p>Spuštění shellu může často posloužit místo <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/oprava#nouzovy_rezim">nouzového režimu</a> na rychlou opravu systému, který třeba nestartuje. Jako shell se použije <code>/bin/sh</code> z disku VPS a po jeho ukončení se opět objeví start menu.</p>
+<p>Start menu je možné vypnout/zapnout ve vpsAdminu. Podporuje pouze VPS na vpsAdminOS. Nastavovat lze také dobu, po kterou start menu čeká na uživatele, než samo nastartuje systém VPS. Přednastaveno je 5 sekund.</p>
+<p>Ukázku <a href="https://kb.vpsfree.cz/navody/vps/start_menu">najdete v naší knowledge base</a>.</p>
+<p>Aktuálně je menu zapnuto na node1.stg (Staging). Na produkčních VPS si ho můžete individuálně zapnout v detailu VPS nastavením timeoutu, třeba na 5 sekund. Během tohoto nebo příštího týdne ho pak zapneme na všech VPS.</p>
+

@@ -1,0 +1,23 @@
++++
+title = "Novinky ve vpsAdminu: výchozí vlastnosti VPS a OOM reporty"
+date = "2020-10-12T06:26:31+00:00"
+lastmod = "2020-10-12T06:26:31+00:00"
+draft = false
+url = "/novinky-ve-vpsadminu-vychozi-vlastnosti-vps-a-oom-reporty/"
+translationKey = "wp-692"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-692"
+source_body_sha256 = "ed1b74550d5fefc6db9c44c080e835380d1321076461d509e7ffc0678064426f"
++++
+
+<p>Další porce novinek, kterou jsme pro vás připravili při vývoji vpsAdmina. Správa VPS je nyní jednodušší, máme zapnuto více výchozích vlastností a nabízíme lepší správu DNS resolverů.</p>
+<p><!--more--><span id="more-692"></span></p>
+<p>Z vpsAdminu byla odstraněna VPS feature pro Docker. Zpočátku to nastavovalo speciální seccomp profil, který umožňoval běh Dockeru, ale už dlouho to není potřeba a VPS feature tam tak zbyl jen pro „dobrý pocit“ a kdyby náhodou. Pro <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/docker">instalaci Dockeru</a> není potřeba dělat nic navíc.</p>
+<p>Dále jsem se snažil trochu omezit specifika našeho prostředí a usnadnit konfiguraci novým členům. V nově vytvořených VPS se aktivují features pro běh FUSE, KVM a TUN/TAP. Na OpenVZ pak iptables a bridge. Features pro PPP a LXC nesting zůstávají vypnuty. Do šablony pro Ubuntu a Debian jsem přidal balíčky fuse a squashfuse, takže třeba instalace snapu už taky funguje sama od sebe.</p>
+<p>Na nodech s vpsAdminOS nás občas trápí VPS s nedostatkem paměti. Některé takové VPS jsou schopny ovlivnit výkon celého nodu, i když je jinak volné paměti dostatek. Rozhodli jsme se sledovat aktivitu OOM killeru a upozorňovat členy na to, že jim dochází paměť. Většina o tom totiž vůbec neví a tak s tím nikdy ani nic neudělá. Pro zajímavost, aktuálně máme 8 nodů s vpsAdminOS a od čtvrtka jsme zaznamenali přibližně 4756 OOM killů z 38 VPS.</p>
+<p>Pokud používáte vlastní DNS resolvery, potěší vás další novinka. Ve vpsAdminu bylo na výběr z našich DNS resolverů, popř. DNS resolver na localhostu. S nastavenou volbou se při každém startu VPS přepsal <code>/etc/resolv.conf</code> a nebylo možné si to jednoduše udělat po svém. Nyní si můžete ve vpsAdminu vypnout správu <code>/etc/resolv.conf</code>, podobně jako funguje <a href="https://blog.vpsfree.cz/vpsadmin-2-1-0-konzole-vps-v-terminalu/">manuální správa hostname</a>.</p>
+<p>Ve vpsAdminu jsou nově vidět instrukce pro zaplacení členského příspěvku – odkaz „Payment instructions“ v profilu člena. Jsou tam i QR kódy, tak jako v emailových upomínkách. Doteď se muselo čekat právě na upomínku, nebo hledat platební údaje v KB.</p>
+<p>Pro začátečníky v detailu VPS přibyl formulář s pokyny pro připojení na SSH. Konfigurace sítě se u VPS na vpsAdminOS kvůli novým možnostem trochu zkomplikovala a chtěl jsem tak nováčkům pomoci se připojit. Pokud vás napadá, co dalšího je u nás zbytečně složité, napište nebo <a href="https://github.com/vpsfreecz/vpsadmin/issues">založte požadavek na GitHubu</a>.</p>
+

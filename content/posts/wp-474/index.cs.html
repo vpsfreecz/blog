@@ -1,0 +1,26 @@
++++
+title = "vpsAdmin umí nahrávání SSH klíčů do VPS"
+date = "2016-11-28T11:38:36+00:00"
+lastmod = "2016-11-28T11:38:36+00:00"
+draft = false
+url = "/vpsadmin-umi-nahravani-ssh-klicu-do-vps/"
+translationKey = "wp-474"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-474"
+source_body_sha256 = "304c6ccd37cbc7b9f9e7cdeb581a59e9325f30663889559c93e4c613c47d691b"
++++
+
+<p>Vylepšili jsme ovládací rozhraní vpsAdmin. Nově umožňuje do vytvořené VPS rovnou vložit SSH klíče.<br>
+<!--more--><span id="more-474"></span></p>
+<p>vpsAdmin ve <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.6.0/">verzi 2.6.0</a> umožňuje členům uložit si veřejné klíče a poté je nahrávat do VPS (<code>/root/.ssh/authorized_keys</code>). Klíče lze vložit přes webové rozhraní: Edit profile → Public keys → vpravo v panelu Add public key.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Add_SSH_key.png"><img alt="add_ssh_key" class="aligncenter size-medium wp-image-475" height="154" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Add_SSH_key-300x154.png" width="300"></a></p>
+<p>U každého klíče si můžeme vybrat, jestli se má do nových/reinstalovaných VPS nahrávat automaticky. Jinak se klíče do VPS dají kdykoli nahrát pomocí formuláře v detailech VPS, hned pod formulářem na nastavení hesla.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Deploy_SSH_key.png"><img alt="deploy_ssh_key" class="aligncenter size-medium wp-image-476" height="130" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Deploy_SSH_key-300x130.png" width="300"></a></p>
+<p>Dejte pozor na to, že je ve všech šablonách distribucí stále <strong>povoleno</strong> se na roota přihlásit přes SSH pomocí hesla, pokud je nastaveno. Ne vždy jsou totiž klíče k dispozici. Pokud chcete přihlašování heslem zakázat, stačí nastavit v <code>/etc/ssh/sshd_config</code> řádek:</p>
+<pre>PasswordAuthentication no</pre>
+<p>vpsAdmin nově používá mechanismus <a href="/haveapi-v0-7-blokujici-akce/">blokujících akcí z HaveAPI</a> všude kde to jde, takže je konečně možné přesně vědět, kdy jsou operace hotové a kdy je možné volat další akce nad objekty, aniž by to skončilo chybou<br>
+„Resource is locked“. To byl snad poslední závažný nedostatek našeho API, o kterém vím, že mohl komplikovat jeho použití.</p>
+<p>Pokud používáte <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfree-client</a>, nebo jakéhokoli jiného klienta z HaveAPI, aktualizujte jej. Došlo ke změně verze protokolu HaveAPI, všechno sice bude fungovat, ale může to vypisovat upozornění.</p>
+

@@ -1,0 +1,68 @@
++++
+title = "devcgprog: utilita pro nastavení devices cgroupv2 controlleru"
+date = "2023-04-27T08:55:18+00:00"
+lastmod = "2023-04-27T08:56:33+00:00"
+draft = false
+url = "/devcgprog-utilita-pro-nastaveni-devices-cgroupv2-controlleru/"
+translationKey = "wp-807"
+categories = ["server", "technologie"]
+tags = []
+[params]
+article_id = "wp-807"
+source_body_sha256 = "cf58669d63b02144250382fe4b08725b1bc3d4e6914e50f19b52a4094941c76f"
++++
+
+<p>Od počátku roku 2022 pracujeme na přechodu na cgroups v2. Vyžaduje to úpravy v linuxovém jádře, ale také integraci v uživatelském prostoru. Proto vznikla utilita devcgprog.<br>
+<!--more--><span id="more-807"></span></p>
+<p>V předchozím zápisku jsem psal o <a href="https://blog.vpsfree.cz/novinky-ve-vpsadminu-hostitelske-klice-ssh-upravy-v-sablonach-a-cgroups/">plánovaném přechodu na cgroups v2</a>. Pomalu na tom pracujeme už od počátku roku 2022. Vyžaduje to úpravy jednak v našem kernelu, to je stále v řešení, a taky integraci v user space: nutnost delegace controllerů, rozdílný způsob konfigurace a čtení parametrů, až nakonec propojení s vpsAdminem. Pro mě asi největší oříšek zatím byl devices controller. Pro zajímavost popíšu k čemu to je a jak to funguje.</p>
+<p>devices controller je pro nás stěžejní komponenta, bez které nemůžeme fungovat. Řídí totiž přístup ke všem zařízením – blokové jako disky <code>/dev/sda</code>, atd. a znakové jako <code>/dev/tty, /dev/null</code>, <code>/dev/zero</code>, apod. Protože ve VPS můžete udělat <code>mknod</code> libovolného zařízení, devices cgroup je nezbytná pro řízení přístupu.</p>
+<p>Ve výchozím stavu umožnujeme přístup k <code>/dev/{console, full, kmsg, null, ptmx, random, urandom, tty*}</code>. Podle VPS features pak i <code>/dev/{net/tun, kvm, ppp}</code>. Pro nás je nejdůležitější neumožnit přístup k diskovým zařízením, nad kterými běží ZFS.</p>
+<p>devices controller u cgroups v1 je krásně jednoduchý. Povolené zařízení vidíme v devices.list:</p>
+<pre>
+# cat /sys/fs/cgroup/devices/devices.list
+c 1:3 rwm
+c 1:5 rwm
+c 1:7 rwm
+c 1:8 rwm
+c 1:9 rwm
+c 1:11 rwm
+c 5:0 rwm
+c 5:1 rwm
+c 5:2 rwm
+c 136:* rwm
+b *:* m
+c *:* m
+</pre>
+<p>Tedy read-write-mknod (rwm) k vybraným zařízením a mknod (m) pro všechno ostatní. Na Linuxu v user namespace normálně mknod není možný, ale na vpsAdminOS ano. Hodí se to třeba, když rozbalujete nějaký archiv, který obsahuje soubory zařízení.</p>
+<p>Tohoto nastavení <code>devices.list</code> docílíme tak, že nejprve zakážeme přístup ke všemu:</p>
+<pre>
+# echo a &gt; devices.deny
+</pre>
+<p>A potom povolíme vybrané zařízení:</p>
+<pre>
+echo c 1:3 rwm &gt; devices.allow
+echo c 1:5 rwm &gt; devices.allow
+[...]
+</pre>
+<p>Je to krásně jednoduché jednak na přehled a taky na konfiguraci. Jediný zádrhel je zde v tom, že <code>echo a &gt; devices.deny</code> funguje jen pokud daná cgroup nemá potomky. Protože se s cgroups pracuje z různých míst, řešil jsem to tak, že se devices cgroup nastavovala jako první při spuštění systému nebo vytvoření VPS.</p>
+<p>cgroups v2 dlouho devices controller neměly vůbec... a když přišel, byl implementován přes BPF. Funguje to tak, že napíšete BPF program, zkompilujete, nahrajete do kernelu a potom ho připojíte k dané cgroup. Při přístupu k zařízení se daný BPF program vykoná a buď přístup umožní, nebo zakáže. Ukázkový program je <a href="https://github.com/torvalds/linux/blob/v5.10/tools/testing/selftests/bpf/progs/dev_cgroup.c">součástí kernelu</a>.</p>
+<p>Můj největší problém byl, že jsem to ani za nic nebyl schopen zkompilovat. Detaily už samozřejmě nevím, ale byl jsem z toho absolutně zoufalý. Kompilovat programy tímto způsobem by sice nebylo ideální, protože k tomu potřebujete LLVM, což nafukuje velikost rootfs... ale aspoň by se tím dalo začít.</p>
+<p>Když se podíváme na projekty jako systemd nebo LXC, tam s devices cgroup pracují taky. Nekompilují programy přes LLVM, ale vytvoří program rovnou z BPF instrukcí. Pěkně je to <a href="https://github.com/lxc/lxc/blob/lxc-5.0.2/src/lxc/cgroups/cgroup2_devices.c#L178">vidět v LXC</a>.</p>
+<p>Tahle cesta se mi líbila mnohem víc, ale taky jsem nikam nepokročil. Použít přímo tuto funkci LXC nemůžeme, protože LXC spouštíme pod neprivilegovaným uživatelem a devices cgroup může nastavovat jen root. Ani vykopírovat ten kód není jednoduché, potřebuje to spousty vaty okolo a zřejmě jsem na to neměl nervy. Zkoušel jsem použít i libbpf, taky bezúspěšně.</p>
+<p>Vzdal jsem to a vrátil se k tomu zhruba o rok později... situace byla úplně stejná. Našel jsem ale knihovnu v Golangu, pomocí které si můžu poskládat program z instrukcí, nahrát ho do kernelu a dokonce připojit k cgroup! Nejlepší je, že k tomu není potřeba mít LLVM, zdrojové soubory kernelu, libbpf, nic – <a href="https://github.com/cilium/ebpf">stačí Golang</a>.</p>
+<p>Další nutný článek je virtuální souborový systém bpffs. BPF program totiž zůstane v kernelu jen po dobu, kdy běží proces, který ho tam nahrál. My takový proces prakticky nemáme, všechno se může při aktualizaci restartovat... to by znamenalo, že se najednou ztratí všechny programy hlídající přístup k zařízením.</p>
+<p>Pokud na daný BPF program ale uděláme referenci v bpffs, program zůstane v kernelu i po ukončení procesu, který ho vytvořil. Program pak uvolníme smazáním souboru (jeho reference) v bpffs. Podobně můžeme dělat reference na připojení programu (attach/link) k cgroup.</p>
+<p>Celý náš stack je v Ruby, takže jsem na nastavovaní devices cgroup udělal oddělený program v Golangu -- vznikl devcgprog. Ten z Ruby voláme s cestou k cgroup a seznamem zařízení, které mají být povolené. devcgprog vytvoří BPF program, nahraje ho do kernelu, uloží do bpffs a připojí k cgroup. Kdyby se to někomu náhodou taky hodilo, <a href="https://github.com/vpsfreecz/devcgprog">devcgprog najdete na GitHubu</a>.</p>
+<p>Použití je jednoduché:</p>
+<pre>
+devcgprog set /sys/fs/bpf/my-program \
+              /sys/fs/cgroup/my-cgroup \
+              /sys/fs/bpf/my-program-on-my-cgroup \
+              allow \
+              c:1:3:rwm c:1:5:rwm [...]
+</pre>
+<p>Parametry jsou: vytvořená reference v bpffs, cesta k cgroup, reference k linku na cgroup, typ seznamu (allow pro allowlist a deny pro denylist) a seznam zařízení.</p>
+<p>Jeden BPF program můžete nahrát jednou a použít u vícero cgroup, k tomu slouží devcgprog new/attach. U nás je kombinace možných programů omezená podle VPS features. Jako název programu používáme hash všech zařízení, existují tak programy pro různé kombinace TUN/TAP, KVM a PPP. Pokud už program s daným hash existuje, uděláme jen attach na další VPS cgroup.</p>
+<p>Oproti cgroups v1 je to stále méně přehledné, BPF program je v porovnání s devices.list neprůhledný. Může taky dojít k tomu, že cgroup se smaže a vytvoří znovu se stejným názvem, link soubor v bpffs zůstane, ale přitom program tam už připojen není. Existence reference v bpffs tedy ještě neznamená, že je vše v pořádku. Pravidelně tak voláme bpftool a kontrolujeme, zda jsou programy správně nastaveny. To je jen pro jistotu, nastavované cgroupy má pod kontrolou pouze root na nodu, tedy by tato situace neměla nastat.</p>
+<p>Neříkám, že BPF není super, naopak na trasování, flamegraphy, apod. je to paráda. Akorát někdy není úplně snadné to použít.</p>
+

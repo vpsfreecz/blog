@@ -1,0 +1,31 @@
++++
+title = "Zálohy ve vpsFree aneb na cestě od rsync k ZFS snapshotům"
+date = "2014-11-13T08:58:47+00:00"
+lastmod = "2016-01-25T10:55:41+00:00"
+draft = false
+url = "/zalohy-ve-vpsfree-aneb-na-ceste-od-rsync-k-zfs-snapshotum/"
+translationKey = "wp-24"
+categories = ["technologie"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-24"
+source_body_sha256 = "322ee961f8beab33602c11b1dbd7b05659b4c6fdded5adf37472d3ee82675829"
++++
+
+<p>V současné době zálohujeme pomocí rsync jednou denně. Chystáme ale přechod na ZFS snapshoty, které umožní velké věci.<br>
+<!--more--><span id="more-24"></span></p>
+<p>V současné době se VPS zálohují jednou denně rsyncem a snapshotem se zakonzervuje stav po dokončení rsyncu. Dnes není možné nastavit zálohování individuálně pro každý VPS. Vše probíhá automaticky jednou denně. K zálohám je pak možné přistoupit z ovládacího rozhraní nebo k nim přistupovat přímo z VPS v adresáři <code>/vpsadmin_backuper</code> a podadresáři <code>.zfs/snapshot/</code>. Více si přečtete v <a href="https://kb.vpsfree.cz/navody/vps/zalohovani">naší znalostní bázi</a>.</p>
+<p>Náš vývojář Jakub ‚Aither‘ Skokan má už rozdělaný kompletní přepis vpsAdminu (našeho webového rozhraní), který už bude místo rsyncu používat ZFS snapshoty a send/receive. Snapshoty se tedy budou provádět lokálně (a rychle) na fyzickém serveru a v noci se všechny odešlou na zálohovací server. Tím se nám výrazně rozšíří možnosti práce se zálohami.</p>
+<p>Bude možné nastavit interval i retenci snapshotů pro jednotlivé VPS, stejně jako půjde udělat snapshot na požádání kdykoliv přes API call (čili díky <a href="https://api.vpsfree.cz/v1/">HaveAPI</a> jedním příkazem přes <code>vpsfreectl</code>) – víc o tom napíšeme, až to budeme nasazovat.</p>
+<p>ZFS snapshoty jsou výkonově „zadarmo“ a jsou instantní. V podstatě jediná nevýhoda a důvod, proč nejdou dělat třeba po 500 ms spočívá v tom, že snapshot vynucuje sync stavu datasetu na disky, čili bychom pořád syncovali, což by výkonově zabíjelo disky. Vidím to tak, že minimální interval mezi snapshoty nastavitelný v rámci zálohování bude 15 minut. Ovšem jak jsem psal, bude možné si udělat zálohu kdykoliv ručně.</p>
+<p>Připravovaný vpsAdmin 2.0 má tři „hejblátka“ pro nastavení doby životnosti snapshotů:</p>
+<ul>
+<li>minimální počet snapshotů, které necháváme (bude nastaveno na 14)</li>
+<li>maximální počet snapshotů (prvotní nastavení bude 20)</li>
+<li>maximální stáří snapshotů (14 dní)</li>
+</ul>
+<p>Z toho vychází možnost mít až <strong>šest ručně vyvolaných snapshotů</strong> navíc, aniž by to začalo umazávat nejstarší automatické zálohovací snapshoty. Přebytečné snapshoty se pak při nočním transferu na zálohovací server smažou.</p>
+<p>Důležitou změnou ovšem bude, že zálohy už nebudou tak snadno přístupné ve VPS. Důvodem je, že vpsAdmin 2.0 bude umět subdatasety a návrat na konkrétní snapshot smaže všechny novější snapshoty. Musíme tedy dělat branching, který je <a href="https://projects.vpsfree.cz/vpsadmin-doc/storage/branching/">podrobně popsán v dokumentaci</a>. </p>
+<p>V tuto chvíli odhadujeme, že vpsAdmin 2.0 bude hotový ke konci roku. Doufáme, že ho kolem Vánoc budeme nasazovat.</p>
+<p><i>Z vlákna <a href="http://lists.vpsfree.cz/pipermail/community-list/2014-November/002486.html">Jak dlouho trvá ZPS snapshotování u vpsfree?</a></i></p>
+

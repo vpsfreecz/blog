@@ -1,0 +1,134 @@
++++
+title = "HaveAPI-fs: připojte si API jako souborový systém"
+date = "2016-04-19T09:28:49+00:00"
+lastmod = "2016-04-19T14:13:02+00:00"
+draft = false
+url = "/haveapi-fs-pripojte-si-api-jako-souborovy-system/"
+translationKey = "wp-308"
+categories = ["technologie"]
+tags = ["haveapi"]
+[params]
+article_id = "wp-308"
+source_body_sha256 = "481fcb0ccb4c8c5c1c31c8a362cda59fd122561465abbc59f891e575b6be1b26"
++++
+
+<p>FUSE umožňuje připojit prakticky cokoliv jako souborový systém. S HaveAPI-fs si můžete připojit své API a pracovat s ním jako se soubory a adresáři.<br>
+<!--more--><span id="more-308"></span></p>
+<p><a href="https://github.com/vpsfreecz/haveapi-fs">haveapi-fs</a> je virtuální souborový systém založený na <a href="https://en.wikipedia.org/wiki/FUSE_%28Linux%29">FUSE</a>, který umožňuje připojit jakékoli API využívající <a href="https://github.com/vpsfreecz/haveapi">HaveAPI</a>, a pracovat s ním na úrovni adresářů a souborů. Samozřejmě to funguje také s naším <a href="https://api.vpsfree.cz/">api.vpsfree.cz</a> (<a href="https://kb.vpsfree.cz/navody/vps/api">dokumentace</a>).</p>
+<p>Práce s haveapi-fs by měla být ještě jednodušší, než s konzolovým klientem, protože je vše hned vidět jako adresáře a soubory, nemusíme zjišťovat názvy objektů, akcí, parametrů, přepínačů, apod.</p>
+<p>haveapi-fs je napsán v Ruby a instaluje se tak pomocí RubyGems:</p>
+<pre>$ gem install haveapi-fs</pre>
+<p>API se připojí následujícím příkazem:</p>
+<pre>$ haveapi-fs &lt;api_url&gt; &lt;mountpoint&gt;</pre>
+<p>tedy konkrétně naše API jako</p>
+<pre>$ haveapi-fs https://api.vpsfree.cz /mnt/api.vpsfree.cz</pre>
+<p>Odpojení se provede buď přímo příkazem <code>umount</code> jako root, nebo <code>fusermount -u /mnt/api.vpsfree.cz</code> jako neprivilegovaný uživatel.</p>
+<p>Mountpoint obsahuje seznam objektů v API a soubory s nápovědou:</p>
+<pre>$ cd /mnt/api.vpsfree.cz
+$ tree -L 1 .
+├── ...
+├── dataset/
+├── environment/
+├── location/
+├── node/
+├── vps/
+├── help.html
+├── help.man
+├── help.md
+├── help.txt
+└── ...
+</pre>
+<p>Soubory <code>help.{html,man,md,txt}</code> se nachází v každém adresáři a obsahují vždy popis aktuálního adresáře, tzn. jaké má vlastnosti a jaké má podadresáře a soubory.</p>
+<p>V adresáři objektu je seznam všech jeho záznamů, tedy např. seznam všech VPS patřících k účtu:</p>
+<pre>
+$ tree -L 1 vps/
+vps
+├── 1112/
+├── 1171/
+├── 1234/
+├── 1245/
+├── actions/
+├── create.yml
+├── help.html
+├── help.man
+├── help.md
+└── help.txt
+</pre>
+<p>Záznamy můžeme rovnou i filtrovat:</p>
+<pre>
+$ tree -L 1 vps/by-node/103/by-os_template/26
+vps/by-node/103/by-os_template/26
+├── 1112/
+└── ...
+
+$ cat vps/by-node/103/by-os_template/26/1112/node_id
+103
+
+$ cat vps/by-node/103/by-os_template/26/1112/os_template_id
+26
+</pre>
+<p>Podíváme-li se do adresáře nějakého konkrétního VPS, uvidíme seznam jeho atributů jako soubory, asociované objekty jako adresáře a akce, které můžeme volat, jsou v adresáři <code>actions/</code>:</p>
+<pre>
+$ tree -L 1 vps/1112
+vps/1112
+├── actions/
+├── id
+├── hostname
+├── node/
+├── os_template/
+├── edit.yml
+├── save
+└── ...
+
+
+$ cat vps/1112/hostname
+moje-vps
+
+$ cat vps/1112/node/domain_name
+node3.prg
+
+$ cat vps/1112/node/location/label
+Praha
+
+$ cat vps/1112/os_template/label
+Scientific Linux 6.6
+</pre>
+<p>Dle oprávnění lze vybrané atributy i měnit, např. změna hostname:</p>
+<pre>
+$ echo novy-hostname &gt; vps/1112/hostname
+$ echo 1 &gt; vps/1112/save
+</pre>
+<p>Zavolat jde i jakákoli jiná akce:</p>
+<pre>
+$ tree -L 1 vps/1112/actions
+vps/1112/actions
+├── ...
+├── passwd/
+├── reinstall/
+├── restart/
+├── start/
+├── stop/
+├── swap_with/
+└── update/
+
+$ echo 1 &gt; vps/1112/actions/passwd/exec
+</pre>
+<p>Informace o úspěchu či neúspěchu akce je vždy v souboru <code>status</code>:</p>
+<pre>
+$ cat vps/1112/actions/passwd/status
+1
+</pre>
+<p>Výstupní parametry jsou pak v adresáři <code>output/</code>:</p>
+<pre>
+$ cat vps/1112/actions/passwd/output/password
+cmrdBcm72KkAM85Ux2MK
+</pre>
+<p>Přes další soubory se lze dostat k případné chybové hlášce (<code>message</code>), seznamu chyb (<code>errors/</code>) a také zadávat vstupní parametry (<code>input/</code>).</p>
+<p>Akce lze vykonávat i pomocí <code>exec.yml</code> souboru, ve kterém se vyplní vstupní parametry v YAMLu a po uložení a zavření souboru se akce vykoná. Takto se dají jednoduše vytvářet nové objekty (<code>create.yml</code>) i upravovat existující (<code>edit.yml</code>).</p>
+<pre>
+$ vim vps/1112/edit.yml
+hostname: dalsi-zmena
+:wq
+</pre>
+<p>Kompletní popis toho, co haveapi-fs umí, je v <a href="https://github.com/vpsfreecz/haveapi-fs#usage">README.md</a>.</p>
+

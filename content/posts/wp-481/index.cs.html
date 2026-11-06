@@ -1,0 +1,25 @@
++++
+title = "Jak proběhl náš první vpsFree hackaton?"
+date = "2016-12-07T09:43:45+00:00"
+lastmod = "2016-12-07T13:29:06+00:00"
+draft = false
+url = "/jak-probehl-nas-prvni-vpsfree-hackaton/"
+translationKey = "wp-481"
+categories = ["akce"]
+tags = []
+[params]
+article_id = "wp-481"
+source_body_sha256 = "6f93c8d0070dc7dc0d86704335e65bf7ccd6168ba930433c21896d3cefba896c"
++++
+
+<p>Tak jsem se právě vzpamatoval z dospávání hackatonu a přidruženého cestování a mohl bych to kapku - no byl to mazec, háčkovací zápřah, jak má být.<br>
+<!--more--><span id="more-481"></span></p>
+<p>Jak proběhl náš <a href="https://blog.vpsfree.cz/prvni-vpsfree-hackaton-pojdte-s-nami-sitovat/">síťový hackaton</a>? K síťování:</p>
+<p>CCR1072 jsme zavařili vcelku snadno - ten router dá klidně 20+Gbit forwardovacího trafficu, ale nesmíte po něm chtít žádný iptables pravidla. I s vypnutým conntrackem už 100 pravidel zbrzdí forwarding znatelně a při 200+ pravidlech jde propustnost úplně do kopru (z několika miliónů pps na stovky tisíc).</p>
+<p>BGP full feed (aktuálně ~615k IPv4 rout globálně) CCR1072 natahuje 3,5 minuty - což není tak strašné; ale má to problém. Jakmile se těm routám nastaví nějaké filtry, začne to být operace na desítky minut. Jelikož je implementace BGP single threaded, je vytížena na aktualizacích tabulky a nedá se spolehnout, že by tohle mělo fungovat nějak někdy spolehlivě.</p>
+<p>Suma sumárum: jak jsem čekal, Mikrotiky mají svoje limity, trochu mě překvapilo, jak moc jsou nízko. Každopádně pro teď asi lepší řešení stejně nemáme (a full-feed ani tak brzo neplánujeme). Pro vzdálenější budoucnost jsme s Gluxem vybrali vhodné kandidáty od Juniperu (akorát holt budeme muset jet na hardware z druhé ruky, to je holt normálka v tomhle segmentu na organizace s naším rozpočtem).</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/12/hackaton-snajpa.jpg"><img alt="" class="aligncenter size-medium wp-image-484" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/12/hackaton-snajpa-300x169.jpg" width="300"></a></p>
+<p>S Gluxem (Standa Petr) jsme taky připravili vzorovou konfiguraci BGP pro nody (kvůli přechodu od OSPF). Abych si tím setupem byl skálopevně jistý, ještě si s ním budu muset pohrát, ale už vím aspoň, co a jak.</p>
+<p>Díky všem, co jste dorazili a pomohli; ale zrovna tak všem, co jste dorazili, abyste se něco dozvěděli - příště se klidně víc ptejte, někteří tam jenom seděli a smutné koukali, že tomu ne až tak rozumí - pokud se nebudete ptát zrovna toho, co uber-zuřivě tluče do klávesnice, někdo okolo něj vám problematiku příště rád vysvětlí.</p>
+<p>Díky <a href="https://brmlab.cz/">Brmlabákům</a>, že nás nechali tam na víkend squatovat. Určitě si dáme brzo další hackaton, řekl bych, že +- interval 3 měsíců by mohl fungovat. Určitě se podívejte na <a href="https://foto.vpsfree.cz/?f=2016%2FNetwork_hackaton">fotky v naší galerii</a>.</p>
+

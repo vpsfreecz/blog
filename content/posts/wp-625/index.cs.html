@@ -1,0 +1,25 @@
++++
+title = "Migrace naší infrastruktury na 20 gigabitů"
+date = "2020-02-28T10:16:35+00:00"
+lastmod = "2020-02-28T15:48:55+00:00"
+draft = false
+url = "/migrace-nasi-infrastruktury-na-20-gigabitu/"
+translationKey = "wp-625"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-625"
+source_body_sha256 = "4de99bc23afd0e67b70d5fa4f6ebab75ed46662e113c5cde6fe2704ad72fbf2b"
++++
+
+<p>Několik let jsme pracovali na tom, abychom zvýšili kapacitu linek mezi našimi servery. Proč to potřebujeme a jak jsme to dělali?<br>
+<!--more--><span id="more-625"></span></p>
+<p>Naše servery byly historicky propojené dvěma gigabitovými linkami v bondingu. Postupně nás to začalo limitovat, ani ne tak při uživatelských přenosech dat, ale spíše při migraci virtuálů mezi jednotlivými nody. Jelikož dnes máme na serverech minimálně 256 GB RAM, trval přesun desítky minut, během kterých byl server nepoužitelný. V posledních měsících se pak k využití sítě velkou měrou přidal i NAS, který ve špičkách potřebuje už 3 Gbps.</p>
+<p>Začali jsme proto <a href="https://blog.vpsfree.cz/proc-chceme-mit-20gigabitovou-sit/">uvažovat o výrazném zrychlení</a>, které samozřejmě vyžaduje výměnu síťových karet a síťových přepínačů. Z různých důvodů jsme museli změnu několikrát odložit, podařilo se až letos na začátku roku. Bohužel jsme stále ještě poměrně malá organizace a občas nám trvá poměrně dlouho, než takhle náročný projekt realizujeme.</p>
+<p>Volba padla na switche od výrobce Dell s modelovým označením <a href="https://www.dell.com/cz/domacnosti/p/networking-s-series-10gbe/pd">S4048-ON</a> pro svou podporu <a href="http://onie.org/">operačního systému ONIE</a>. Chtěli jsme totiž využít právě ten a ubírat se tak, jako vždy, co nejvíc open-source cestou. Bohužel, jak se časem ukázalo, nic není bezchybného.</p>
+<p>Z původních pěti kusů, které jsme objednávali pro Prahu (3×) a Brno (2×) se při konfiguraci a testování switchů dva z nich prapodivným způsobem rozbily. První při pokusu o aktualizaci systému, druhému se pak po delší odmlce a zapojení do sítě odporoučela do lovišť karta managementu. Po bližším prozkoumání jsme zjistili, že umřela část desky a oprava v takovém případě probíhá výměnou kusu za kus. Čili jsme zpět na ceně celého switche (ne-li vyšší) jako takového.</p>
+<p>Problém je totiž v tom, že je třeba upgradovat z hodně staré verze firmware na novou postupně, po všech meziaktualizacích, které kdy mezi tím vyšly. Jakmile jednu přeskočíte, přestane switch fungovat. Nakonec nám s tím musel pomoct člověk, který dělá takové aktualizace denně.</p>
+<p>Cesta byla trnitá, ale k migraci jsme nakonec přistoupili z neděle na pondělí 20. ledna. Začínali jsme o půlnoci, jako první přišel na řadu náš NASbox, který jsme museli přenastavit tak, aby sdílel ZFS datasety pomocí sharenfs.</p>
+<p>Poté jsme se pustili do samotných nodů. Každý jsme museli vypnout, vyměnit síťové karty, při té příležitosti rovnou aktualizovat linuxové jádro a znovu nastartovat. Tohle probíhalo na dvě fáze. Minulý rok se montovaly do serveru síťové karty a každou chvíli se čekalo, ze migraci spustíme. Nakonec jsme kvůli firmwarovým problémům migraci samotnou odložili až na leden, přestože už bylo všechno připojené a připravené od podzimu.</p>
+<p>Poučení pro příště: je lepší nechat ležet peníze na účtu a nakoupit vybavení na takovou změnu až spíš najednou, než postupně. Cena 10GE síťování během celého procesu dramaticky spadla. Dnes bychom mohli mít minimálně novější síťové karty. Poučení číslo dvě: o takových změnách nikdy neříkejte, že jsou snadné a skoro hned hotové.</p>
+

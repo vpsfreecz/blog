@@ -1,0 +1,37 @@
++++
+title = "Výkonnější servery jako lék na zvyšování cen energií"
+date = "2022-07-13T07:40:28+00:00"
+lastmod = "2022-07-14T13:34:50+00:00"
+draft = false
+url = "/vykonnejsi-servery-jako-lek-na-zvysovani-cen-energii/"
+translationKey = "wp-762"
+categories = ["vpsfree-cz"]
+tags = ["energie"]
+[params]
+article_id = "wp-762"
+source_body_sha256 = "397773c67599f0901b5eef2a173d738c0e40118c9efce4a900d8d6e8084a83c5"
++++
+
+<p>Situace na trhu s energiemi je nepředvídatelná, na jaře se nás dotklo první výraznější zdražení, které jsme zvládli ještě pojmout díky rezervě v rozpočtu. Otázkou je, jak moc dlouhodobě udržitelné to bude bez zvyšování členských příspěvků.<br>
+<!--more--><span id="more-762"></span></p>
+<p>Než sáhneme ke zvyšování příspěvků, chtěli bychom vyzkoušet jiné možnosti. Zejména využít některých rezerv ve stávajícím hardware a přestavba či nákup nových serverů s výkonnější konfigurací.</p>
+<h2>Více výkonu znamená méně problémů</h2>
+<p>Naše sdílená platforma byla projektována na agregaci 120 VPS na jeden fyzický server, v současné době se pohybujeme obvykle mezi 80 až 90 VPS na server. Z části je to kvůli navýšení parametrů jednotlivých VPS, ale také proto, abychom tolik nemuseli řešit vzájemně se rušící sousedící členy.</p>
+<p>Ovlivňování sousedních VPS je tím pravděpodobnější, čím je menší rozdíl mezi velikostí největších VPS a hardware serveru samotného. Z toho vyplývá, že čím silnější hardware, tím menší pravděpodobnost, že se na něm budou navzájem VPS rušit. Výkonnější stroje mají podstatně lepší agregaci prostředků.</p>
+<p>Jdeme proto již delší dobu směrem k výkonnějším strojům. Větší hlad po výpočetním výkonu od roku 2019 jsme překlenuli výměnou procesorů za nejvýkonnější, které bylo možné dát do současných základních desek. To sice navýšilo spotřebu na jeden server a vyřešilo okamžitou potřebu výkonu, ale víc VPS na jeden server to dát neumožnilo, protože jsme byli schopni přidat s novými procesory jen 8 až 12 jader.</p>
+<h2>Výkonné stroje v datacentru</h2>
+<p>Na node 21 jsme ověřili, ze hypotéza je platná i v praxi. Tento konkrétní server má 512 GB RAM a dva 16jádrové Epyc první generace. Běží na něm v současné době 154 VPS a ještě by se jich tam vešlo víc. Při průměrné spotřebě zhruba 280 W jsme tak ušetřili energii za jednu další starší mašinu.</p>
+<p>Náš node 22 má jeden 64jádrový Epyc druhé generace doplněný o 1 TB RAM. Počítáme, že by se na něm mělo vejít asi 320 VPS. V tom případě ušetříme energii za další tři starší servery.</p>
+<p>Dále node 17 a node 18 mají oba 512 GB RAM, ale víc procesorových jader už do nich rozumně přidat neumíme, takže z nich vezmeme RAM a SSD a sloučíme je do jednoho stroje se dvěma 64jádrovými procesory Epyc druhé generace, abychom měli případně server, kam můžeme přesouvat VPS nejnáročnější na využití procesoru. Kromě toho na něj budeme schopni ještě přemigrovat další server a ještě stále zbude místo.</p>
+<p>Napůl nevyužitých 512 GB RAM má také node 14 a přijde na řadu jako poslední. Záleží pak na tom, co bude aktuálně na trhu dostupné.</p>
+<p>Brněnský node 5 umí zastat práci za dva starší servery, má 512 GB RAM, 32jádrový Epyc druhé generace. V následujících dnech projde servisem, protože jeden paměťový kanál nefunguje správně. Zřejmě bude nutné znovu usadit procesor.</p>
+<h2>Migrace na vpsAdminOS</h2>
+<p>Na všech novějších a výkonnějších serverech už je platforma vpsAdminOS, pokud jste <a href="https://blog.vpsfree.cz/migrujte-na-vpsadminos-uz-je-cas-na-aktualni-virtualizaci-s-novym-jadrem/">ještě nezmigrovali z OpenVZ</a>, je nejvyšší čas. Stroje s OpenVZ postupně vyprazdňujeme a budeme ty VPS koncentrovat víc k sobě, blíž k původnímu plánu 120 VPS na server, podle kapacity paměti.</p>
+<p>Řešení výkonnostních problémů spočívá v kompletní migraci celé naší infrastruktury na vpsAdminOS a opuštění OpenVZ. Máme to vyzkoušené na stovkách VPS a ve většině případů je migrace velmi hladká a virtuál prostě nastartuje v novém prostředí a s aktuálním jádrem. Můžete s migrací pomoci, když napíšete na podporu, že jste připraveni. Detaily najdete v <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">článku na naší KB</a>.</p>
+<p>Celkově nás čeká ještě migrace zhruba <strong>tisícovky</strong> VPS na novější hardware, což bude znamenat úsporu <strong>1,5 až 2 kW</strong>. To při současných cenách umožní ušetřit <strong>10 až 13 tisíc korun</strong> každý měsíc. Pokud ceny energie ještě vyskočí, bude cítit každý watt a museli bychom využít rezerv i na zbývajících starších a méně výkonných serverech.</p>
+<h2>Další možnosti úspory</h2>
+<p>Další možné úspory můžeme dosáhnout po výměně disků v zálohovacím serveru (backuper), kdy bychom po výměně 3 TB disků za 16 TB ušetřili asi 750 W.</p>
+<p>Mohli bychom také nahradit současné gigabitové „management“ switche něčím úspornějším. Kvůli startu z PXE bychom měli rádi zároveň switche, které startují rychleji. Tím by se dalo ušetřit asi 500 W energie.</p>
+<p>Všechny tyto úspory by mohly přinést při současných cenách snížení nákladů za energie v řádu asi 22 tisíc korun za měsíc.</p>
+<p>Abychom toho mohli dosáhnout, potřebujeme migrovat stovky VPS mezi servery. Chtěli bychom mít významnější část hotovou na konci léta. Samozřejmě to bude znamenat krátkodobé výpadky některých serverů, ale výsledkem bude dlouhodobě udržitelná infrastruktura, kterou budeme schopni společně dál zaplatit.</p>
+

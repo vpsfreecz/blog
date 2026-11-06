@@ -1,0 +1,20 @@
++++
+title = "Chyba Dirty COW pod OpenVZ"
+date = "2016-10-24T11:33:55+00:00"
+lastmod = "2016-10-24T11:33:55+00:00"
+draft = false
+url = "/chyba-dirty-cow-pod-openvz/"
+translationKey = "wp-450"
+categories = ["bezpecnost"]
+tags = []
+[params]
+article_id = "wp-450"
+source_body_sha256 = "7c394fe984c7a10b7da2b837fd595cf3a9a259690d86983fa34a7419b042b46e"
++++
+
+<p>O víkendu jsme během jedné noci záplatovali chybu Dirty COW, která ohrožuje linuxové jádro.<br>
+<!--more--><span id="more-450"></span></p>
+<p>O chybě <a href="https://dirtycow.ninja/">Dirty COW</a> se hodně mluví, protože je opravdu hodně jednoduše zneužitelná a ovládnutí stroje je hračka i pro nezkušeného uživatele. My ve vpsFree.cz používáme distribuci <abbr title="Red Hat Enterprise Linux">RHEL</abbr> s OpenVZ jádrem, které je proti <a href="https://github.com/dirtycow/dirtycow.github.io/blob/master/dirtyc0w.c">původnímu exploitu</a> využívajícímu zápis do souboru <code>/proc/self/mem</code> odolné. V RHEL totiž není možné přes tento soubor do paměti zapisovat.</p>
+<p>Později se ale objevil <a href="https://paste.vpsfree.cz/hkgjt8jP/">nový exploit</a> využívající ptrace, který už na RHEL fungoval. Naštěstí byl <a href="https://paste.vpsfree.cz/xrlPNDuP/">patch vydán velmi rychle</a> – dokonce rychleji než ho dodal samotný Red Hat. Rozhodli jsme se proto nečekat a kvůli vážnosti situace záplatovat co nejdříve.</p>
+<p>Nejprve jsme si mysleli, že budeme potřebovat dva dny, ale nakonec jsme se rozhodli vše udělat <a href="http://lists.vpsfree.cz/pipermail/outage-list/2016-October/000502.html">během jedné noci</a>. Po půlnoci ze soboty na neděli jsme se vrhli na aktualizaci a restarty. Nejprve jsme vyřešili Brno a poté pokračovali v Praze. V tuto chvíli je téměř hotovo, ještě nám zbývá dořešit VPS na playgroundu a jednom node v Brně a doladit některé detaily <a href="https://bugs.openvz.org/browse/OVZ-6813">kvůli technické chybě</a>, která byla do nové verze jádra OpenVZ zavlečena.</p>
+

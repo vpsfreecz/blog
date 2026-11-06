@@ -1,0 +1,75 @@
++++
+title = "vpsAdmin: změny v mountech, vzdálená konzole"
+date = "2015-10-26T09:07:54+00:00"
+lastmod = "2016-01-25T10:55:12+00:00"
+draft = false
+url = "/vpsadmin-zmeny-v-mountech-vzdalena-konzole/"
+translationKey = "wp-139"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-139"
+source_body_sha256 = "c72302558208c1197b9d07f010a47bdf465126b54ef0dbf4dee15c5f6d5c8013"
++++
+
+<p>Nasadili jsme novou verzi webového rozhraní vpsAdmin, které vylepšuje správu diskových oddílů.<br>
+<!--more--><span id="more-139"></span></p>
+<p>Nově nasazená verze <a href="https://vpsadmin.vpsfree.cz/">vpsAdminu</a> přináší:</p>
+<ul>
+<li>nastavení chování mountů při nedostupnosti vzdáleného serveru<br>
+   (jako např. nasbox.prg),</li>
+<li>zobrazení aktuálního stavu mountu (připojen/odpojen),</li>
+<li>možnost mount trvale (de)aktivovat,</li>
+<li>aktualizovaná vzdálená konzole,</li>
+<li>a samozřejmě opravy chyb.</li>
+</ul>
+<p>Seznam známých chyb je k <a href="https://redmine.vpsfree.cz/issues?query_id=2">nalezení v Redmine</a>. Změny jsou podrobněji popsány níže.</p>
+<h2>Selhání mountu při startu VPS</h2>
+<p>vpsAdmin umožňuje definovat chování každého mountu, pokud se jej<br>
+nepodaří připojit při startu VPS. Lze si vybrat ze čtyř typů chování:</p>
+<ol>
+<li> Přeskočit mount. Mount ve VPS nebude připojen a dále je na členovi, aby se mount pokusil připojit později, pokud jej potřebuje.</li>
+<li>Pokračovat ve startu VPS, vpsAdmin se bude pravidelně snažit mount připojit.</li>
+<li>Přerušit start VPS. VPS zůstane vypnuto a je na členovi, aby se jej pokusil zapnout.</li>
+<li>Čekat, dokud se nepodaří připojit. Aneb start VPS bude trvat tak dlouho, dokud nebude vzdálený server opět dostupný.</li>
+</ol>
+<p>Chování jedna a dvě zvolte, pokud mount není důležitý pro spuštění VPS a<br>
+dojde jen k nějakému omezení, např. nebude fungovat aplikace pracující s<br>
+mountnutými daty, ale jiné aplikace fungovat budou. Je na vás, abyste si<br>
+pohlídali, zda mount připojen je a nebo není a podle toho se zařídit.</p>
+<p>Trojka a čtyřka je pro mounty, bez kterých nemá smysl VPS zapínat, protože by<br>
+nebyla funkční - může chybět část systému, nebo VPS pracuje výhradně s<br>
+daty z mountu, apod.</p>
+<p>Všechny existující mounty byly nastaveny na chování typu 2), tedy<br>
+opožděné připojení při nedostupnosti. Pokud má někdo jiné preference,<br>
+může si to přenastavit.</p>
+<p>Toto nastavení nemá vliv na to, když vzdálený server vypadne po startu<br>
+VPS. Stanovení chování v takovém případě přijde v nějaké z dalších verzí<br>
+vpsAdminu.</p>
+<h2>Aktuální stav mountu</h2>
+<p>vpsAdmin si ukládá poslední známý stav mountu, který se poté zobrazuje v<br>
+detailu VPS v seznamu mountů.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_mounts.png"><img alt="vpsAdmin_mounts" class="aligncenter size-medium wp-image-143" height="81" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_mounts-300x81.png" width="300"></a></p>
+<p>Mount se může nacházet v jednom z pěti stavů:</p>
+<ul>
+<li>nově vytvořen, připojuje se</li>
+<li>připojen</li>
+<li>odpojen</li>
+<li>přeskočen</li>
+<li>odložen, bude připojen později</li>
+<li>čeká se na připojení</li>
+</ul>
+<p>Pokud si mount odpojíte ručně z VPS, tzn. ne přes vpsAdmin, tak stav<br>
+mountu nebude odpovídat realitě.</p>
+<h2>Deaktivace mountu</h2>
+<p>Deaktivace - mount se odpojí a po restartu VPS nebude připojen<br>
+Aktivace - mount se připojí a po restartu bude připojen</p>
+<p>V případě potíží takto půjde mount jednoduše odpojit/připojit.</p>
+<h2>Vzdálená konzole</h2>
+<p>Webové rozhraní konzole je založeno na ShellInABoxu, který už je tři roky<br>
+mrtvý a obsahuje chyby. Nasadil jsem <a href="https://github.com/shellinabox/shellinabox/tree/master/shellinabox">opravy z neoficiálního forku</a>,<br>
+pak nějaké vlastní a aktuálně jdou psát (snad) všechny znaky, funguje<br>
+on-screen klávesnice, umí to vkládat text ze schránky a jdou přepínat<br>
+barevná schémata.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_konzole.png"><img alt="vpsAdmin_konzole" class="aligncenter size-medium wp-image-140" height="268" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_konzole-300x268.png" width="300"></a></p>
+

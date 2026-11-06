@@ -1,0 +1,21 @@
++++
+title = "Stav naší infrastruktury na status.vpsf.cz"
+date = "2022-06-08T05:54:31+00:00"
+lastmod = "2022-06-08T05:54:31+00:00"
+draft = false
+url = "/stav-nasi-infrastruktury-na-status-vpsf-cz/"
+translationKey = "wp-759"
+categories = ["vpsfree-cz"]
+tags = ["master"]
+[params]
+article_id = "wp-759"
+source_body_sha256 = "9ebf2b0ab843582da65ca7c8ce544627f09883a43cce2491fb774481be57dd44"
++++
+
+<p>Abyste mohli kdykoliv sledovat stav naší infrastruktury, připravili jsme přehledovou stránku, která zobrazuje aktuální situaci v datacentrech.</p>
+<p><!--more--><span id="more-759"></span></p>
+<p>Při <a href="https://blog.vpsfree.cz/post-mortem-par-slov-k-vypadku/">výpadku napájení minulý týden v Praze</a> jsme přišli o standardní prostředky, které používáme pro komunikaci s členy, tj. zejména o hlášení výpadků z vpsAdminu a o naši podporu. Zachránil nás akorát <a href="https://twitter.com/vpsfree_cz">účet na Twitteru</a> a <a href="https://kb.vpsfree.cz/informace/chat#irc">kanál na IRC</a>, kde jsme mohli členy informovat o tom, co se děje. Chtěl jsem tuto situaci trochu zlepšit, když by se něco podobného stalo znovu.</p>
+<p>Představuji tedy <a href="https://status.vpsf.cz">status.vpsf.cz</a>. Jedná se o aplikaci, která průběžně kontroluje stav naší infrastruktury a vybraných služeb. Kontroly jsou automatické, tj. když něco aktuálně nepojede, hned to půjde vidět.</p>
+<p>Stránka status.vpsf.cz <a href="https://www.pcengines.ch/apu2.htm">běží na APU</a> s LTE v racku v Praze, tj. nezávisle na síti od MasterDC. Připojen je na vlastní malou UPS, takže nějakou dobu vydrží běžet i při výpadku napájení v DC.</p>
+<p>Zobrazují se tam i nahlášené výpadky/odstávky z vpsAdminu a pokud zrovna vpsAdmin nebude fungovat, informace o situaci napíšeme rovnou na status.vpsf.cz.</p>
+

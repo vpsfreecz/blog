@@ -1,0 +1,17 @@
+[
+  {
+    "author_name": "Martin",
+    "author_url": "https://socl.cz",
+    "date": "2017-05-30T19:16:27+00:00",
+    "html": "<p>CentOS je prostě fajn. :-)</p>\n",
+    "id": 1000,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Kamil",
+    "date": "2017-05-31T08:08:27+00:00",
+    "html": "<p>...si myslí v RedHat</p>\n",
+    "id": 1003,
+    "parent_id": 1000
+  }
+]

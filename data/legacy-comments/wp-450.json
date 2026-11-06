@@ -1,0 +1,24 @@
+[
+  {
+    "author_name": "Martin",
+    "date": "2016-10-25T10:33:59+00:00",
+    "html": "<p>Dobrý den, je třeba tedy nějaké akce k odstranění této chyby na našem serveru, který nám poskytujete či jste vše potřebné pořešili vy? Děkuji za reakci a přeji krásný den</p>\n",
+    "id": 474,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Petr Krčmář",
+    "author_url": "https://vpsfree.cz",
+    "date": "2016-10-25T11:05:03+00:00",
+    "html": "<p>Všechny VPS používají naše jádro, takže uživatelé nemusí nic dalšího řešit.</p>\n",
+    "id": 475,
+    "parent_id": 0
+  },
+  {
+    "author_name": "Martin",
+    "date": "2016-10-25T11:27:26+00:00",
+    "html": "<p>Děkuji :)</p>\n",
+    "id": 476,
+    "parent_id": 0
+  }
+]
