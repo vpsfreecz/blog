@@ -1,0 +1,38 @@
++++
+title = "More powerful servers to counter rising energy prices"
+date = "2022-07-13T07:40:28+00:00"
+lastmod = "2022-07-14T13:34:50+00:00"
+draft = true
+url = "/more-powerful-servers-to-counter-rising-energy-prices/"
+translationKey = "wp-762"
+categories = ["vpsfree-cz"]
+tags = ["energie"]
+[params]
+article_id = "wp-762"
+source_body_sha256 = "397773c67599f0901b5eef2a173d738c0e40118c9efce4a900d8d6e8084a83c5"
+translation_status = "draft"
+translation_source_sha256 = "98cf6a570cbf43760df201f1e6a7ce81eeb5ce7c2c7ba7046aae24ed079560fa"
++++
+
+<p>The energy market is unpredictable. This spring brought the first major price increase affecting us, which we absorbed thanks to our budget reserve. The question is how sustainable that will be without raising membership fees.<br>
+<!--more--><span id="more-762"></span></p>
+<p>Before raising fees, we'd like to try other options, particularly using spare capacity in existing hardware and rebuilding or buying servers with more powerful configurations.</p>
+<h2>More power means fewer problems</h2>
+<p>Our shared platform was designed for 120 VPSes per physical server; we currently usually run between 80 and 90. That's partly because individual VPS allocations have increased, but also to reduce problems with neighbouring members affecting one another.</p>
+<p>VPSes are more likely to affect their neighbours when the largest VPSes are closer in size to the server's hardware capacity. More powerful hardware therefore makes interference between VPSes less likely. Larger machines can share resources much more effectively.</p>
+<p>We've been moving towards more powerful machines for a while. Since 2019, we met increasing demand for processing power by fitting the fastest processors our existing motherboards support. That increased each server's power consumption and met the immediate need for performance, but didn't let us host more VPSes per server: the new processors only added 8 to 12 cores.</p>
+<h2>Powerful machines in the datacentre</h2>
+<p>Node 21 confirmed our hypothesis in practice. This server has 512 GB RAM and two first-generation 16-core Epycs. It currently runs 154 VPSes, with room for more. At an average power draw of about 280 W, it saves us the energy consumption of one additional older machine.</p>
+<p>Node 22 has one second-generation 64-core Epyc and 1 TB RAM. We expect it to fit about 320 VPSes, saving the energy consumption of another three older servers.</p>
+<p>Nodes 17 and 18 each have 512 GB RAM, but we can't reasonably add more processor cores. We'll therefore take their RAM and SSDs and combine them into one machine with two second-generation 64-core Epycs, giving us a destination for the most CPU-intensive VPSes. We'll also be able to migrate another server's VPSes onto it and still have room left.</p>
+<p>Node 14 also has 512 GB RAM, half unused, and will be last. What we do will depend on market availability at the time.</p>
+<p>Brno's node 5 can do the work of two older servers, with 512 GB RAM and a second-generation 32-core Epyc. It will be serviced in the coming days because one memory channel isn't working properly. The processor will probably need reseating.</p>
+<h2>Migration to vpsAdminOS</h2>
+<p>All the newer, more powerful servers already run vpsAdminOS. If you <a href="https://blog.vpsfree.cz/migrujte-na-vpsadminos-uz-je-cas-na-aktualni-virtualizaci-s-novym-jadrem/">haven't migrated from OpenVZ yet</a>, it's high time. We're gradually emptying OpenVZ machines and will consolidate their VPSes more closely, towards the original plan of 120 per server, depending on memory capacity.</p>
+<p>Solving the performance problems means migrating our entire infrastructure to vpsAdminOS and leaving OpenVZ behind. We've tested it on hundreds of VPSes, and in most cases migration is very smooth: the virtual server simply starts in the new environment with a current kernel. You can help by telling support you're ready. Details are in <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">our KB article</a>.</p>
+<p>We still have roughly <strong>a thousand</strong> VPSes to migrate to newer hardware, saving <strong>1.5 to 2 kW</strong>. At current prices, that's <strong>10 to 13 thousand crowns</strong> saved every month. If energy prices rise further, every watt will matter, and we'll have to use spare capacity in the remaining older, less powerful servers too.</p>
+<h2>Other ways to save</h2>
+<p>Replacing the backup server's (backuper) 3 TB disks with 16 TB ones could save another roughly 750 W.</p>
+<p>We could also replace the current gigabit "management" switches with more efficient ones. For PXE booting, we'd also like switches that start faster. This could save about 500 W.</p>
+<p>At current prices, all these savings could reduce energy costs by around 22 thousand crowns a month.</p>
+<p>To achieve this, we need to migrate hundreds of VPSes between servers. We'd like a substantial part finished by the end of summer. Of course, it will mean brief outages for some servers, but the result will be sustainable infrastructure we can keep paying for together.</p>

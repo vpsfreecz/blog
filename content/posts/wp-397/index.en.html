@@ -1,0 +1,37 @@
++++
+title = "Share code snippets at paste.vpsfree.cz"
+date = "2016-08-16T07:53:04+00:00"
+lastmod = "2016-08-16T07:53:59+00:00"
+draft = true
+url = "/share-code-snippets-at-paste-vpsfree-cz/"
+translationKey = "wp-397"
+categories = ["vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-397"
+source_body_sha256 = "3e91e667fa4f480b2a751023f7573a55c7fcb4b7f95ed0f9d4f465268aa99e98"
+translation_status = "draft"
+translation_source_sha256 = "a9a1071a97e5c7750de68729edc0756f7fb21391b5985b1db17cac655004aede"
++++
+
+<p>We've launched our own service for sharing code snippets, program output and text in general.<br>
+<!--more--><span id="more-397"></span></p>
+<p>The new service is at <a href="https://paste.vpsfree.cz">paste.vpsfree.cz</a>. Without logging in, you can only post text with a limited expiry time. Members can log in with their vpsAdmin credentials and keep text for longer.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/08/paste.png"><img alt="paste" class="aligncenter size-medium wp-image-398" height="202" src="https://blog.vpsfree.cz/wp-content/uploads/2016/08/paste-300x202.png" width="300"></a></p>
+<p>The service uses <a href="https://github.com/aither64/havesnippet">HaveSnippet</a>, which I wrote a few years ago as a school project and have now polished up. It also has a <a href="https://github.com/aither64/havesnippet-client">command-line client</a>, so you can post text like this:</p>
+<pre>
+$ cat soubor.txt | havesnippet
+$ havesnippet soubor.txt
+</pre>
+<p>The program also has a version with the shorter name <code>hs</code>:</p>
+<pre>
+# cat soubor.txt | hs
+</pre>
+<p>First, configure the client:</p>
+<ol>
+<li><code>gem install havesnippet-client</code></li>
+<li>Log in to paste.vpsfree.cz in a web browser, open settings and create an API key</li>
+<li><code>havesnippet -s https://paste.vpsfree.cz -k &lt;vytvořený api klíč&gt; --save</code></li>
+<li><code>echo hotovo | havesnippet</code></li>
+</ol>
+<p>Further program options are described in the README.</p>

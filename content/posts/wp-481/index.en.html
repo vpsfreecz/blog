@@ -1,0 +1,26 @@
++++
+title = "How did our first vpsFree hackathon go?"
+date = "2016-12-07T09:43:45+00:00"
+lastmod = "2016-12-07T13:29:06+00:00"
+draft = true
+url = "/how-did-our-first-vpsfree-hackathon-go/"
+translationKey = "wp-481"
+categories = ["akce"]
+tags = []
+[params]
+article_id = "wp-481"
+source_body_sha256 = "6f93c8d0070dc7dc0d86704335e65bf7ccd6168ba930433c21896d3cefba896c"
+translation_status = "draft"
+translation_source_sha256 = "2b186ed9e5cdb0fededf0c9db19c36dd5d40511f49a8d14a80f2db2a141ea566"
++++
+
+<p>I've finally emerged from catching up on sleep after the hackathon and all the travelling, so I can say a little about it. Well, it was intense, a proper hacking marathon.<br>
+<!--more--><span id="more-481"></span></p>
+<p>How did our <a href="https://blog.vpsfree.cz/prvni-vpsfree-hackaton-pojdte-s-nami-sitovat/">network hackathon</a> go? On the networking side:</p>
+<p>We pushed the CCR1072 to its limits quite easily. The router can happily forward 20+Gbit of traffic, but don't ask it for any iptables rules. Even with conntrack disabled, 100 rules noticeably slow forwarding, and at 200+ rules throughput goes down the drain, from several million pps to hundreds of thousands.</p>
+<p>The CCR1072 takes 3.5 minutes to load a full BGP feed (currently ~615k IPv4 routes globally), which isn't too bad, but there's a catch. As soon as you apply filters to those routes, it takes tens of minutes. The BGP implementation is single-threaded, so table updates keep it busy, and we can't count on this ever working reliably.</p>
+<p>All in all, as I expected, MikroTiks have their limits. I was a little surprised at how low they are. For now, though, we probably don't have a better option anyway, and we aren't planning a full feed any time soon. Glux and I picked some suitable Juniper candidates for the more distant future. We'll have to use second-hand hardware, but that's normal in this segment for organizations with our budget.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/12/hackaton-snajpa.jpg"><img alt="" class="aligncenter size-medium wp-image-484" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/12/hackaton-snajpa-300x169.jpg" width="300"></a></p>
+<p>Glux (Standa Petr) and I also prepared an example BGP configuration for the nodes, for the move away from OSPF. I'll need to play with it some more before I'm completely confident in the setup, but at least I know what to do and how.</p>
+<p>Thanks to everyone who came and helped, and equally to everyone who came to learn. Feel free to ask more questions next time. Some people just sat looking sadly on because they didn't quite understand. As long as you don't ask the person furiously hammering the keyboard, someone nearby will happily explain it next time.</p>
+<p>Thanks to the <a href="https://brmlab.cz/">Brmlab folks</a> for letting us squat there for the weekend. We'll definitely have another hackathon soon; I think an interval of roughly 3 months could work. Have a look at the <a href="https://foto.vpsfree.cz/?f=2016%2FNetwork_hackaton">photos in our gallery</a>.</p>

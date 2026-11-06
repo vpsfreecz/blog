@@ -1,0 +1,28 @@
++++
+title = "Why we want a 20-gigabit network"
+date = "2016-09-21T07:16:34+00:00"
+lastmod = "2016-09-21T07:22:32+00:00"
+draft = true
+url = "/why-we-want-a-20-gigabit-network/"
+translationKey = "wp-408"
+categories = ["technologie"]
+tags = ["sit"]
+[params]
+article_id = "wp-408"
+source_body_sha256 = "d7ef35f52ffa696d7dffc528fba8b74801043ac18ee7d9092ffdaa8efa5bbcc4"
+translation_status = "draft"
+translation_source_sha256 = "efccee7eafa7e1f92c0e92e78cb1fa1245e20081da7914cc02dae0e9252a3dc7"
++++
+
+<p>We plan to upgrade the connections between our servers. They currently communicate at 2 gigabits; in the future, that will be 20 gigabits.</p>
+<p><!--more--><span id="more-408"></span></p>
+<p>While <a href="https://blog.vpsfree.cz/kdyz-se-rozbiji-disky-aneb-jak-nas-pozlobil-nas/">juggling disks</a> and expanding arrays, I ran a small survey among members. I asked whether they'd prefer a faster network or another NAS to back up the existing one. The overwhelming majority agreed with me: the network is more useful.</p>
+<p>Our nodes are currently connected by 2×1GE, which is starting to limit us. VPS migrations take a long time, and we'd like to shorten them considerably. A faster network would also let us dump a physical server's entire memory after a failure for later analysis. We can do that now, but the server is unusable while transferring 256 GB RAM, which takes more than thirty minutes on the current network. With 10GE, we'd be done in three minutes and could continue. We could then examine the downloaded dump offline to find the cause of the outage.</p>
+<p>We've selected 24-port switches from Netgear and Cisco. They have 20 ordinary ports and 4 uplinks, but don't support L3 stacking. They're "just" simple L2 switches, yet each costs 93 thousand crowns. That's the cheapest option that gives us a 10GE network.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Cisco_SG550XG-24F-1.jpg"><img alt="Cisco_SG550XG-24F" class="aligncenter size-medium wp-image-421" height="120" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Cisco_SG550XG-24F-1-300x120.jpg" width="300"></a></p>
+<p>We need 24 ports because our servers already no longer fit in one rack, so we'll need another. A single large 48-port switch would mean running a lot of cabling between racks, which would be expensive. Instead, we'll gradually buy four 24-port switches and connect them together.</p>
+<p>We'll probably buy the SFP version, which suits us better in several ways. We'll use direct attach cables within racks and fibre between them. It also consumes much less power: copper needs up to 14 W per port, which would show up in our electricity bill.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Intel_x520_da2.jpg"><img alt="" class="aligncenter size-medium wp-image-423" height="200" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Intel_x520_da2-300x200.jpg" width="300"></a></p>
+<p>We'll also need dual-port 10GE cards for the servers, again using both paths at once as we do now. That will give individual servers 20-gigabit connectivity. The Linux kernel, specifically its bonding module, can use this by sending packets round-robin over both paths. Standard bonding under 802.3ad exists too, but needs a stackable switch costing twice as much.</p>
+<p>This "software" solution suits us well, with only two drawbacks. If a link to one node fails, connections to it will have 50% packet loss. Linux can, however, handle a complete switch failure. The second drawback is that it locks us into MikroTik routers, which run Linux and are the only ones that can communicate with the rest of the network using Linux bonding.</p>
+<p>We originally planned to invest in the network this year, but bought a new <a href="https://blog.vpsfree.cz/mame-prvni-server-s-ssd-a-512-gb-ram/">SSD node</a> instead, postponing the network upgrade. We now expect it in the first half of next year. We don't want to borrow money for hardware that doesn't pay for itself. We have to save up from operating funds, which will take a while.</p>

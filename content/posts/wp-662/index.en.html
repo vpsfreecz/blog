@@ -1,0 +1,38 @@
++++
+title = "Let's move to IPv6 together; we need it"
+date = "2020-06-04T07:35:00+00:00"
+lastmod = "2020-07-09T19:29:08+00:00"
+draft = true
+url = "/lets-move-to-ipv6-together-we-need-it/"
+translationKey = "wp-662"
+categories = ["server", "technologie", "vpsfree-cz"]
+tags = ["ipv6"]
+[params]
+article_id = "wp-662"
+source_body_sha256 = "092fbf2a06e3092e455fe274c10b07e9c5f31cb8aaa304355d151067226c609d"
+translation_status = "draft"
+translation_source_sha256 = "25abb46638006f6fee2b55560c9ff62bcd18b48cced2b1888ad3d26db545f360"
++++
+
+<p>The world, and finally Europe too, has run out of available IPv4 addresses. The infrastructure is ready for IPv6. Are you?<br>
+<!--more--><span id="more-662"></span></p>
+<p>Today's symbolic date, 4 June (4.6.), is another reason to consider why the whole world hasn't moved to IPv6 yet. We're not far off, but still have some way to go. Google, for example, says <a href="https://www.google.com/intl/en/ipv6/statistics.html">a third of its users connect over IPv6</a>. That's not bad, but not exactly good either.</p>
+<p>On Wednesday, 25 November 2019 at 15:35, <a href="https://www.ripe.net/publications/news/about-ripe-ncc-and-ripe/the-ripe-ncc-has-run-out-of-ipv4-addresses">Europe's final allocation of IPv4 addresses ran out</a>. There's nowhere to get more: we simply won't obtain any more addresses from the old world. Eventually this will catch up with everyone; most of the market is already working out how to handle the shortage.</p>
+<p>Once again, the largest players will benefit, with huge reserves or the money to <a href="https://www.ampr.org/amprnet/">buy more addresses from someone else</a>. It's time to move fully to IPv6. The infrastructure is ready; only end-user connections are missing. <strong>Write to your provider</strong> and ask when you'll be ready for the new internet.</p>
+<p>At vpsFree.cz, we've supported IPv6 from the start. Every member automatically gets an address with their server, and can simply request more. IPv4, on the other hand, is getting harder: addresses are disappearing, and our supply is shrinking. The board has therefore decided not to allocate more than one IPv4 address per member. Regardless of reasons or plans, one IPv4 address per member. We'll keep the remaining addresses for <strong>new members</strong>, who still need them for now.</p>
+<p><strong>Update:</strong> Following feedback from members whose production plans we disrupted, we have to postpone this plan by at least a year. We'll save it for when our IPv4 shortage becomes truly urgent. For now, we'll allocate them to members on request.</p>
+<p>It's time to move to IPv6, and we have to do it together. We need to work on the end-user connections mentioned above as well as our servers and services. You can already run an IPv6-only virtual server and provide access for IPv4 users through a shared reverse proxy.</p>
+<p>With the <a href="https://nginx.org/">Nginx web server</a>, for example, it's very simple: configure it to fetch content for the domains from an IPv6-only server. IPv4 traffic then shares a single address, letting us focus purely on IPv6 on the actual server.</p>
+<pre>
+server {
+	listen   443 ssl http2; # poslouchej na IPv4
+	listen   [::]:443 ssl http2; # poslouchej na IPv6
+	server_name  example.com example.org www.example.com www.example.org;
+			# obsluhuj tyto domény
+	
+	location / {
+		proxy_pass https://2a01:430:17:1::ffff:149:443; # směruj provoz na tuto adresu
+	    }
+}
+</pre>
+<p>IPv4 has no future; that's been clear for a long time. This year is a turning point. Don't miss it: stop worrying about where to find addresses. There are plenty of IPv6 addresses.</p>

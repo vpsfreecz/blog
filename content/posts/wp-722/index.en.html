@@ -1,0 +1,23 @@
++++
+title = "The first vpsAdminOS server in Brno"
+date = "2021-09-20T14:52:39+00:00"
+lastmod = "2021-09-20T17:23:48+00:00"
+draft = true
+url = "/the-first-vpsadminos-server-in-brno/"
+translationKey = "wp-722"
+categories = ["server"]
+tags = ["brno", "vpsadminos"]
+[params]
+article_id = "wp-722"
+source_body_sha256 = "faf99667ed77a3bd52fdbe5ccb4ba891b45f42824edd683a3e1fa490233e3bf4"
+translation_status = "draft"
+translation_source_sha256 = "a2fbc72218678c691befce9ae46eb3de0e801e8666a60632b7acc47dd1ec100a"
++++
+
+<p>Today, we brought node5.brq online, the first vpsAdminOS node in Brno.<br>
+<!--more--><span id="more-722"></span></p>
+<p>If you'd like to move from OpenVZ, <a href="https://kb.vpsfree.cz/informace/podpora">contact support</a>. On vpsAdminOS, we also allocate /64 IPv6 addresses. You can replace your OpenVZ /128 addresses yourself through vpsAdmin; see the <a href="https://blog.vpsfree.cz/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/">earlier blog post</a>.</p>
+<p><s>For now, NAS access is more complicated. From vpsAdminOS in Brno, you can only access the NAS with a private address first on the network interface. But that means internet traffic goes through NAT: the public address isn't used as the source because it isn't first.</s></p>
+<p><s>This is because NAS exports on vpsAdminOS are mounted inside the VPS. On OpenVZ, vpsAdmin mounted them from the host, so the VPS's internal network didn't matter.</s></p>
+<p><i>We've since adjusted the network configuration so a private address is no longer needed. The requirement to mount NFS inside the VPS on vpsAdminOS remains unchanged.</i></p>
+<p>Eventually, we'd like to solve this with a second network interface for private addresses and the NAS. But that would take more time, and we didn't want to postpone vpsAdminOS deployment in Brno any longer.</p>

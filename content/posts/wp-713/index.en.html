@@ -1,0 +1,25 @@
++++
+title = "We're halfway through the vpsAdminOS migration; Brno is next"
+date = "2021-03-08T09:30:57+00:00"
+lastmod = "2021-09-20T14:53:01+00:00"
+draft = true
+url = "/were-halfway-through-the-vpsadminos-migration-brno-is-next/"
+translationKey = "wp-713"
+categories = ["server"]
+tags = ["brno", "vpsadminos"]
+[params]
+article_id = "wp-713"
+source_body_sha256 = "668b22cf0e5efb21ab2c31a3b6f5564c748e3b0c10438d9c57eb9ae0c90f9a77"
+translation_status = "draft"
+translation_source_sha256 = "06d20ec3e2753b805b62865105cf1ee09187645c0130804719639a1a7286946f"
++++
+
+<p>Our major migration to vpsAdminOS is halfway done. Don't be afraid to join in and migrate your projects; it doesn't hurt.<br>
+<!--more--><span id="more-713"></span></p>
+<p>We <a href="https://blog.vpsfree.cz/predstavili-jsme-vpsadminos-system-pro-provoz-kontejneru/">introduced vpsAdminOS three years ago</a> and started <a href="https://blog.vpsfree.cz/vpsadminos-v-produkci-v-praze/">deploying it in production</a> a year ago. Half our Prague servers now run vpsAdminOS, and we want to get rid of the abandoned OpenVZ technology as soon as possible.</p>
+<p>Migration speed largely depends on members deciding to move their servers to the new platform. It doesn't hurt, and <strong>you don't need to reinstall the system</strong>. Just <a href="https://kb.vpsfree.cz/informace/podpora">contact support</a> to request migration, and we'll handle the automatic move between environments. We have ten OpenVZ servers and ten vpsAdminOS servers, and can move VPSes between them without changing IP addresses or making major changes.</p>
+<p>Before migration, you only need to <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/storage">check your NFS configuration</a> and mount any attached volumes inside the VPS. On OpenVZ, mounts were managed through vpsAdmin; on the new platform, you handle them normally inside the system. After migration, you'll have a great new kernel with plenty of features, including WireGuard and Nftables, and a whole shiny new platform.</p>
+<p>We haven't deployed vpsAdminOS in Brno yet, but expect to in the coming days. It'll be a fairly big job, because Brno has been the weaker production location in connectivity and server condition. Most members want to host in Prague, so Brno has taken second place until now. That's about to change.</p>
+<p>On Wednesday, we'll fit a dedicated Brno rack with new PDUs (rack power outlets). On Thursday night, we'll shut down all four OpenVZ machines and move them into their own rack. A new server running vpsAdminOS will already be waiting there. That starts Brno's gradual migration to the new platform too.</p>
+<p>It's a big milestone for Brno and vpsFree as a whole. Until recently, moving four or five servers to a dedicated rack was an unaffordable luxury. Now we'll invest a little to bring Brno up to Prague's current level, including new 10Gbit switches.</p>
+<p>We're finally going to get this sorted, and we'll keep you informed of progress. Hopefully we'll get some photos of the move too, so you can see what our night shift looks like.</p>

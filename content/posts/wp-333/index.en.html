@@ -1,0 +1,24 @@
++++
+title = "New distributions: Devuan, Fedora 23 and openSUSE 13.2"
+date = "2016-05-05T09:08:35+00:00"
+lastmod = "2016-05-05T11:44:19+00:00"
+draft = true
+url = "/new-distributions-devuan-fedora-23-and-opensuse-13-2/"
+translationKey = "wp-333"
+categories = ["distribuce"]
+tags = ["debian", "devuan", "fedora", "gentoo", "opensuse"]
+[params]
+article_id = "wp-333"
+source_body_sha256 = "c19fd1fbba7f94066a9be71d934b70805092f8cd49a7a3c5e3f9a95c6cabf13b"
+translation_status = "draft"
+translation_source_sha256 = "24c3873804abfccfc4d61d7443e01592e37dc8f212748baedaa485443deda8c1"
++++
+
+<p>We have new template versions for installing virtual servers. You can try the new Devuan distribution.<br>
+<!--more--><span id="more-333"></span></p>
+<p>At some members' request, we've added <strong>Devuan</strong> 1.0 beta (<a href="https://devuan.org/">website</a>) to our templates. It's a fork of Debian 8 Jessie focused on removing systemd. It uses copies of Debian repositories with only the minimal changes needed to replace the init system. Since it's still a beta, the template isn't shown on the membership application form, but you can install it through vpsAdmin.</p>
+<p>We've also tested <strong>Fedora</strong> 23, which came out a few months ago. It works without problems and is available both on the application form and, of course, in vpsAdmin.</p>
+<p>While we were at it, we updated the <strong>Gentoo</strong> template. The previous one dated from 2014, and updating a system that old to the current version is rather difficult. We'll try to update the Gentoo template more often so it's quicker to put into production.</p>
+<p>The final addition is <strong>openSUSE</strong> 13.2 and <strong>Leap</strong> 42.1, which we've prepared and tested. Both templates work and are already on the application form. We've removed the unsupported openSUSE 12.3 from it.</p>
+<p>One member also asked for a template of the development version of Debian 9 (currently testing). We tried it and it works, but the environment is still too changeable. A systemd update could break it at any time and leave it unable to boot. We therefore won't publish it yet. Anyone who needs testing can change repositories on the current stable release (Jessie) and upgrade. Keeping the system working is then up to them.</p>
+<p>See which distributions our <a href="https://blog.vpsfree.cz/distribuce-provozovane-na-vpsfree-cz/">members use most often</a>. Debian and Ubuntu lead, followed by CentOS. Together, these three account for over 85%.</p>

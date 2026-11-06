@@ -1,0 +1,34 @@
++++
+title = "Datacentre news: what we're doing now and planning next"
+date = "2020-06-26T18:21:16+00:00"
+lastmod = "2020-07-01T07:39:33+00:00"
+draft = true
+url = "/datacentre-news-what-were-doing-now-and-planning-next/"
+translationKey = "wp-667"
+categories = ["vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-667"
+source_body_sha256 = "af0f4fb96b1b993dea119ca3ec119b68287518fc5e1d8000adde3a3baffe7dc3"
+translation_status = "draft"
+translation_source_sha256 = "65b0626d0129aed3e8dd5d210ee241ecf6a66127a8396a47745dc9e077f61f5e"
++++
+
+<p>A members' meeting took place at U Balbínů restaurant in Prague on Friday, 26 June. This article covers the main points from Pavel Šnajdr's update.</p>
+<p><!--more--><span id="more-667"></span></p>
+<p><strong>What happened in 2019</strong></p>
+<p>We barely grew in 2019 because Docker didn't work on our OpenVZ infrastructure. <q>People today don't want to administer servers; they want everything in one click.</q> But we began moving to vpsAdminOS, where Docker is no longer a problem.</p>
+<p>Last year's income was 6.8 million crowns and expenditure was 6.7 million. <q>We try not to overdo spending so we have a reserve.</q> We're also not pressuring members over payment deadlines, given the difficult current situation. We reduced spending last year by attending fewer conferences.</p>
+<p>See the latest <a href="https://foto.vpsfree.cz/?f=2020%2FFotky_z_DC">datacentre photos</a> and <a href="https://foto.vpsfree.cz/?f=2020%2FClenska_schuze_26_06_2020">pictures from the members' meeting</a>. You can also download an <a href="https://vpsfree.cz/download/schuze_26_6_2020.ogg">audio recording</a> of the meeting.</p>
+<p>The association is repaying a loan of one million crowns from a member, which we expect to finish paying off in October 2021. <q>We bought three new servers with it.</q> We buy second-hand servers rather than new ones; it makes more sense for us. We're waiting to see how the market develops and whether buying AMD or ARM will make sense in the future.</p>
+<p>We still want to work towards a trade licence, VAT registration and certification. We want better billing for business customers so they can claim us as an expense, which they can't do with membership fees. <q>We're sorting out the accounts; the previous accountant left a lot of problems. We're nearly there.</q> There are certainly no plans to establish a service company and commercialize. The association still belongs to all of us, and will stay that way.</p>
+<p>We announced that each member would <a href="https://blog.vpsfree.cz/prejdeme-na-ipv6-spolecne-potrebujeme-to/">get only one IPv4 address</a>. We aren't planning drastic steps or taking addresses away from existing members; we probably won't be forced to do anything like that until 2024. <q>We want to get used to proxies by then, because eventually they'll be the way to connect to the old IPv4 world.</q> We don't want to turn addresses into a commodity, but want new members to have a chance of getting one in the future.</p>
+<p>Last year, we prepared a <a href="https://blog.vpsfree.cz/terraform-provider-pro-vpsadmin-spravujte-infrastrukturu-automatizovane/">Terraform plugin</a> for easily configuring and maintaining infrastructure, and added TOTP two-factor authentication. We gradually moved some infrastructure to NixOS. <q>It's far from everything, but everything we have on NixOS is published on GitHub.</q></p>
+<p>This also let us inventory our hardware; all the information is in our <a href="https://kb.vpsfree.cz/informace/infrastruktura">knowledge base</a>. We also have a <a href="https://blog.vpsfree.cz/migrace-nasi-infrastruktury-na-20-gigabitu/">10GE backbone</a> and new Dell border routers.</p>
+<p>We now have three racks in the Prague datacentre, with the backup server and NAS moved into their own rack. <q>That freed space for switches in the two main racks; only cables run to the third.</q></p>
+<p>A major project is <a href="https://blog.vpsfree.cz/tag/vpsadminos/">vpsAdminOS development</a>, our own operating system for container infrastructure. <q>Today, it's one of the best ways to run containers.</q> Inside containers, we already support LXD, Docker, NFS, Ceph and the kernel message buffer (dmesg).</p>
+<p>We have our own patches: 49 in the Linux kernel, 14 in ZFS and 5 in LXC. <q>But we aren't managing to get them upstream. We're missing tests, without which nobody will accept them.</q>We need to reach people who want to learn something new and help us with development.</p>
+<p><strong>Plans for 2020 and beyond</strong></p>
+<p>We originally wanted to work on a new vpsAdmin interface too, but that needs someone skilled who wants to build a user interface in JavaScript. This year, we want to work on the trade licence, certification and VAT mentioned above.</p>
+<p>We want to get closer to a cloud approach: when I want to start something quickly, I want to do it immediately, without approval and other complications. <q>It's technically possible, but we have to do it properly from the tax office's perspective.</q></p>
+<p>We're gradually fine-tuning vpsAdminOS and migrating from OpenVZ. As more members join, we find various kernel problems and fix them as we go. We currently have four production servers running real VPSes. We want migrations finished by the end of 2021. <q>From the user's perspective, migration brings a newer kernel, and NFS is mounted inside the VPS rather than through vpsAdmin.</q></p>

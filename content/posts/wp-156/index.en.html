@@ -1,0 +1,27 @@
++++
+title = "Replacing a server's motherboard"
+date = "2015-10-27T13:34:48+00:00"
+lastmod = "2015-11-09T08:11:43+00:00"
+draft = true
+url = "/replacing-a-servers-motherboard/"
+translationKey = "wp-156"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-156"
+source_body_sha256 = "e74e58f9b919e3f0925f9eb94a501c7777fa938d3d35d9a244dc1a46e8c2a96c"
+translation_status = "draft"
+translation_source_sha256 = "e6e8b5d8c2651daf5a71da17161a6961146d1232084f8494cbdb053571e0f5ea"
++++
+
+<p>Have you ever replaced a server's motherboard? Yes, sometimes we have to head to the datacentre to do that too.<br>
+<!--more--><span id="more-156"></span></p>
+<p>The SAS controller connecting some of the disks in our Node1 started behaving strangely. Disks connected through this external chip (which isn't part of the chipset) had unusually high latency. We ordered a newer revision of the motherboard and went to the Prague datacentre overnight at the weekend to <a href="http://lists.vpsfree.cz/pipermail/outage-list/2015-October/000386.html">replace it</a>.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_09_50_Pro.jpg"><img alt="WP_20151025_01_09_50_Pro" class="aligncenter size-medium wp-image-160" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_09_50_Pro-300x169.jpg" width="300"></a></p>
+<p>The first surprise was the different arrangement of SATA ports on the board. We had to move some cables, which changed the order in which the system detected the disks. Luckily, ZFS doesn't mind at all, and the array came up without trouble. With ZFS version 0.6.2 or earlier, though, we'd have had a problem. Those versions needed some wild symlinking.</p>
+<p>When we first booted the server with the new board, the BIOS status code "B7" stayed lit in the bottom-right corner. Google revealed that this AMI BIOS message means something is wrong with the RAM. We were sure the problem involved CPU0, and had to rearrange the memory twice before everything started without errors. Our fingers paid the price: we both ended up with plenty of cuts.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_30_35_Pro.jpg"><img alt="WP_20151025_01_30_35_Pro" class="aligncenter size-medium wp-image-162" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_01_30_35_Pro-300x169.jpg" width="300"></a></p>
+<p>Replacing the board did help. Previously, disk <em>svctime</em> in iostat was very high; afterwards, only <em>atime</em> (access time) remained high. <em>svctime</em> measures how long a disk takes to service a request once the kernel sends it. By contrast, <em>atime</em> covers the request's entire wait, including time in the kernel's disk queue.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_02_25_06_Pro.jpg"><img alt="WP_20151025_02_25_06_Pro" class="aligncenter size-medium wp-image-163" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/WP_20151025_02_25_06_Pro-300x169.jpg" width="300"></a></p>
+<p>So the problem is only partly resolved. The results show that ZFS overloads two disks on the external controller, giving them more work than the others. The array is unbalanced and will need a clean reinstall. We'll therefore have to migrate to Node12, reinstall, and move back. At the same time, we'll replace the current 1TB disks with 2TB ones, which are already waiting impatiently in the rack. Unfortunately, we can't mix them in the <em>zpool</em>, because the new ones use 4k sectors.</p>
+<p>To see how the whole night's work went, <a href="https://foto.vpsfree.cz/?f=2015%2FVymena_desky">look in our gallery</a>, where there are plenty more pictures.</p>

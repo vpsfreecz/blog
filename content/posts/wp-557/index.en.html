@@ -1,0 +1,22 @@
++++
+title = "vpsAdminOS: installation, updates, deployment and networking"
+date = "2018-09-03T08:15:08+00:00"
+lastmod = "2018-09-03T08:15:08+00:00"
+draft = true
+url = "/vpsadminos-installation-updates-deployment-and-networking/"
+translationKey = "wp-557"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-557"
+source_body_sha256 = "54923a39f2cb06a77b6ad8e887f954cc795b383a4d332b7552a3d691902469d9"
+translation_status = "draft"
+translation_source_sha256 = "f8573d4fc04c86e3919c702bca3cf6c67dfcd560897da68aaaf6da604dd7d190"
++++
+
+<p>Over the summer, we've worked on plenty of interesting things we'd like to show you.<br>
+<!--more--><span id="more-557"></span></p>
+<p>Although vpsAdminOS is primarily a live system, installing it to disk can be useful, for example on a single server without PXE. Installation works just like NixOS: format the disks, generate a configuration, edit it and run the installer; <a href="https://vpsadminos.org/os/installation/">see the documentation</a>. The supported bootloader is grub, and you can easily integrate SSH into the initrd to unlock encrypted disks, just as in NixOS.</p>
+<p>We've prepared two tools for updating running or installed systems: <a href="https://vpsadminos.org/os/updates/">os-rebuild</a> (like <a href="https://vpsadminos.org/os/deployment/">nixos-rebuild</a>) and <a href="https://nixos.org/nixops/">nixops</a>, a fork adding vpsAdminOS support. You can run os-rebuild directly on an installed system, or use it to update another machine over SSH. nixops manages larger server networks, something like terraform+ansible combined for NixOS. Our nixops version can manage NixOS and vpsAdminOS machines in the same network.</p>
+<p>For data migration during OS updates, we've written a <a href="https://man.vpsadminos.org/osup/man8/osup.8.html">tool called osup</a>. Updating vpsAdminOS simply replaces the system with a new version, but container configuration and data on ZFS pools need attention. Not everything is designed perfectly at the start, and changes may require reorganizing datasets, directories, <a href="https://vpsadminos.org/containers/administration/#pools">and so on</a>. osup automates these changes and runs alongside system updates through either os-rebuild or nixops. Migration scripts perform the changes, upgrading a pool to a newer version or downgrading it to an older one.</p>
+<p>I've already mentioned the need to rework IP address management in vpsAdmin; the OS now has everything it needs. VPS network interfaces can now have routed addresses and addresses assigned to the interface separately, like ip addr/route add. For example, you can route a /64 network and assign only selected addresses from it to the interface. Transit addresses will no longer have to come first, which complicated Docker networking and masquerading in general. vpsAdmin integration is in progress, but it's fairly complex and will take a while longer.</p>

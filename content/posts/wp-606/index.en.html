@@ -1,0 +1,63 @@
++++
+title = "Six months of vpsAdminOS development: closer to launching a production server"
+date = "2019-06-04T07:28:51+00:00"
+lastmod = "2019-07-13T08:43:28+00:00"
+draft = true
+url = "/six-months-of-vpsadminos-development-closer-to-launching-a-production-server/"
+translationKey = "wp-606"
+categories = ["technologie", "vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-606"
+source_body_sha256 = "da1a73b29fc5d59d32b9f42e435f6c4eb000d5ebe1be0ceeb3aef1160ff4379b"
+translation_status = "draft"
+translation_source_sha256 = "41d91572cd6bcd45514deb89c54ee2ce2c48bf389405cb4e5a0284bad42dd4dd"
++++
+
+<p>TL;DR: migrating production VPSes is still a long way off, but we're closer to launching a production node. We're gradually improving staging; outages are less frequent, and we announce them in advance. Anyone who wants or needs to can already run a VPS there. It still isn't production, though.</p>
+<p><!--more--><span id="more-606"></span></p>
+<h1>vpsAdmin crashes</h1>
+<p>At the February meeting, I mentioned that vpsAdmin was crashing absurdly often on vpsAdminOS. These were Ruby segfaults, not something we could recover from. Unfortunately, it always crashed while saving the results of completed operations, causing them to run repeatedly and leaving nonsense on disk and in the database. I finally resolved it by updating all the components; in particular, nixpkgs had a forgotten old version of the mysql connector. Now it... still crashes sometimes, but less often and not at the worst possible moment.</p>
+<h1>NFS on staging</h1>
+<p>Another never-ending story is access to nasbox, or NFS in general. Here's the problem: VPSes use a user namespace, so root in your VPS doesn't have uid 0 on the node, but some other number. From the node's perspective, it's an unprivileged user that only appears to be the superuser inside the VPS. This also means that when you mount an NFS export, the NFS server receives the VPS's UID/GID as the node sees them: unprivileged users. We therefore map UID/GID on your datasets on the NFS server too, matching the VPS's user namespace.</p>
+<p>In March, I finished implementing user namespace management, dataset mappings and mounts in vpsAdmin. Eager to try it, I started exporting nasbox datasets to node1.stg too... and caused an <a href="https://vpsadmin.vpsfree.cz/?page=outage&amp;action=show&amp;id=511">outage lasting several hours</a>. NFS exports change one at a time, so each should have a brief interruption and then carry on, right? Not remotely. I don't know why, but changing exports in bulk like this makes the NFS server stop serving clients. All clients. Even stopping the operation didn't bring service back, so there was panic, NFSD restarts and re-exporting everything... Lesson learned: more patience, and don't touch exports without an announced overnight outage. Otherwise, waiting a while would have been enough; the server would have started working again. It simply took a long time.</p>
+<p>After that battle, it still didn't work properly on staging. Because what was root from the VPS on the NFS server? An unprivileged user. It therefore couldn't work with other users' files, and so on. Practically unusable. There are two possible solutions: the NFS client could send UID/GID as the VPS sees them, making root privileged on the NFS server. Alternatively, the NFS server could treat a particular unprivileged UID as privileged.</p>
+<p>Since I couldn't find any NFS developer activity on this at the time, I implemented the second option, which seemed simpler. The result is a new export parameter, root_uid, set according to root's mapping in each VPS:</p>
+<p>zfs set sharenfs="root_uid=666000" storage/vpsfree.cz/nas/...</p>
+<p>The catch is that it needs both a <a href="https://github.com/vpsfreecz/linux/commit/ab987ee27f0a57f0dae3f0847db2ce4da3fc183c">kernel patch</a> and an <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/packages/nfs-utils/patches/000-export_option_root_uid.patch">nfs-utils patch</a> in userspace. It works nicely, but nasbox doesn't run vpsAdminOS. We could adapt it to OpenVZ, but decided to move straight to vpsAdminOS. Since around 700 VPSes use nasbox, we first tried vpsAdminOS on backuper, which is less critical in this respect.</p>
+<p>We did find one NFS problem during system startup, and hopefully fixed it. Otherwise, it works very nicely. nasbox is next.</p>
+<p>Unfortunately, things are getting complicated again: Linux 5.2 <a href="https://lwn.net/Articles/788292/">received patches</a> implementing the first option. The client translates UID/GID, sending them as the VPS sees them. That's a major complication for us, and we need to test it before deciding what to do. So NFS on staging is still at least another month away.</p>
+<h1>br_netfilter</h1>
+<p>Someone on IRC asked about br_netfilter, which doesn't support namespaces in Linux and therefore can't be used inside VPSes. A patchset adds that support, and we've included it in our kernel, but... I don't know what it's used for, only that some Docker applications use it. If you need it, please tell us what for and how important it is. Otherwise, we may have to drop it if it doesn't make it upstream.</p>
+<h1>Linux 5.0, 5.1, ZFS</h1>
+<p>We're continuously moving staging to newer kernel versions. For production, I expect we'll settle on an LTS kernel for longer. We've <a href="https://github.com/vpsfreecz/linux/branches/all">created a GitHub repository</a> for our kernel patches.</p>
+<p>You may have noticed that Linux 5.0 <a href="https://www.root.cz/zpravicky/zfs-on-linux-ma-mensi-zadrhel-s-kernelem-5-0/">restricted FPU function exports</a> to GPL-only, cutting off ZFS on Linux. We don't intend to complicate our lives or reduce performance over this. We patched the export in our kernel, just as <a href="https://www.phoronix.com/scan.php?page=news_item&amp;px=NixOS-Linux-5.0-ZFS-FPU-Drop">NixOS later did</a>.</p>
+<p>On Friday, we moved to Linux 5.1 and ZFS on Linux 0.8.0. ZoL 0.8 is a really great release; I recommend <a href="https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.8.0">looking at what's new</a>.</p>
+<h1>/sys/devices/system/cpu/online</h1>
+<p>... is used by some applications to detect the number of processors, so they know how many threads, workers and so on to use. Linux doesn't virtualize this information; LXCFS handles it in userspace. To see everything LXCFS "virtualizes" in your VPS, run:</p>
+<p>grep lxcfs /proc/mounts</p>
+<p>On Friday, we deployed an LXCFS version that also handles<br>
+/sys/devices/system/cpu/online. Python uses it, for example, when you call multiprocessing.cpu_count().</p>
+<h1>pty-wrapper</h1>
+<p>To keep a console open for every VPS, we start them in a wrapper that prepares a pseudoterminal and relays communication between osctld in vpsAdminOS and the remote console in vpsAdmin. We originally wrote this program in Ruby, but it used around 15 MB per VPS, counted against the VPS's memory usage. Sorki <a href="https://github.com/vpsfreecz/pty-wrapper">rewrote it in Haskell</a>, bringing us down to 5 MB per VPS.</p>
+<h1>Declarative ZFS dataset configuration</h1>
+<p>Installing a node means setting ZFS properties, such as enabling compression, and creating datasets on the zpool. All of this can now be <a href="https://vpsadminos.org/os/pools/#declarative-pool-structure">declared in configuration files</a> so we don't forget anything.</p>
+<h1>Kernel parameters</h1>
+<p>The kernel has lots of knobs limiting resources such as the ARP table, inotify, kernel keyrings and process counts. We recently hit the maximum process count on node1.stg. I tried to put things in order, and vpsAdminOS now <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/configs/tunables.nix">includes recommended settings</a> for these options.</p>
+<h1>Simpler container creation</h1>
+<p>vpsAdminOS originally required manual UID/GID mapping management in user namespaces. vpsAdmin handles that for you on staging, but in the OS itself it was needlessly complicated. Before creating a container, the mapping had to exist:</p>
+<p>osctl user new --map 0:666000:65536 myuser<br>
+  osctl ct new --user myuser --distribution ubuntu myct</p>
+<p>UID/GID map configuration is now optional. By default, each container gets a unique block of UID/GID from a defined range. You don't need --user at all; this is enough:</p>
+<p>osctl ct new --distribution ubuntu myct</p>
+<p>This automatically isolates containers from one another without extra work for the user.</p>
+<h1>nixos-modules</h1>
+<p>We already have quite a lot of Nix configuration and modules. To reuse some modules in multiple places, we've created the <a href="https://github.com/vpsfreecz/nixos-modules">nixos-modules repository</a>. So far, it contains a module for using libvirt that works inside VPSes too.</p>
+<h1>build.vpsfree.cz</h1>
+<p>We have a new machine (actually some older hardware) for building the OS and node boot images. It also runs vpsAdminOS, installed on disk and booting from ZFS. That's another way to use it.</p>
+<p>I also plan to automate building VPS distribution templates here. Right now, templates have to be built and tested manually, which nobody wants to do, leaving rolling-release distributions especially out of date. More on that another time.</p>
+<h1>IPv6 on staging</h1>
+<p>If you have a staging VPS, you've surely noticed the IPv6 problems. These came from mismatched BGP timeouts between the Dell switches and bird on node1.stg. It's been stable for a while now.</p>
+<h1>What's next</h1>
+<p>Before launching a production node, we still need NFS (see above) and syslog namespaces. Monitoring more or less works: we get SMS messages during outages, but resource monitoring still needs improvement.</p>
+<p>syslog namespaces matter because you need to know when the OOM killer visits your VPS. Right now, processes can disappear without you knowing why. <a href="https://github.com/torvalds/linux/compare/master...vpsfreecz:syslogns-5.1">We already have the patchset</a>; it needs adding to the kernel and testing.</p>

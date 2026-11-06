@@ -1,0 +1,48 @@
++++
+title = "Single sign-on in vpsAdmin"
+date = "2023-12-30T09:22:07+00:00"
+lastmod = "2023-12-30T09:22:07+00:00"
+draft = true
+url = "/single-sign-on-in-vpsadmin/"
+translationKey = "wp-821"
+categories = ["bezpecnost"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-821"
+source_body_sha256 = "a2ceb125f5af04abed60383ed5a1861350b1cdebf7a765de952d01da7dbac8de"
+translation_status = "draft"
+translation_source_sha256 = "80ccba07b041c5217b72cf1e7d0eb3869a10236a8ef71d474b86eb6aba4ee3c9"
++++
+
+<p>I'd like to introduce the new login system for vpsAdmin. My aim was to unify how you log in to vpsAdmin, the knowledge base, Discourse and possibly other services in the future.</p>
+<p><!--more--><span id="more-821"></span></p>
+<p>The changes mainly affect the vpsAdmin web interface at <a href="https://vpsadmin.vpsfree.cz">vpsadmin.vpsfree.cz</a>. Login now uses OAuth2, giving us one authorization server for all web services. Single sign-on works across vpsAdmin, the knowledge base and Discourse, so you only need to enter your credentials once. Although the login form is at a different address, your browser should still be able to fill in your saved credentials.</p>
+<p><strong>Single sign-on</strong></p>
+<p>When you log in to any service, the authorization server remembers you. If you then go to another service and want to log in, you won't need to enter your username and password again. Single sign-on works until you log out of all the services you've logged in to in that browser. More precisely, single sign-on stays active as long as the issued OAuth2 access tokens remain valid. Discourse, for example, only uses the token to verify your identity and create an account, then works independently.</p>
+<p>If you don't want to use single sign-on, you can turn it off in your vpsAdmin profile settings. Each login will then require your username and password.</p>
+<p><strong>Configurable session length</strong></p>
+<p>The vpsAdmin web interface logs you out after 20 minutes of inactivity. You can now change this in your vpsAdmin profile settings. If you set the session length to zero, you will never be logged out automatically. Use your own judgement.</p>
+<p>Alternatively, clicking the time remaining before logout extends it. Pressing and holding it cancels the timeout altogether. This feature has been in vpsAdmin for a long time, but isn't documented anywhere.</p>
+<p><strong>Logging out of all sessions</strong></p>
+<p>In your vpsAdmin profile settings, you can now choose to log out of all sessions for a service when you log out of one. For example, if you log in to the web interface from 2 different browsers or devices, logging out of one ends both sessions.</p>
+<p><strong>Small improvements</strong></p>
+<p>New members have to change their password when they first log in. Some didn't manage it before the automatic logout, or accidentally clicked the "Login" button twice, using up their first login and ending up with a locked account. The new login form handles both situations: the password change is enforced during login, so you can't log in without it and can't lock your account this way. Submitting the login form also gives visual feedback, and repeated submissions are prevented.</p>
+<p>You can also reveal your password to check that your keyboard is typing what you expect. If you forget your password or lose your TOTP authentication device, you can immediately see what to do: use a recovery code or contact support.</p>
+<p><strong>Configurable API permissions</strong></p>
+<p>If you use the API, you may be interested in configurable scopes. Each API action is one scope, whose name you can find in the API documentation. For each access token, you can set which scopes it has access to, and therefore which actions it can call. Scopes work with token and OAuth2 authentication.</p>
+<p>For example, with vpsfreectl we use scopes like this:</p>
+<pre>vpsfreectl --auth token --scope 'vps#*:vps_id=123' --save-token vps show 123</pre>
+<p>The command above creates an authentication token restricted to calling actions on the vps resource with ID 123.</p>
+<p>More scope examples:</p>
+<ul>
+<li>all allows access to all actions; the web interface uses this scope
+<li>an empty scope only allows access to user#current, which shows information about the current user;
+<li>this is used to log in to Discourse and the KB
+<li>vps#show allows viewing information about any VPS
+<li>vps#show:vps_id=123 information about the VPS with ID 123
+<li>vps#* allows calling all actions on all VPSes
+<li>vps#*:vps_id=123 all actions on the VPS with ID 123
+<li>{vps,dataset}#{index,show} allows listing VPSes and datasets and viewing details of a specific one</li>
+</li></li></li></li></li></li></li></ul>
+<p>A scope can contain globs for the resource and action names. The action is separated from the resource by a hash (#). Optional object IDs go after a colon and cannot contain globs: they must be exact. Scope and parameter names are in the API documentation. Each token can have several scopes, separated by spaces. To grant access, at least one configured scope must match the API action being called.</p>
+<p>To use this feature, you need an up-to-date version of vpsfree-client (&gt;= 0.18.0). Older versions will ask for the scope on standard input.</p>

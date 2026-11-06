@@ -1,0 +1,47 @@
++++
+title = "Post mortem: a few words about the outage"
+date = "2022-06-03T20:37:55+00:00"
+lastmod = "2022-06-03T20:58:40+00:00"
+draft = true
+url = "/post-mortem-a-few-words-about-the-outage/"
+translationKey = "wp-746"
+categories = ["server"]
+tags = ["master"]
+[params]
+article_id = "wp-746"
+source_body_sha256 = "eb55a9334a1b084752862c0395790e7ea249ec149f9aecc76a9ef9387f8d38be"
+translation_status = "draft"
+translation_source_sha256 = "6b2a71652de462f6b61863ae48bdc44372a63ed4c96daa1940ffb08f464ffca2"
++++
+
+<p>On Thursday, 2 June, all our Prague servers went down, leaving us unavailable for several hours. Here's why it happened and how it unfolded.</p>
+<p><!--more--><span id="more-746"></span></p>
+<p>Thursday began like any ordinary day, chatting with the other administrators about operations. Someone noted that some Czech websites and services were down. We quickly established that the problem was at our MasterDC datacentre: one power feed had failed.</p>
+<p>The outage was linked to power problems affecting a large part of Prague, forcing our datacentre into emergency operation. That happens routinely; there's nothing unusual about it. Our infrastructure was still running normally, since all hardware needed to operate VPSes has <strong>dual power supplies</strong>. Losing one feed therefore doesn't put us at risk.</p>
+<p>Unfortunately, further circumstances combined and several more problems piled up, causing the second feed to fail. Everything went dark. Every single one of our Prague servers switched off. We also lost email, support tools and all normal communication. We therefore began <a href="https://twitter.com/vpsfree_cz/">posting information on Twitter</a> and sharing updates. Our second location in Brno ran normally throughout, but the administration panel, NAS and backup array are in Prague.</p>
+<p>We immediately headed to the datacentre, as it was clear we'd need to fix things on site. Dozens of other customers were already there, though, with technicians gradually bringing up whatever they could. It took some time before we could even reach our racks and start restoring service.</p>
+<p>More problems then emerged, particularly switches that booted more slowly than the servers themselves. The servers boot over the network, and with no network yet, PXE failed and they didn't start. We had to wait for the network, then restart the servers again to let them boot.</p>
+<p>To make matters worse, one 10GE switch failed completely and wouldn't start at all. We've resolved the immediate situation and are planning hardware and software network improvements to give us more control and prevent similar problems.</p>
+<p>We gradually got every server running except node6 with OpenVZ. Over the years, we'd replaced its system SSDs without installing bootloaders on them. After restarting, it refused to boot from the current disks and needed some persuasion on site. That's why it took longest to start.</p>
+<p>What's next? We're looking for a reliable PXE solution. We also want to get rid of OpenVZ for good and put everything on our current vpsAdminOS platform. Interestingly, we'd discussed this exact scenario theoretically over the previous few weeks, asking what would happen in this extremely unlikely situation. At least we now knew exactly what to do.</p>
+<p>Our MasterDC colleagues handled the situation very well, communicating publicly and with us throughout rather than awkwardly hiding anything. They faced it, admitted a mistake, and that's how it should always be. We've done the same since our organization began. Honesty should be normal; decent people shouldn't hide behind empty phrases.</p>
+<p>MasterDC has nothing to be ashamed of. It's technology, and sometimes it fails however hard you work to keep it running.</p>
+<p>MasterDC's full statement follows:</p>
+<hr>
+<p><em><br>
+Dear customers,</em></p>
+<p>I'm writing the day after our Prague DC was affected by a massive power outage in part of Prague. First, on behalf of MasterDC, I apologize to everyone for the complications and thank you for giving us time. As we said yesterday, we needed it to investigate the incident thoroughly and assemble a timeline. I've decided to communicate the entire situation transparently.</p>
+<p>Below, you'll find: 1. what happened, 2. the current situation, 3. what to expect in the coming days, and 4. the steps we've taken for the future.</p>
+<p>On Thursday, 2. 6. 2022 at 8:49 in the morning, our monitoring detected a loss of power from supplier PRE's distribution network. On feed B, the automatic backup system immediately switched to N+1 UPS operation, followed by feed B's generator. At the same time, feed A's N+1 UPS system failed for reasons still under investigation. One possible scenario is an abnormal power surge, though we can't fully confirm that yet. One generator in the N+1 system started, but the UPS problem was so severe that the UPS bypass didn't engage and feed A lost power.</p>
+<p>Following the emergency plan for these situations, the technical team began moving selected equipment from feed A to secondary feed B. One device being reconnected caused a short circuit that tripped the main circuit breaker. A secondary breaker was also in the path but failed to trip. Feed B therefore went down at 10:43 too.</p>
+<p>This was an extreme case of several backup and protective components failing at once. I'd like to emphasize that all these systems met the datacentre's quality standards, including regular inspections and tests. The investigation also found that staff followed the emergency plan correctly.</p>
+<p>Yesterday, we said power was restored before 13:00. To clarify, by then we had already recorded the datacentre's complete return to operation. Feed A was restored at 11:11 and feed B at 11:16. During the afternoon, we mainly helped customers restore their applications.<br>
+ <br>
+The situation as of 3. 6. 2022, 18:10 is:<br>
+-       all customer services are running;<br>
+-       with our service contractor, we've scheduled inspection and maintenance on both feeds next week: Tuesday, 7. 6. 2022, 19:00 - 21:00 on feed B, and Wednesday, 8. 6. 2022, 5:00 - 7:00 on feed A. Wednesday morning's work on feed A will require a maintenance outage of the entire feed. Please keep following our communications; we'll provide further information through the usual channels.</p>
+<p>In addition to these steps, we've decided to replace feed A's entire UPS system using a new supplier. We aren't currently planning further measures: all components, including generators, UPS units and air conditioning, are configured with at least N+1 redundancy. Insufficient redundancy therefore wasn't the cause of this outage.</p>
+<p>Thank you for the support many of you have also expressed publicly.</p>
+<p>For MasterDC<br>
+Filip Špaček, Chief Operating Officer<br>
+</p>

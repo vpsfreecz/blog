@@ -1,0 +1,24 @@
++++
+title = "vpsAdmin updates: default VPS features and OOM reports"
+date = "2020-10-12T06:26:31+00:00"
+lastmod = "2020-10-12T06:26:31+00:00"
+draft = true
+url = "/vpsadmin-updates-default-vps-features-and-oom-reports/"
+translationKey = "wp-692"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-692"
+source_body_sha256 = "ed1b74550d5fefc6db9c44c080e835380d1321076461d509e7ffc0678064426f"
+translation_status = "draft"
+translation_source_sha256 = "b024ae3a8882f8dfa52699b38fa482450addf1e572a4fa7ff76804e29d22637c"
++++
+
+<p>Another round of improvements from vpsAdmin development. Managing VPSes is now easier, more features are enabled by default, and DNS resolver management is better.</p>
+<p><!--more--><span id="more-692"></span></p>
+<p>We've removed the Docker VPS feature from vpsAdmin. Initially, it selected a special seccomp profile allowing Docker to run, but that hasn't been needed for a long time. The feature remained for "peace of mind" and just in case. <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/docker">Installing Docker</a> needs no extra steps.</p>
+<p>I've also tried to reduce our environment's quirks and make configuration easier for new members. New VPSes enable the FUSE, KVM and TUN/TAP features, plus iptables and bridge on OpenVZ. PPP and LXC nesting remain disabled. I've added fuse and squashfuse to the Ubuntu and Debian templates, so installing snap, for example, now works out of the box too.</p>
+<p>VPSes running short of memory sometimes trouble our vpsAdminOS nodes. Some can affect an entire node's performance even when plenty of memory is free elsewhere. We've decided to monitor OOM killer activity and warn members when they run out of memory. Most don't even know it's happening, so never do anything about it. For interest, we currently have 8 vpsAdminOS nodes and have recorded approximately 4756 OOM kills from 38 VPSes since Thursday.</p>
+<p>If you use your own DNS resolvers, you'll welcome another change. vpsAdmin offered a choice of our resolvers or a resolver on localhost. The selected option overwrote <code>/etc/resolv.conf</code> at every VPS startup, making it hard to do things your own way. You can now disable management of <code>/etc/resolv.conf</code> in vpsAdmin, much like <a href="https://blog.vpsfree.cz/vpsadmin-2-1-0-konzole-vps-v-terminalu/">manual hostname management</a>.</p>
+<p>Membership payment instructions are now visible in vpsAdmin through the "Payment instructions" link in your member profile. They include QR codes, just like email reminders. Previously, you had to wait for a reminder or look up payment details in the KB.</p>
+<p>For beginners, the VPS details now include a form with SSH connection instructions. New networking options have made configuration a little more complicated on vpsAdminOS VPSes, so I wanted to help newcomers connect. If you think of anything else that's needlessly complicated here, write to us or <a href="https://github.com/vpsfreecz/vpsadmin/issues">open a GitHub issue</a>.</p>

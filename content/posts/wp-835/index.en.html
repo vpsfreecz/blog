@@ -1,0 +1,34 @@
++++
+title = "Primary DNS servers"
+date = "2024-08-19T11:34:14+00:00"
+lastmod = "2024-08-19T11:34:14+00:00"
+draft = true
+url = "/primary-dns-servers/"
+translationKey = "wp-835"
+categories = ["server"]
+tags = ["dns"]
+[params]
+article_id = "wp-835"
+source_body_sha256 = "70669444d29cc072bac387ec10bc423ce5121c200470b88e2fa3d6fc964d27ab"
+translation_status = "draft"
+translation_source_sha256 = "acefda954d0ffe3ecd104f61b3e34e5a36f29de306b3d57d052a462a4b6b7386"
++++
+
+<p>After reverse records and secondary zones, primary zones are now supported too. If you'd like, you can manage your domains' DNS records through vpsAdmin.</p>
+<p><!--more--><span id="more-835"></span></p>
+<ol>
+<li>In <em>DNS</em> → <em>Primary zones</em>, create a zone for your domain. The zone name is simply the domain name, usually a second-level domain, though you can delegate higher-level domains too.</li>
+<li>At your domain registrar, switch the nameservers to our shared servers. You'll find the assigned servers in the zone details, for example <em>ns3.vpsfree.cz</em> and <em>ns4.vpsfree.cz</em>.</li>
+<li>Then manage DNS records through the vpsAdmin interface.</li>
+</ol>
+<p>We support these DNS record types: A, AAAA, CNAME, MX, NS, PTR, SRV and TXT.</p>
+<h2>Dynamic records</h2>
+<p>For A and AAAA records, you can generate a unique link that updates the record to the address the HTTP request came from when visited. This is useful if your home has a public address that isn't static and may change. Run wget/curl on your router from cron or in response to an address change to keep DNS records up to date.</p>
+<h2>DNSSEC</h2>
+<p>We support DNSSEC, but you need to pass the DNSKEY/DS record to the parent zone; check the procedure with your registrar. Enable DNSSEC in the zone details in vpsAdmin. Keys are generated and the zone signed automatically, using BIND's default policy. To view DNSKEY/DS records, click <strong>View DNSKEY and DS records</strong> in the zone details.</p>
+<h2>Your own secondary servers</h2>
+<p>You can run your own DNS server in a VPS as an additional secondary. Add it through the <strong>Secondary servers</strong> form in the zone details in vpsAdmin, which will then show an example configuration. Once it works, you can add it to the nameservers at your domain registrar.</p>
+<p>Alternatively, use this to export records from our servers and import them into yours.</p>
+<h2><a class="anchor" href="#shrnut-4" name="shrnut-4"></a>Summary</h2>
+<p>Want to run your own authoritative DNS server in a VPS and need a secondary? Use <a href="https://discourse.vpsfree.cz/t/reverzni-zaznamy-a-sekundarni-dns-servery-reverse-records-and-secondary-dns-servers/250#sekundrn-dns-servery-2">secondary zones in vpsAdmin</a>.</p>
+<p>If you want to manage DNS records through vpsAdmin, use primary zones.</p>

@@ -1,0 +1,50 @@
++++
+title = "We've replaced LXCFS with kernel virtualization"
+date = "2024-01-15T07:34:52+00:00"
+lastmod = "2024-01-15T07:34:52+00:00"
+draft = true
+url = "/weve-replaced-lxcfs-with-kernel-virtualization/"
+translationKey = "wp-824"
+categories = ["server"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-824"
+source_body_sha256 = "5b91e37656bf73a212bf4077a41ab295d286b4a8305d332a45b23f86d3d3c91e"
+translation_status = "draft"
+translation_source_sha256 = "b8ef25a41f81e15d767f50c17b5b3d7a95f691b574c47c1ec89aa335e7d8b5b5"
++++
+
+<p>We've changed how selected files in proc are virtualized, replacing LXCFS with namespace-based virtualization.<br>
+<!--more--><span id="more-824"></span></p>
+<p>LXCFS is a FUSE (Filesystem in Userspace) filesystem we've used since vpsAdminOS began to virtualize selected files in <code>/proc</code> and <code>/sys</code> inside VPS containers.</p>
+<p>Linux supports namespace isolation and cgroup limits, but without LXCFS, <code>top</code> inside a VPS would still show all the node's CPUs, <code>free</code> would show the whole node's memory usage, load average would be higher than expected, and so on. We gradually reduced LXCFS's role, and from vpsAdminOS kernel <code>6.6.10</code>, we've removed it entirely. It's no longer needed!</p>
+<p><a href="https://github.com/vpsfreecz/linux/commits/vpsadminos-6.6/">Our kernel</a> now includes patches virtualizing selected <code>/proc</code> files based on namespaces and cgroup limits. LXCFS had to obtain these values from userspace by reading <code>/sys/fs/cgroup</code> parameters. To calculate load average, it even had to scan all the VPS's processes through <code>/proc</code>. Reading these files acquires shared locks, delaying other accesses.</p>
+<p>LXCFS also only worked where it was mounted. If you ran containers inside your VPS, you either had to bind-mount LXCFS into them manually or their <code>/proc</code> values weren't virtualized. Some utilities obtain system status through the <a href="https://man7.org/linux/man-pages/man2/sysinfo.2.html">sysinfo</a> syscall, bypassing LXCFS entirely. <code>sysinfo</code> is used by Busybox, for example, and even <a href="https://github.com/bminor/glibc/commit/b5c8a3aa82f66f49b731ca5204104cee48bccfa5">glibc</a> itself. On Alpine Linux, which uses Busybox by default, <code>uptime</code> therefore showed the entire node's load average.</p>
+<p>On nodes with an older kernel, we can see which files LXCFS virtualizes in its final stage of use:</p>
+<pre>$ grep lxcfs /proc/mounts
+lxcfs /proc/cpuinfo fuse.lxcfs rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other 0 0
+lxcfs /proc/diskstats fuse.lxcfs rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other 0 0
+lxcfs /proc/loadavg fuse.lxcfs rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other 0 0
+lxcfs /proc/uptime fuse.lxcfs rw,nosuid,nodev,relatime,user_id=0,group_id=0,allow_other 0 0
+</pre>
+<p>In the past, this also included <code>/proc/stat</code>, <code>/proc/meminfo</code>, <code>/proc/swaps</code> and <code>/sys/devices/system/cpu/online</code>. Back then, we <a href="https://github.com/lxc/lxcfs/pulls?q=is%3Apr+is%3Aclosed+author%3Aaither64">added</a> VPS CPU usage virtualization based on CFS quotas to LXCFS ourselves.</p>
+<p>We started with a single LXCFS instance serving all VPSes on a node, which worked fine on nodes with up to 100 VPSes. Moving to nodes with 300/600 VPSes, one LXCFS process could no longer keep up. We briefly ran a separate LXCFS instance for each VPS, but that was a very bad idea: 300/600 processes competed to read <code>/proc</code> and cgroup parameters. We finally moved to LXCFS worker processes, with one instance serving at most 50 VPSes and more instances starting as needed:</p>
+<pre>[root@node24.prg.vpsfree.cz]
+ ~ # osctl lxcfs worker ls
+NAME             ENABLED   SIZE   MAX_SIZE   CPU_PACKAGE   LOADAVG   CFS
+worker.0.cpu1    true      49     50         1             true      true
+worker.1.cpu1    true      50     50         1             true      true
+worker.2.cpu1    true      50     50         1             true      true
+worker.3.cpu1    true      50     50         1             true      true
+worker.4.cpu1    true      50     50         1             true      true
+worker.5.cpu1    true      48     50         1             true      true
+worker.6.cpu1    true      18     50         1             true      true
+worker.7.cpu0    true      50     50         0             true      true
+worker.8.cpu0    true      50     50         0             true      true
+worker.9.cpu0    true      50     50         0             true      true
+worker.10.cpu0   true      49     50         0             true      true
+worker.11.cpu0   true      50     50         0             true      true
+worker.12.cpu0   true      36     50         0             true      true
+</pre>
+<p>node23/24.prg have two CPU sockets, so we also make sure a VPS uses an LXCFS instance on the same socket. Bandwidth between sockets is limited, so we try to keep each VPS within one socket.</p>
+<p>None of this is needed now, and we've removed LXCFS entirely from vpsAdminOS. You'll always see virtualized values inside your VPS. If you run LXCFS inside your VPS yourself, nothing changes; you can keep using it. Our changes simply hide the fact that your VPS is itself a container.</p>

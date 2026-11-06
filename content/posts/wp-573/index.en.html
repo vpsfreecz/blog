@@ -1,0 +1,26 @@
++++
+title = "vpsAdminOS: networking changes, downloadable ISO, backups and cgroups"
+date = "2018-10-23T06:18:17+00:00"
+lastmod = "2018-10-23T06:18:17+00:00"
+draft = true
+url = "/vpsadminos-networking-changes-downloadable-iso-backups-and-cgroups/"
+translationKey = "wp-573"
+categories = ["technologie"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-573"
+source_body_sha256 = "ba8b8cd6f968b38eaf12d10ca7a36ebd40438b72af2ceb4f9c01f99d1c767b02"
+translation_status = "draft"
+translation_source_sha256 = "c86f49427c56720cdfe2bd25ece2e59db5878bb5e7d61f644f98a693aa745bc4"
++++
+
+<p>We've found a different, simpler way to route IP addresses into VPSes without transit networks.<br>
+<!--more--><span id="more-573"></span></p>
+<p>Staging VPSes now have no transit addresses, only public ones. The current VPS networking setup is <a href="https://vpsadminos.org/networking/veth-routed/#routing">described in the documentation</a>.</p>
+<p>For staging VPSes, vpsAdmin distinguishes network addresses, which are routed into the VPS, from host addresses assigned to an interface. IP address management is therefore split between two forms in the web interface. For now, this is just a foundation we'll build on later.</p>
+<p>Removing transit addresses makes iptables masquerading work, along with Docker's default network, which uses it. You don't need to create your own network. Installing Docker now needs no extra steps. We still need to sort out delegating ZFS datasets into VPSes so Docker can use its ZFS driver.</p>
+<p>If you wanted to try vpsAdminOS but didn't want to install Nix and figure out how to build it, sorki has <a href="https://iso.vpsadminos.org">prepared a vpsAdminOS ISO</a> you can download and boot straight away. It's a live system and <a href="https://vpsadminos.org/os/installation/">includes an installer</a> if you want to install it to disk or try declarative configuration with Nix.</p>
+<p>Since Friday, staging VPSes have been backed up so we don't have to worry about our data. Restoring VPSes from backups works, but you can't yet mount those backups on staging. You will be able to mount them on production VPSes. We haven't finished NFS support yet; it will come with the NAS.</p>
+<p>At the end of August, we hit an unexpected limit: did you know the maximum number of memory cgroups is 65536? A few members had already exhausted them, so we looked at raising the limit. snajpa wrote a <a href="https://github.com/vpsfreecz/vpsadminos/commit/87cd90ab99b5f4d527d3b33adfda13550cb8413a">kernel patch</a> raising the maximum to 2147483648, though swap doesn't work with it yet. That doesn't bother us, since we don't use swap.</p>
+<p>We also needed to limit how many cgroups individual VPSes can create, so nobody could exhaust all of them and affect others. For this, snajpa created the <a href="https://github.com/vpsfreecz/vpsadminos/commit/e73db73975e240b865497af4b40dbf3a0216f98d">cglimit cgroup controller</a>. You can see and use it inside your VPS too. <code>cglimit.all.max</code> sets the limit for all cgroups, and <code>cglimit.memory.max</code> for memory cgroups only.</p>
+<p>Thanks for help with testing (IRC nicknames): ppar, somm, domogled, pdostal, etnyx and everyone else who <a href="https://kb.vpsfree.cz/informace/podpora">contacts support</a>. If you find a bug, <a href="https://kb.vpsfree.cz/informace/kam_psat">please let us know</a>; we'll be happy to fix it.</p>

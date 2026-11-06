@@ -1,0 +1,35 @@
++++
+title = "Download backups from the command line"
+date = "2016-03-21T09:19:10+00:00"
+lastmod = "2016-03-21T09:25:10+00:00"
+draft = true
+url = "/download-backups-from-the-command-line/"
+translationKey = "wp-284"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-284"
+source_body_sha256 = "b807c31f0a5535e0500755d5a68c1ee85700be4bc3d384255370406f3ccb021e"
+translation_status = "draft"
+translation_source_sha256 = "4ee301d0ecbe21a66a59cb90fbe73c4450dcd0a7da094b2a5983d4c30ac41ddc"
++++
+
+<p>We've released a new version of our vpsAdmin interface. The main addition is downloading backups from the CLI.<br>
+<!--more--><span id="more-284"></span></p>
+<p><a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.3.0/">vpsAdmin v2.3.0</a> makes it easy to <a href="https://kb.vpsfree.cz/navody/vps/api#cli">download VPS/NAS backups from the CLI</a>. Previously, you had to wait for an email with a download link. Now there's no waiting: the download starts immediately. You can also choose between a conventional tar.gz archive and a ZFS data stream, which we can send incrementally, transferring only changes since the previous snapshot.</p>
+<p><a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfree-client</a> has four new commands for manual and automated backup downloads.</p>
+<p>Download a backup to a file:</p>
+<pre># vpsfreectl snapshot download [&lt;id&gt;] -- --format archive/stream</pre>
+<p>You don't need to worry about interrupting a download. The next time you run the program, it asks whether to resume it.</p>
+<p>Download a data stream (like zfs send):</p>
+<pre># vpsfreectl snapshot send &lt;id&gt; | zfs recv &lt;dataset&gt;</pre>
+<p>Request an incremental stream with -I, --from-snapshot:</p>
+<pre># vpsfreectl snapshot send &lt;id2&gt; -- --from-snapshot &lt;id1&gt; | zfs recv</pre>
+<p>Finally, the client can handle all the backup download logic for you with the command</p>
+<pre># vpsfreectl backup vps [&lt;id&gt;] &lt;cílový dataset&gt;</pre>
+<p>or</p>
+<pre># vpsfreectl backup dataset [&lt;id&gt;] &lt;cílový dataset&gt;</pre>
+<p>The program works out which snapshots to download and whether it can do so incrementally or needs a full backup. Downloads go straight into a ZFS dataset, so you must have ZFS installed and a zpool imported. Snapshots are also rotated: old ones are deleted to make room for new ones. Just put this command in crontab, and backup<br>
+downloads are taken care of.</p>
+<p>All these commands have a <code>--max-rate</code> option to limit download speed. A checksum is also available for the downloaded file, and the program always verifies it.</p>
+<p>Before using this, I recommend <a href="https://kb.vpsfree.cz/navody/vps/datasety#stahovani_zaloh">reading the KB</a>, which describes the commands and their options in more detail, with examples.</p>

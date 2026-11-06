@@ -1,0 +1,33 @@
++++
+title = "Prometheus metrics and node load heatmaps"
+date = "2024-07-31T05:27:05+00:00"
+lastmod = "2024-07-31T05:29:59+00:00"
+draft = true
+url = "/prometheus-metrics-and-node-load-heatmaps/"
+translationKey = "wp-828"
+categories = ["server"]
+tags = ["prometheus", "vpsadmin", "vpsadminos"]
+[params]
+article_id = "wp-828"
+source_body_sha256 = "8cfe3089e1dc6d11a55703e76cf7a0eaf9abe72ce4f9860e9b5449d5361b3a78"
+translation_status = "draft"
+translation_source_sha256 = "9a77a77915a809630490af092adb6e9dcd55ba94e3188cde60d853abac20671c"
++++
+
+<p>vpsAdmin and <a href="https://status.vpsf.cz">status.vpsf.cz</a> provide metrics for the <a href="https://prometheus.io/">Prometheus</a> monitoring system. I've already written about the <a href="https://discourse.vpsfree.cz/t/vpsadmin-vpsf-status-metriky-pro-prometheus/217">original proposal</a>, but the final metrics differ slightly, so check the current state in vpsAdmin instead.</p>
+<p><!--more--><span id="more-828"></span></p>
+<h2>Metrics</h2>
+<p>First, create a new access token in vpsAdmin under <em>Edit profile</em> → <em>Metrics access tokens</em>. vpsAdmin shows a scrape URL to add to your Prometheus configuration, just like the <a href="https://github.com/prometheus/node_exporter">node_exporter</a> you probably already have there. You can also open the URL in a browser or terminal to see the available metrics.</p>
+<p>These include CPU, memory and disk usage, load average, data transfers, OOM killer counts, and even the date your membership is paid through. Individual node statuses and outages or maintenance are included too. vpsAdmin updates VPS statuses every two minutes, so there's little point scraping more frequently.</p>
+<p>Prometheus lets you track values over time, create your own rules and send alerts through <a href="https://prometheus.io/docs/alerting/latest/alertmanager/">alertmanager</a>. We chose the Prometheus export format mainly because we use it to monitor our infrastructure. I don't have experience with other systems, but apparently it <a href="https://discourse.vpsfree.cz/t/vpsadmin-vpsf-status-metriky-pro-prometheus/217/6">works with Zabbix too</a>.</p>
+<p>Metrics are also available on <a href="https://status.vpsf.cz">https://status.vpsf.cz</a>, linked in the footer.</p>
+<h2><a class="anchor" href="#heatmapy-2" name="heatmapy-2"></a>Heatmaps</h2>
+<p>You can see individual nodes' load in real time on the <a href="https://vpsadmin.vpsfree.cz">vpsAdmin homepage</a>. In the node list, click the heatmap icon on the right:</p>
+<p><img alt="image" data-base62-sha1="43vDqxhq3U6cePwmt36XB9IJf4U" height="195" src="https://discourse.vpsfree.cz/uploads/default/original/1X/1c6e46d683e6dfe2c5a48bebd15f08379f514d64.png" width="442"></p>
+<p>A window opens showing current CPU and disk load:</p>
+<p><a href="https://discourse.vpsfree.cz/uploads/default/original/1X/ff84bffeca5a0820b5637be2c6d6d760da968e0b.png"><img alt="image" height="462" src="https://discourse.vpsfree.cz/uploads/default/optimized/1X/ff84bffeca5a0820b5637be2c6d6d760da968e0b_2_690x462.png" width="690"></a></p>
+<p>From the left, columns show user, system and idle for each CPU, followed by disk I/O. Each row represents one moment for all CPUs and disks. Colours range from black (0% load) to white (100% load). White in user/system columns means full usage; in an idle column, it means that CPU is free. Close the window with <em>Close</em> at the top right or by clicking anywhere outside it.</p>
+<p>Rendering the heatmap in a browser takes considerable CPU power. The application tries to detect this and gradually adjusts its size for smooth rendering, shortening the history. On larger nodes with 128/256 CPUs, you may therefore see only a ~200px-high strip, like I do. It just won't run faster <img alt=":slight_smile:" class="emoji" height="20" loading="lazy" src="https://discourse.vpsfree.cz/images/emoji/twitter/slight_smile.png?v=12" title=":slight_smile:" width="20"></p>
+<p>Click the heatmap to pause rendering and show labels for individual CPUs and disks at the top. Click again to resume. The node-name link in the window title opens the heatmap full-screen.</p>
+<p>If your VPS's performance seems off, you can quickly see what's happening on its node right now. If you notice increased load every 15s, for example, that's a ZFS transaction group (txg) syncing to disk.</p>
+<p>If you're interested, the source code is on <a href="https://github.com/snajpa/goresheat">GitHub</a>. It's a Go application that starts a web server on port 8080 by default, showing a heatmap for that system.</p>

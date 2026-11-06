@@ -1,0 +1,62 @@
++++
+title = "Memory management on vpsAdminOS"
+date = "2020-08-17T08:28:55+00:00"
+lastmod = "2020-08-17T08:28:55+00:00"
+draft = true
+url = "/memory-management-on-vpsadminos/"
+translationKey = "wp-678"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-678"
+source_body_sha256 = "d1ce146951ab8fb909d01bdc3aec714ba012ad03a77c94bebcfe41787e631d17"
+translation_status = "draft"
+translation_source_sha256 = "54b42b8b9a42be7d7ad1c7496289d0390f35c38e007dc9c98f8ac474edbfcb1b"
++++
+
+<p>I promised, mostly off-list, to summarize how we dealt with memory on vpsAdminOS. Here it is.</p>
+<p><!--more--><span id="more-678"></span></p>
+<p>When a programmer wants an application to work with a large file these days, a fairly common approach is to map it into memory using the mmap(2) syscall.</p>
+<p>This puts the file in the process's virtual address space, letting the program access it simply by accessing memory. That makes it easy to store C structs in a file, use pointer arithmetic, and so on.</p>
+<p>Linux caches a mapped file in pages, because that's how it manages memory itself (1 memory page on x64 is 4 kB; huge pages are another story for another time...). When an application wants to read data, Linux allocates a physical memory page for it in the background, if it hasn't already, giving the data somewhere real to sit. It reads the data into that page from disk, or wherever the file is, then maps the page into the appropriate place in the reading process's virtual address space.</p>
+<p>The kernel tracks mapped pages using an LRU list, a data structure that records which item was used most recently by moving it to the front when it's accessed.</p>
+<p>When everything works as it should, physical memory holds data being read and dirty pages that have been written to but not yet saved. These are scheduled to reach disk as soon as possible, unless the whole file was opened with O_SYNC or a similar flag forcing every change to disk before Linux returns control to the application writing to the mapped file. That's less common, and we don't particularly care about it here.</p>
+<p>Fortunately, writes are handled well. Linux has a mechanism called "writeback throttle": when it detects RAM filling beyond a healthy level, it slows the application's write accesses accordingly. This "impedance matching" works quite well, including under memory cgroups.</p>
+<p>Memory cgroups are how we limit container memory under Linux. They're an optional set of memory usage counters on top of the basic system counters, plus separate pointers to LRU, writeback and other caches. That lets us maintain separate lists of pages, among other things so we know what belongs to whom when it's time to reclaim memory. It also lets us monitor maximum memory use by different caches, for mapped files and much more.</p>
+<p>So far, so good.</p>
+<p>The system boots, a hundred VPSes start, the applications all run happily, some map files and some cheerfully write data to them...</p>
+<p>The system can run for months without trouble, keeping up just fine. The lists are usually fairly short, so the kernel's "kswapd" threads can scan and reclaim them in the background as individual memory cgroups start running short.</p>
+<p>After all, 4 GB RAM per container, divided into 4 kB pages, means a theoretical maximum list length of 1M entries. A 2+ gigahertz CPU should get through that quickly, right?</p>
+<p>Then, perhaps after two months of uptime, a desperate member writes that their container is running out of memory. However they add it up, their applications can't account for the usage. It's clear the caches refuse to back off.</p>
+<p>Hmm, not good. How do we fix something that takes so long to show itself?</p>
+<p>I should point out that to explain it this neatly, I had to work all the way through to the solution. It looks trivial in hindsight, but finding a way to even approach the problem...</p>
+<p>Log in to an affected system and you'll usually see kswapd0 at 100%. If the machine has two physical CPUs, kswapd1 will usually be in the same state.</p>
+<p>dmesg shows out-of-memory messages from individual containers as they hit caches that can't be reclaimed and the kernel desperately kills old processes to make room for more.</p>
+<p>Each OOM message also shows a stack trace identifying where it came from in the kernel. Most were triggered by reads from mmaped files, recognizable by functions adding LRU pages to the memory cgroup's list in the stack.</p>
+<p>So I thought: easy fix, surely. We won't charge mapped memory to members' memory cgroups; we'll leave it in the root memory cgroup...</p>
+<p>Okay, that could work, right?</p>
+<p>...and again, kswapd0/1 at 100%...</p>
+<p>That's when I started looking more seriously at what was happening, what they were taking so long over, and how it all worked, since an "easy hack" hadn't cleared it up.</p>
+<p>The idea was good and would have worked, except for one small detail:</p>
+<p>When kswapd reclaims caches in the background, it searches memory cgroups along the lines of "give me the biggest consumer, and we'll reclaim that; if it's not enough, we'll move on".</p>
+<p>So if one cgroup is bigger and always has more to reclaim, kswapd can always satisfy itself there and never reach the others.</p>
+<p>The only time memory is reclaimed directly from that particular memory cgroup is "direct reclaim", the code path taken when an allocation is needed. But there's less time to clean up then, so the kernel doesn't try as hard. Sometimes it gives up too soon, says it couldn't find memory, and triggers OOM in the affected memory cgroup.</p>
+<p>Hmm... okay, that won't work. Let's try not charging mmaped memory to any cgroup, leaving it in the basic system lists...</p>
+<p>After a bit of wrestling, because the kernel with memory cgroups doesn't expect mmaped memory not to belong to any memory cgroup, it's solved. Off for a sausage!</p>
+<p>...until we send the entire machine out of memory, and OOM errors start coming from everywhere, not just mmaped reads from within memory cgroups...</p>
+<p>With mmaped files charged to a single list outside memory cgroups, the kernel thought it had plenty of freedom to keep things cached. But there's a little caveat with ZFS: gradually accessing data in an mmaped file at random turns the ARC slab caches into a fragmented sieve. Especially when fragments of the originally read data stay "pinned" to one huge list with no reason to shrink, because the host has all the memory available without a limit :D</p>
+<p>And then the poor kswapd threads have to deal with that mess and reclaim it, *especially* when there are only two of them and an NVMe array underneath, finally configured with the correct ashift... On the staging node (now node1.stg), we managed to fill RAM almost to the point of death.</p>
+<p>So what now?</p>
+<p>We've run out of easy solutions. We need to reclaim these lists per limited memory cgroup.</p>
+<p>After several iterations, I arrived at a patch that starts per-NUMA-node "ksoftlimd" threads for every memory cgroup with a soft_limit set.</p>
+<p>Ksoftlimd does exactly that: it scans its memory cgroup's lists and keeps them around the soft_limit.</p>
+<p>Kswapd has less memory cgroup work to do when the kernel is configured to start ksoftlimd automatically. You can also start it manually.</p>
+<p>For now, we've chosen soft_limit as the watermark above which ksoftlimd should reclaim more aggressively, setting it to 80% of container memory. I may make this more automatic in the future, depending on what shortcomings turn up.</p>
+<p>The result is that if applications use less than 80% of memory, but there's data worth caching in RAM, the container will use around 80%. You'll see application memory normally, with the rest as caches. Caches should no longer push usage to 100%, causing OOM and killing processes.</p>
+<p>To finish, here are the patches:</p>
+<p>The attempt to <a href="https://github.com/vpsfreecz/linux/commit/d42232f89795">charge mmaped files to the root memory cgroup</a>.</p>
+<p>The attempt to <a href="https://github.com/vpsfreecz/linux/commit/c10ae4a7ef95">not charge mmaped files to memory cgroups at all</a>. The commit description is wrong and the patch isn't cleaned up overall. I wasn't happy with it and didn't want to spend more time on it, preferring to work out what next, at the time...</p>
+<p>And finally, the <a href="https://github.com/vpsfreecz/linux/commit/e04b3f9cda1d">currently deployed version of the ksoftlimd patch</a>.</p>
+<p>And finally, finally: the Linux kernel isn't advanced black magic. It's just an enormous, sometimes rather unwieldy pile of C code that needs capable, willing plumbers.</p>
+<p>There's plenty to improve in memory cgroups and memory management, and it's hardly rocket science... More generally, Linux containerization still needs a lot of work.</p>
+<p>So if you'd like to help with kernel development, drop by IRC or Base48 in Brno for a chat. We'll come up with something; it'll be fun, trust me.</p>

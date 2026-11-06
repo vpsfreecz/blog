@@ -1,0 +1,34 @@
++++
+title = "We support Alpine Linux and host its main mirror"
+date = "2017-05-03T09:54:29+00:00"
+lastmod = "2017-05-03T18:44:46+00:00"
+draft = true
+url = "/we-support-alpine-linux-and-host-its-main-mirror/"
+translationKey = "wp-506"
+categories = ["distribuce"]
+tags = ["alpine"]
+[params]
+article_id = "wp-506"
+source_body_sha256 = "1c4fb547171ed0a42ba82906735b52391862e70e39923fd26d43c6fc2bf1aae3"
+translation_status = "draft"
+translation_source_sha256 = "5cc8f17e33050e6a2c1dc0033a4caa41e11a82b69ac4bc5d46d3a02bfa3fc941"
++++
+
+<p>We've supported the Alpine Linux project by hosting its main mirror at vpsFree.cz.</p>
+<p><!--more--><span id="more-506"></span></p>
+<p>For now, this means hosting the official mirror cz.alpinelinux.org. It is currently used as the main mirror, from which other mirrors synchronize. It isn't yet certain whether it will stay that way.</p>
+<p>Alpine Linux ("Alpine" below) is currently changing its mirror infrastructure. The mirrors will be split into three categories:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2017/05/Alpine_infra-1.png"><img alt="" class="aligncenter size-medium wp-image-513" height="241" src="https://blog.vpsfree.cz/wp-content/uploads/2017/05/Alpine_infra-1-300x241.png" width="300"></a></p>
+<ul>
+<li>The "main mirror" (hopefully duplicated in the future), where the builders will upload packages and from which Tier 1 mirrors will synchronize.</li>
+<li>Three Tier 1 mirrors are planned, for Europe, America and Asia (note: my suggestion that we also need a mirror in Antarctica somehow didn't catch on...). Tier 2 mirrors will synchronize from these, and end users will also use them over HTTP(S).</li>
+<li>Tier 2 will consist of third-party and user mirrors, plus a backup mirror.</li>
+</ul>
+<p>The mirror at vpsFree may later become the Tier 1 mirror for Europe; that hasn't been decided yet.</p>
+<p>The idea of working with vpsFree came up about half a year ago, when there was a problem with the "main mirror". That started a discussion about moving it to another provider. One of the conditions was that the provider should offer Alpine as a supported distribution and ideally use it themselves in some way. We've offered Alpine for installation in vpsAdmin since May 2016, and have been planning to build some parts of vpsAdmin on Alpine for a while. We therefore decided to help the project by offering free hosting for a mirror. In the meantime, the immediate problem with the existing mirror was resolved, and moving the "main mirror" gave way to other priorities. Until now.</p>
+<p>A few days ago, the "main mirror" had an outage lasting several hours. The server was unreachable, nothing could be done through the administration interface, and all we could do was wait for support to intervene. This reopened the discussion about changing providers and reorganizing the mirror infrastructure as described above. I offered support at vpsFree again. Within a few hours, I had an OVZ container ready; a few hours later, everything was installed and configured, and all of aports had been synchronized. The next day, we set up the DNS record for cz.alpinelinux.org, and the day after that promoted it to the "main mirror".</p>
+<p>A few companies also offered to provide infrastructure for Alpine. I think one is from the USA and another from Japan. One of them must really like Alpine, because they gave the project a very powerful machine with several SSDs.</p>
+<p>In four days, it will be a year since we added Alpine Linux support to vpsAdmin, and its popularity among our members keeps growing. Petr Krčmář gave a talk dedicated to Alpine at the last <a href="https://installfest.cz/if17/">InstallFest</a>. If you're interested in the distribution, have a look:</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/BNAFHj1DXnQ" title="Embedded video" width="560"></iframe></p>
+<p>If you'd like to tell a friend who doesn't speak Czech about it, you can point them to the slides from my "<a href="https://www.linuxdays.cz/2016/video/Jakub_Jirutka-LT_Alpine_Linux.pdf">lightning talk</a>" [PDF] at the last <a href="https://www.linuxdays.cz/2016/">LinuxDays</a>.</p>
+<p>Note: The article was updated a few hours after publication. The proposed infrastructure is still a concept, and the names of the mirror categories changed in the meantime.</p>

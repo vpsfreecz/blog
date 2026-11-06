@@ -1,0 +1,30 @@
++++
+title = "Try cloning production VPSes to the vpsAdminOS test environment"
+date = "2018-11-01T08:45:06+00:00"
+lastmod = "2018-11-01T08:46:21+00:00"
+draft = true
+url = "/try-cloning-production-vpses-to-the-vpsadminos-test-environment/"
+translationKey = "wp-576"
+categories = ["technologie"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-576"
+source_body_sha256 = "3e68e78a1b6f0df337f251d5133fff8e141fdb2ec9819c44ec16b78497f26561"
+translation_status = "draft"
+translation_source_sha256 = "e98edc658078fd626bc2817a798b0350acd9542b2c6e9e24f46e794d33d48c49"
++++
+
+<p>Testing our vpsAdminOS platform is entering another significant phase: you can clone production VPSes from OpenVZ to staging with vpsAdminOS.<br>
+<!--more--><span id="more-576"></span></p>
+<p><a href="https://kb.vpsfree.cz/navody/vps/sprava#klonovani_vps">Clone a VPS just as you would to Playground</a>, but select the Staging location, which <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">runs vpsAdminOS</a>. Pay attention to the "Stop" checkbox: you can choose whether to shut down the production VPS while cloning to create a consistent snapshot, flushing data from memory to disk. For a simple staging test, this may not be necessary, so you can clone without restarting the production VPS. Everything is cloned except mounts, which are removed for now.</p>
+<p>If you want to clone a larger VPS, or already have something on staging, <a href="https://kb.vpsfree.cz/informace/kam_psat">please contact support</a> and we'll increase your staging RAM/HDD allowance so it fits.</p>
+<p>I now expect more interest in testing whether everything you need works. We want the eventual VPS migrations to be reliable and require little attention from VPS administrators, so please report anything you encounter so we can prepare. Please write even if everything works. We need to know where we stand, what works and what doesn't.</p>
+<p>After cloning, these should work:</p>
+<ul>
+<li>IPv4/IPv6 networking</li>
+<li>the remote console</li>
+<li>ideally, all services in the VPS</li>
+</ul>
+<p>If any of these don't work, or need configuration changes because of the different virtualization or kernel, please tell us.</p>
+<p>We'd like to start migrating all production VPSes in Q1/Q2 2019, depending on what remains to be finished. The OpenVZ team will <a href="https://wiki.openvz.org/Releases">end support for the OpenVZ Legacy kernel</a> in November 2019, so we want to move as many VPSes as possible to vpsAdminOS by then.</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/nOqGe788A80" title="Embedded video" width="560"></iframe></p>

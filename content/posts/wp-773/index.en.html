@@ -1,0 +1,41 @@
++++
+title = "We're upgrading almost all our hardware to save energy"
+date = "2022-10-07T09:54:01+00:00"
+lastmod = "2022-10-11T12:11:13+00:00"
+draft = true
+url = "/were-upgrading-almost-all-our-hardware-to-save-energy/"
+translationKey = "wp-773"
+categories = ["server", "vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-773"
+source_body_sha256 = "ac3f388acc29d2551fc129b1e7b3b82b2dde01fbc1f2d6d3a154543c0d18f874"
+translation_status = "draft"
+translation_source_sha256 = "4c5ecd51bc4ee1f411597508cc874e1517660100e191aa430f03c341f22fd34c"
++++
+
+<p>We've reconsidered and greatly expanded our original plan to buy more powerful virtualization machines. This means major energy savings without increasing membership fees.</p>
+<p><!--more--><span id="more-773"></span></p>
+<p>The end of the year is fast approaching, along with the end of our old energy prices. We expect a <strong>substantial increase</strong> in the new year. Our original plan to cut consumption by a few kilowatts would probably have left us around 100 thousand crowns short every month.</p>
+<p>We had to rethink our approach considerably and put much more into it than originally planned. The only sensible way to reduce consumption is to consolidate <a href="https://blog.vpsfree.cz/vykonnejsi-servery-jako-lek-na-zvysovani-cen-energii/">smaller machines into far fewer, much larger ones</a>.</p>
+<h2>Even more virtual servers per machine</h2>
+<p>In the previous post, I mentioned a server with two 64-core EPYC CPUs and 1 TB RAM. Like node22, it was originally meant to run 300 VPSes and provide reserve capacity for CPU-intensive workloads. It turned out that even one such processor is <strong>more than enough</strong>, leaving nothing to move over.</p>
+<p>With the hockey-stick graph of electricity prices, the next step more or less suggested itself: we fitted node23 with <strong>two terabytes of RAM</strong> and bought node24 with the same configuration.</p>
+<p>We're therefore adding two machines, each comfortably fitting 600 VPSes. Together, node21 (1TB/64 core Naples, 300 VPSes), node22 (1TB/64 core Rome, 300 VPSes) and now node23+node24 (2TB/128 core Rome, 600 VPSes) can hold <strong>all production VPSes</strong> in Prague, with a little room to spare.</p>
+<p>To put power consumption in perspective: a machine for 80 VPSes needs about <strong>300 W</strong>. A new 1T/64c machine for 300 VPSes uses roughly <strong>400 W</strong> (single socket Rome, node22) to <strong>500 W</strong> (dual socket Naples, node21). We don't yet have data from 600 VPSes on node23/24, but expect something <strong>below 800 W</strong>. They do have HPC models of those EPYCs, after all.</p>
+<h2>It isn't cheap</h2>
+<p>This is probably the point to say that none of this is cheap. We're very lucky that second-hand prices have fallen to more usable levels over the past two years; otherwise the numbers wouldn't really work. Even so, finishing node23 and buying node24 together cost <strong>1.5 million crowns</strong>.</p>
+<p>For budgeting, borrowing the money isn't especially significant. We saved up and paid cash for node22 from the same surplus we'll now use for repayments. After all, <strong>borrowing from members</strong> is nothing new; we were used to it for a long time. That tradition only stopped during the odd period in the last pre-crisis years, when upgrades were overdue but the numbers didn't work either way. Energy savings didn't justify the high investment needed for brand-new large EPYC machines then.</p>
+<p>If we'd upgraded earlier to modern servers still sized for 80 VPSes, consumption would only have fallen slightly. We'd have newer hardware, but not better resource sharing. We'd now have a <strong>big problem</strong>, still paying off hardware whose electricity we couldn't afford. That would probably have forced a membership fee increase.</p>
+<p>By waiting, we've achieved a double benefit: <strong>we won't have to raise</strong> membership fees, because we can move to hardware that genuinely saves money. It has taken a lot of work, though. It's very hard to simulate enough load to tune a shared kernel on such a large configuration in advance.</p>
+<h2>The hardest part is behind us</h2>
+<p>I'd like to apologize to all members for <strong>creating extra work</strong> too. We still have a few weeks of fairly frequent restarts on the large machines as we tune them for the intended load. We're much further along and more confident than at the start; I'd say the worst is behind us. Thanks to everyone with VPSes on node22 for bearing with us and helping tune production so far.</p>
+<p>I've left the least pleasant part until last, since it also means a lot of work for everyone involved: we need to <strong>shut down the OpenVZ machines</strong> by the end of the year.</p>
+<p>The OpenVZ Legacy kernel is based on RHEL 6, meaning version 2.6.32. It wasn't designed for machines this large. There's no reasonable way to move those VPSes to larger machines while retaining every feature. For members who really can't migrate and aren't running KVM inside, we could create one QEMU instance the size of an original machine. Honestly, we'd rather avoid it.</p>
+<h2>Move to vpsAdminOS</h2>
+<p>I'm asking all members still running VPSes on OpenVZ: please start taking the steps you've been planning and postponing as soon as possible, so you can <a href="https://blog.vpsfree.cz/migrujte-na-vpsadminos-uz-je-cas-na-aktualni-virtualizaci-s-novym-jadrem/">migrate your VPS to vpsAdminOS</a>. <strong>Time is running out</strong>, and we need to enter the new year with consumption as low as possible.</p>
+<p>In general, it's <strong>very simple</strong>. If an OpenVZ VPS doesn't use the NAS and runs a distribution still supported by its developers, we can migrate it without problems or any intervention from the member.</p>
+<p>If it uses the NAS, you need to <a href="https://kb.vpsfree.cz/navody/vps/exporty">reconfigure the NAS mount</a> from vpsAdmin-managed mounting to ordinary NFS mounting inside the VPS, using your distribution's usual method.</p>
+<p>The remaining cases involve distribution versions no longer supported even by their own developers. Around the end of November, we should know whether we'll need a virtualized OpenVZ Legacy node or, hopefully, not.</p>
+<h2>Half the power consumption</h2>
+<p>Current consumption is 11.5 kW, and our aim is to cut it to <strong>less than half</strong>. Besides replacing servers, we need other changes, such as adjusting infrastructure and switching off surplus support boxes. We can do it. If you have questions or ideas for improvements, <a href="https://kb.vpsfree.cz/informace/podpora">contact support</a>.</p>

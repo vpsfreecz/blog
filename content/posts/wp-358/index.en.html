@@ -1,0 +1,23 @@
++++
+title = "We've added Alpine Linux 3.3 and Slackware 14.1"
+date = "2016-05-31T08:08:16+00:00"
+lastmod = "2017-05-03T09:55:02+00:00"
+draft = true
+url = "/weve-added-alpine-linux-3-3-and-slackware-14-1/"
+translationKey = "wp-358"
+categories = ["distribuce"]
+tags = ["alpine"]
+[params]
+article_id = "wp-358"
+source_body_sha256 = "2abe65e9119d67a8f8618944ac719a6a02f7249069eb7b51c05ebcf2f2aab6f6"
+translation_status = "draft"
+translation_source_sha256 = "9031bc4da10fa0d8107559a573e2867b20b374cc1049e03a1218a9564089aa86"
++++
+
+<p>We've added two more distribution templates.<br>
+<!--more--><span id="more-358"></span></p>
+<p>Two more distribution templates are available: <a href="https://alpinelinux.org/">Alpine Linux</a> 3.3 and <a href="http://slackware.com">Slackware</a> 14.1. Both are available directly on the membership application form.</p>
+<p>Alpine Linux is a minimal distribution focused on security. It's based on musl libc and BusyBox, with OpenRC as its init system. Unfortunately, we can't use the PaX and grsecurity kernel patches it otherwise includes.</p>
+<p>At 5.5 MB, Alpine is the <strong>smallest</strong> template we've ever had. By comparison, Debian 8 is 121 MB and CentOS 7 needs 244 MB. Jakub Jirůtka <a href="https://github.com/vpsfreecz/build-vpsfree-templates/blob/master/templates/alpine-3.3.sh">created this template</a>; thank you!</p>
+<p>Slackware is the oldest distribution still active. It values simplicity and stability: its package manager, for example, is implemented in bash and doesn't handle dependencies. A package is an ordinary tar.{gz,xz} archive, installed by extracting it into /.</p>
+<p>The only complication was networking: the built-in init scripts can't configure more than one IPv4 address on an interface, and don't support IPv6 at all. We solved this with our own init script and a <a href="https://github.com/vpsfreecz/vzctl/commit/d79bfdcc4df3048d963ced74fb677d1fdb7019b6">vzctl patch</a>. It's <a href="https://github.com/vpsfreecz/build-vpsfree-templates/blob/master/templates/slackware-14.1.sh">described further in the template</a>.</p>

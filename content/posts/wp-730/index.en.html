@@ -1,0 +1,24 @@
++++
+title = "Migrate to vpsAdminOS: time for current virtualization and a new kernel"
+date = "2021-12-13T14:10:28+00:00"
+lastmod = "2021-12-13T20:51:22+00:00"
+draft = true
+url = "/migrate-to-vpsadminos-time-for-current-virtualization-and-a-new-kernel/"
+translationKey = "wp-730"
+categories = ["server"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-730"
+source_body_sha256 = "806f7e02948571c1cf749c06ff5befdec5dd10555e2399192beed840ce65cca0"
+translation_status = "draft"
+translation_source_sha256 = "c96586abf09768e010bd4df8b4d7fbec8871df25056cacf710c44c3e11243cbe"
++++
+
+<p>Our transition to the new vpsAdminOS virtualization platform is going well. Now it's up to you to take the next step and migrate your servers.<br>
+<!--more--><span id="more-730"></span></p>
+<p>We've spent the past few years working on vpsAdminOS and <a href="/tag/vpsadminos/">writing about it here</a>. Development of the original OpenVZ platform <a href="/prechazime-z-openvz-na-vpsadminos-spoustime-testovaci-prostredi/">took a commercial direction long ago</a>, and it's clear the project has no future for us. That's why we created <a href="https://vpsadminos.org/">vpsAdminOS</a>, based on current Linux container technologies and allowing us to run current kernels.</p>
+<p>We now have <a href="https://blog.vpsfree.cz/jsme-v-pulce-migrace-na-vpsadminos-ted-prijde-na-radu-brno/">most nodes on the new platform</a>, and vpsAdminOS is available at <a href="https://blog.vpsfree.cz/prvni-server-s-vpsadminos-v-brne/">both locations</a>. Now it's up to you to <strong>decide to migrate your servers</strong>.</p>
+<p>What do you get? A current Linux kernel, trouble-free support for the latest distributions, smooth Docker operation, an <a href="https://blog.vpsfree.cz/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/">IPv6 address block</a>, <a href="https://blog.vpsfree.cz/sprava-pameti-na-vpsadminos/">better memory management</a> and <a href="https://blog.vpsfree.cz/novinky-ve-vpsadminu-vychozi-vlastnosti-vps-a-oom-reporty/">other useful improvements</a>. Above all, vpsAdminOS lets us keep developing and following new Linux developments without trouble.</p>
+<p>Migration does require action from you so we can move your server from the old platform to the new one. Most importantly, <strong>you keep your data and IP addresses</strong>. What do you need to do? First, adjust your <strong>NAS exports</strong>, if you use them. These aren't mounted through vpsAdmin: mount them yourself inside the system using NFS. Everything is <a href="https://kb.vpsfree.cz/navody/vps/exporty">described in detail in our documentation</a>. The administration interface shows detailed instructions for mounting your export. Don't forget to install the NFS client; that's a common mistake.</p>
+<p>Then simply <a href="https://kb.vpsfree.cz/informace/podpora">contact support</a> to ask us to migrate your server. Let us know a suitable time too. Migration causes a brief outage while the server is shut down on the old node and started on the new one.</p>
+<p>If you're worried a service might not work after migration, try cloning your VPS to the playground using the clone button on the right of the VPS details. It already runs vpsAdminOS, so you can test everything on a copy of your server. If it all works, production migration will most likely succeed too. Even so, check everything again after restarting.</p>

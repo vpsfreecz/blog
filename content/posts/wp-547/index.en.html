@@ -1,0 +1,24 @@
++++
+title = "We're moving from OpenVZ to vpsAdminOS and launching a test environment"
+date = "2018-05-21T12:41:55+00:00"
+lastmod = "2018-05-21T12:42:27+00:00"
+draft = true
+url = "/were-moving-from-openvz-to-vpsadminos-and-launching-a-test-environment/"
+translationKey = "wp-547"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-547"
+source_body_sha256 = "2deb028ac6712a45a6b37b94a639c83f05aaae5ce7f315a78a2f145be0c443fc"
+translation_status = "draft"
+translation_source_sha256 = "75215a11edba0d692ed5fc6a9983eb0f11065c5c8ecae33264e4124b7c3b72a8"
++++
+
+<p>The OpenVZ technology we use is reaching the end of its life, and development has stopped. We're therefore moving to a newer solution, vpsAdminOS.<br>
+<!--more--><span id="more-547"></span></p>
+<p>We currently use OpenVZ Legacy container virtualization to run VPSes on all nodes. As it's ageing, development has ended and new distributions are dropping support, we're working on a move to <a href="https://vpsadminos.org">vpsAdminOS</a> (<a href="https://github.com/vpsfreecz/vpsadminos">GitHub</a>). This distribution is based on <a href="https://nixos.org">NixOS</a> and <a href="https://github.com/cleverca22/not-os">not-os</a>, and will serve as the hypervisor for VPSes on our nodes.</p>
+<p>We've written our own tool, <code>osctl</code>, for managing VPSes (containers), with features comparable to OpenVZ's <code>vzctl</code> or <a href="https://linuxcontainers.org">LXD</a>. It mainly handles <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos#user_namespaces">user namespaces</a> for proper VPS isolation and cgroups for memory, CPU and other limits. LXC starts the containers.</p>
+<p>vpsAdminOS isn't limited to vpsFree.cz infrastructure. If you run OpenVZ Legacy elsewhere and aren't sure what to do next, consider vpsAdminOS, which is ready for <a href="https://vpsadminos.org/migration-paths/openvz-legacy/">migrating OpenVZ containers</a>.</p>
+<p>We've been <a href="https://blog.vpsfree.cz/predstavili-jsme-vpsadminos-system-pro-provoz-kontejneru/">working on vpsAdminOS since roughly autumn 2017</a>, and all members can now try running VPSes on the new system. Our goal is for migrations from OpenVZ to vpsAdminOS to go unnoticed, though that depends on what you run in your VPS. We recommend that everyone try a new VPS and report any problems or shortcomings. We need to fine-tune the OS and its vpsAdmin integration before migrating production VPSes.</p>
+<p>Essentially, you get another playground VPS, with similar conditions. It may be a bit wilder, though: unannounced outages, restarts when we need to update something, and so on. In vpsAdmin's VPS creation form, select the <strong>Staging</strong> location. Alpine, Arch, CentOS, Debian, Fedora, Gentoo, NixOS and Ubuntu are available so far; more will follow.</p>
+<p>You have several weeks to months to test and report bugs, depending on how things go. More information about OS and vpsAdmin changes and the <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">transition plan is in the knowledge base</a>.</p>

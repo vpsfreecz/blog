@@ -1,0 +1,27 @@
++++
+title = "How we build operating system templates for VPSes"
+date = "2014-11-10T15:20:49+00:00"
+lastmod = "2016-05-03T09:33:59+00:00"
+draft = true
+url = "/how-we-build-operating-system-templates-for-vpses/"
+translationKey = "wp-15"
+categories = ["distribuce"]
+tags = []
+[params]
+article_id = "wp-15"
+source_body_sha256 = "92bd5674bb092da60d61b976fb41c845e96ed70e95a7a367e2dc72de380b746d"
+translation_status = "draft"
+translation_source_sha256 = "ff72eb6e111b571449de136773f39307cab80ecd83890e93c27431168277876b"
++++
+
+<p>At vpsFree.cz, we've written our own set of scripts to make building customized operating system templates easier.</p>
+<p><!--more--><span id="more-15"></span></p>
+<p>You can <a href="https://github.com/vpsfreecz/build-vpsfree-templates">find all the scripts and templates on GitHub</a>. They make it fairly easy to add settings specific to vpsFree.cz to our templates, such as automatically enabling the remote console available in vpsAdmin, or installing commonly used packages such as "vim", and so on...</p>
+<p>We keep all available templates on central NFS storage, so they're identical across all servers. You can then install a template on your VPS with one click in vpsAdmin.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2014/11/CentOS7_install.png"><img alt="CentOS 7 installation" class="aligncenter size-medium wp-image-11" height="196" src="https://blog.vpsfree.cz/wp-content/uploads/2014/11/CentOS7_install-300x196.png" width="300"></a></p>
+<p>In the near future, we plan to generate templates automatically, backing up the previous template and replacing it with the new one. Why back up templates? Something might change in a distribution, and the script might build the template successfully, yet the installed system could have various errors or problems. We want to be able to take a step back until the bug is fixed.</p>
+<p>If you'd like to use a Linux distribution we don't offer, we'd welcome a template for it, such as the one for <a href="https://github.com/vpsfreecz/build-vpsfree-templates/blob/master/templates/centos-7.0.sh">CentOS 7</a>, which we've <a href="https://blog.vpsfree.cz/centos-7-template-jsme-prohlasili-za-stable/">just deployed</a>. First, specify the distribution and version you want, and list any packages to install automatically in <code>EXTRAPKGS</code>. For system-specific configuration, you can use:</p>
+<pre>configure-append &lt;&lt;EOF
+... zde uvedeme potřebné příkazy ...
+EOF</pre>
+<p>Which distributions are you missing?</p>

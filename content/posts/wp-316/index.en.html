@@ -1,0 +1,31 @@
++++
+title = "DDoS attacks most often target TeamSpeak"
+date = "2016-04-25T07:33:35+00:00"
+lastmod = "2016-04-25T07:41:20+00:00"
+draft = true
+url = "/ddos-attacks-most-often-target-teamspeak/"
+translationKey = "wp-316"
+categories = ["server"]
+tags = ["ddos", "mikrotik"]
+[params]
+article_id = "wp-316"
+source_body_sha256 = "5edc1b899468c119479c6d2d1717add0641b2750480c650bd52a4eb6c9c3e451"
+translation_status = "draft"
+translation_source_sha256 = "c5f0fc4d596ade41896f652a3a3ce19e507cdcd03b30a7b03b90d7400797c6b5"
++++
+
+<p>Among other things, we have to deal with DDoS attacks on our infrastructure. Fortunately, there aren't too many, and we can handle them.<br>
+<!--more--><span id="more-316"></span></p>
+<p>DDoS attacks are becoming more frequent; you can watch them live on <a href="http://www.digitalattackmap.com/">Digital Attack Map</a>. We have to deal with them too and defend our network perimeter. Our main aim is to stop an attack on one IP address affecting other members and their services.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/04/DDoS_attacks.jpg"><img alt="DDoS attacks" class="aligncenter size-medium wp-image-317" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/04/DDoS_attacks-300x169.jpg" width="300"></a></p>
+<p>By far the most DDoS attacks here target servers running TeamSpeak. Clans in various online games try to gain an advantage by cutting off their opponents' communication server, leaving them unable to coordinate at critical moments.</p>
+<p>It sounds like a joke, but children really can pay for a 20 Gbps attack these days. Usually, the attacks come from botnets operated to the east of us, whose services can be ordered against a specific IP address. Such an attack costs around 200 dollars for 24 hours.</p>
+<p>We currently have two 10Gbps links at each location to the <a href="https://www.master.cz/">datacentre</a>, which provides a gigabit to <a href="http://www.nix.cz/">NIX.CZ</a>, half a gigabit to <a href="http://www.six.sk/">SIX.SK</a> and another half abroad. At the physical layer, though, a 9Gpbs attack can reach us.</p>
+<p>The main problem is that such an attack doesn't just affect the targeted IP address: it saturates the whole network. We monitor network conditions in Prague and Brno, so we know immediately when this happens. Here's how an attack looks on our traffic graph:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/04/DoS_utok.png"><img alt="DoS attack" class="aligncenter size-medium wp-image-318" height="102" src="https://blog.vpsfree.cz/wp-content/uploads/2016/04/DoS_utok-300x102.png" width="300"></a></p>
+<p>What happens next depends on the attack's intensity. If we can reach our routers, which is usually possible, we simply add the target IP address to the filters and blackhole it using <abbr title="Remotely-Triggered Black Hole">RTBH</abbr>. A BGP community tells Master to discard traffic for that address on its side. After a few hours, we remove the filter manually, and things are usually quiet.</p>
+<p>If an attack is so intense that we can't even access the router, we ask Master to deal with it directly. They check the situation from their side and block the attack if needed. Fortunately, this isn't necessary very often, usually once every three months. Master generally calls before we've even noticed a problem, though, because their technicians stop the attack themselves. No attack has yet taken down all of Master.</p>
+<p>We plan to improve our infrastructure with more powerful routers. We currently use <a href="http://routerboard.com/CCR1036-12G-4S">MikroTik CCR1036</a> routers with 36 cores, which can't cope with some types of attack. A recent SYN flood in particular overloaded conntrack (used for NAT on our internal network) so badly that the routers went down.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/04/MikroTik_CCR1072.jpg"><img alt="MikroTik_CCR1072" class="aligncenter size-medium wp-image-319" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/04/MikroTik_CCR1072-300x169.jpg" width="300"></a></p>
+<p>We've bought more powerful <a href="http://routerboard.com/CCR1072-1G-8Splus">MikroTik CCR1072</a> routers with 72 cores and want to place them in front of the current ones as new border routers. They won't run conntrack, forwarding packets without keeping state, and have considerably more processing power. Together, this will help us withstand larger attacks. We also want to export Traffic-Flow statistics to a single server that will analyse them and potentially respond to attacks automatically.</p>
+<p>Unfortunately, preventing every attack without an outage is very difficult. Based on other networks' experience, we'd need about 40Gbps of capacity to handle the vast majority of attacks without trouble. </p>

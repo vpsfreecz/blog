@@ -1,0 +1,23 @@
++++
+title = "When disks fail: our NAS gave us trouble"
+date = "2016-09-05T12:25:51+00:00"
+lastmod = "2016-09-05T12:25:51+00:00"
+draft = true
+url = "/when-disks-fail-our-nas-gave-us-trouble/"
+translationKey = "wp-403"
+categories = ["technologie"]
+tags = []
+[params]
+article_id = "wp-403"
+source_body_sha256 = "05a7491847c7959465aa12db7269996f0118bfaa94dbaa39465c3437dab56526"
+translation_status = "draft"
+translation_source_sha256 = "d2e140caeb2717524cb1a928acad66f2f74a6199e63f9b8f56756270d25b5dc0"
++++
+
+<p>A month ago, our NAS started giving us trouble, so we had to carry out a rescue operation.<br>
+<!--more--><span id="more-403"></span></p>
+<p>One disk in the NAS pool's first VDEV failed. When we tried to replace it with a spare, another disk in the same group started reporting unrecoverable read errors. We had to <a href="http://lists.vpsfree.cz/pipermail/outage-list/2016-July/000474.html">switch the entire NAS to read-only mode</a> and start synchronizing it to Backuper, our backup machine.</p>
+<p>Unfortunately, this took a very long time and had to be repeated several times. ZFS's recursive send-receive process is terribly poorly thought out: an interrupted transfer can't be resumed. When you're moving 22 TB of data and it stops halfway, you have a problem. Some experimental patches address this, but they only work on a single dataset, not recursively.</p>
+<p>We eventually managed it with some manual synchronization. Almost all the data was saved; only about 72 files couldn't be read. Considering that we consistently describe the NAS as storage without backups, I think that's a good result. There were five damaged disks in the array in total, and of course we didn't put them back. After replacement, we have five spare disks ready for another failure.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/08/NAS_box.jpg"><img alt="NAS enclosure" class="aligncenter size-medium wp-image-404" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/08/NAS_box-300x169.jpg" width="300"></a></p>
+<p>We've also added more disks to the NAS, more than doubling its usable capacity to 110 TB. We plan to move data back onto it from Backuper, whose array also needs rebuilding in a safer configuration. Since we don't want to stop making backups, we have to use the expanded NAS temporarily to migrate the backups.</p>
