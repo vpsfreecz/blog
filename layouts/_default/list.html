@@ -1,0 +1,14 @@
+{{ define "main" }}
+<h1>{{ if .IsHome }}{{ i18n "home" }}{{ else }}{{ .Title }}{{ end }}</h1>
+{{ $pages := .RegularPages }}
+{{ if .IsHome }}{{ $pages = where .Site.RegularPages "Type" "posts" }}{{ end }}
+{{ range (.Paginate $pages).Pages }}
+<article>
+  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
+  {{ partial "byline.html" . }}
+  {{ .Summary }}
+  <a href="{{ .RelPermalink }}">{{ i18n "readMore" }}</a>
+</article>
+{{ else }}<p>{{ i18n "empty" }}</p>{{ end }}
+{{ template "_internal/pagination.html" . }}
+{{ end }}

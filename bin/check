@@ -1,0 +1,126 @@
+#!/usr/bin/env python3
+"""Check the scaffold's route, isolation and reproducibility contracts."""
+import argparse
+import hashlib
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+from urllib.request import build_opener, HTTPRedirectHandler
+import xml.etree.ElementTree as ET
+
+ROOT = Path(__file__).resolve().parent.parent
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('--preview', action='store_true', help='also check the running loopback preview')
+options = parser.parse_args()
+
+
+def run(*args):
+    subprocess.run(args, cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
+
+
+class Page(HTMLParser):
+    def __init__(self, path):
+        super().__init__()
+        self.elements = []
+        self.feed(path.read_text())
+
+    def handle_starttag(self, tag, attrs):
+        self.elements.append((tag, dict(attrs)))
+
+    def has(self, tag, **attrs):
+        return any(t == tag and all(a.get(k) == v for k, v in attrs.items())
+                   for t, a in self.elements)
+
+
+def digest_tree(path):
+    return {str(p.relative_to(path)): hashlib.sha256(p.read_bytes()).hexdigest()
+            for p in path.rglob('*') if p.is_file()}
+
+
+def check_roots(destination, hosts):
+    for lang, host in hosts.items():
+        root = destination / lang
+        assert (root / 'index.html').is_file(), root
+        assert (root / 'sitemap.xml').is_file(), root
+        feed = ET.parse(root / 'feed/index.xml').getroot()
+        assert feed.findtext('channel/link') == host
+        assert feed.find('channel/{http://www.w3.org/2005/Atom}link').get('href') == host + 'feed/'
+        page = Page(root / 'index.html')
+        assert page.has('link', rel='canonical', href=host)
+        for path in root.rglob('*.html'):
+            text = path.read_text()
+            assert '<iframe' not in text and '<script' not in text, path
+            assert '/en/' not in text and '/cs/' not in text, path
+
+
+with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
+    work = Path(directory)
+    production, repeat, drafts, fixture_production = [work / x for x in
+        ('production', 'repeat', 'drafts', 'fixture-production')]
+    run('bin/build', str(production))
+    run('bin/build', str(repeat))
+    assert digest_tree(production) == digest_tree(repeat), 'build is not deterministic'
+    check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'})
+    assert not any('synthetic' in p or 'synteticky' in p for p in digest_tree(production))
+    metadata = json.loads((production / 'metadata.json').read_text())
+    for name, expected in metadata['files'].items():
+        assert hashlib.sha256((production / name).read_bytes()).hexdigest() == expected
+        assert name.startswith(('cs/', 'en/')), name
+    assert not (production / 'cs/metadata.json').exists()
+    assert not (production / 'en/metadata.json').exists()
+
+    config = 'hugo.toml,fixtures/hugo.toml'
+    run('hugo', '--environment', 'production', '--config', config,
+        '--destination', str(fixture_production), '--panicOnWarning')
+    assert not (fixture_production / 'cs/synteticky-priklad_1').exists()
+    assert not (fixture_production / 'en/synthetic-example_1').exists()
+
+    run('hugo', '--environment', 'preview', '--buildDrafts', '--config',
+        config + ',config/preview/hugo.toml', '--destination', str(drafts), '--panicOnWarning')
+    check_roots(drafts, {'cs': 'http://localhost:1313/', 'en': 'http://localhost:1314/'})
+    for lang, path, other_path, other_locale, other_port in [
+        ('cs', 'synteticky-priklad_1', 'synthetic-example_1', 'en', 1314),
+        ('en', 'synthetic-example_1', 'synteticky-priklad_1', 'cs-CZ', 1313),
+    ]:
+        page = Page(drafts / lang / path / 'index.html')
+        assert page.has('link', rel='alternate', hreflang=other_locale,
+                        href=f'http://localhost:{other_port}/{other_path}/')
+        assert page.has('a', href=f'http://localhost:{other_port}/{other_path}/')
+        assert page.has('article', **{'data-article-id': 'synthetic-pair'})
+        assert page.has('section', id='comments', **{'data-discussion-url':
+            'https://blog.vpsfree.cz/synteticky-priklad_1/'})
+        assert page.has('meta', name='robots', content='noindex, nofollow')
+    unpaired = drafts / 'cs/synteticky-bez-prekladu/index.html'
+    assert 'Překlad zatím není k dispozici.' in unpaired.read_text()
+    assert not (drafts / 'en/synteticky-bez-prekladu').exists()
+
+    # Exercise production host metadata without publishing a fixture.
+    prod_hosts = work / 'fixture-hosts'
+    run('hugo', '--environment', 'production', '--buildDrafts', '--config', config,
+        '--destination', str(prod_hosts), '--panicOnWarning')
+    for lang, path, host, other_host, other_path, other_locale in [
+        ('cs', 'synteticky-priklad_1', 'blog.vpsfree.cz', 'blog.vpsfree.org', 'synthetic-example_1', 'en'),
+        ('en', 'synthetic-example_1', 'blog.vpsfree.org', 'blog.vpsfree.cz', 'synteticky-priklad_1', 'cs-CZ'),
+    ]:
+        page = Page(prod_hosts / lang / path / 'index.html')
+        assert page.has('link', rel='canonical', href=f'https://{host}/{path}/')
+        assert page.has('link', rel='alternate', hreflang=other_locale,
+                        href=f'https://{other_host}/{other_path}/')
+
+if options.preview:
+    class NoRedirect(HTTPRedirectHandler):
+        def redirect_request(self, *args, **kwargs):
+            return None
+
+    opener = build_opener(NoRedirect)
+    for port in (1313, 1314):
+        url = f'http://localhost:{port}/feed/'
+        with opener.open(url, timeout=5) as response:
+            assert response.status == 200 and response.url == url
+            assert response.headers.get('Location') is None
+            assert response.headers.get_content_type() == 'application/rss+xml'
+            assert ET.fromstring(response.read()).tag == 'rss'
+
+print('Passed: dual-host routes, metadata, pairing, draft isolation and deterministic output')

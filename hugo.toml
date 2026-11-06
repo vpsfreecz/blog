@@ -1,0 +1,28 @@
+title = 'vpsFree.cz blog'
+defaultContentLanguage = 'cs'
+timeZone = 'Europe/Prague'
+disableKinds = ['taxonomy', 'term']
+enableRobotsTXT = true
+
+[languages.cs]
+baseURL = 'https://blog.vpsfree.cz/'
+locale = 'cs-CZ'
+label = 'Česky'
+weight = 1
+
+[languages.en]
+baseURL = 'https://blog.vpsfree.org/'
+locale = 'en'
+label = 'English'
+weight = 2
+
+[outputFormats.RSS]
+baseName = 'index'
+path = 'feed'
+
+[outputs]
+home = ['HTML', 'RSS']
+section = ['HTML']
+
+[markup.goldmark.renderer]
+unsafe = false

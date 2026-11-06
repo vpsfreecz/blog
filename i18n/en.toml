@@ -1,0 +1,38 @@
+[skip]
+other = "Skip to content"
+
+[tagline]
+other = "The vpsFree.cz member blog"
+
+[navigation]
+other = "Navigation"
+
+[home]
+other = "Articles"
+
+[languages]
+other = "Languages"
+
+[missingTranslation]
+other = "A translation is not available yet."
+
+[preview]
+other = "Local preview. Discussions are disabled."
+
+[draft]
+other = "Draft"
+
+[readMore]
+other = "Read more"
+
+[empty]
+other = "There are no published articles yet."
+
+[discussion]
+other = "Discussion"
+
+[discussionDisabled]
+other = "Discussions are not enabled yet."
+
+[forum]
+other = "Open the forum"

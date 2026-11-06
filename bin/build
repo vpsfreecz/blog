@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+if [[ $# != 1 ]]; then echo "Usage: bin/build OUTPUT_DIRECTORY" >&2; exit 2; fi
+output=$(realpath -m "$1")
+mkdir -p "$output"
+if [[ -n $(ls -A "$output") ]]; then echo "Output directory must be empty" >&2; exit 2; fi
+hugo --environment production --panicOnWarning --destination "$output" --cacheDir "${TMPDIR:-/tmp}/blog-hugo-cache"
+python3 - "$output" <<'PY'
+import hashlib, json, os, pathlib, subprocess, sys
+root = pathlib.Path(sys.argv[1])
+source = json.loads(pathlib.Path(os.environ['BLOG_SOURCE_INFO']).read_text()) if 'BLOG_SOURCE_INFO' in os.environ else {'revision': None, 'hugoVersion': subprocess.check_output(['hugo', 'version'], text=True).strip()}
+files = {str(p.relative_to(root)): hashlib.sha256(p.read_bytes()).hexdigest() for p in sorted(root.rglob('*')) if p.is_file()}
+(root / 'metadata.json').write_text(json.dumps({'schema': 1, 'inputs': source, 'files': files}, sort_keys=True, indent=2) + '\n')
+PY

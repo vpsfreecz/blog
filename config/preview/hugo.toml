@@ -1,0 +1,16 @@
+[languages.cs]
+baseURL = 'http://localhost:1313/'
+
+[languages.en]
+baseURL = 'http://localhost:1314/'
+
+[[server.redirects]]
+from = '/feed/'
+to = '/feed/index.xml'
+status = 200
+force = true
+
+[[server.headers]]
+for = '/feed/**'
+[server.headers.values]
+Content-Type = 'application/rss+xml; charset=utf-8'

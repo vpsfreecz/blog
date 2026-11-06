@@ -1,0 +1,9 @@
+{{ define "main" }}
+<article data-article-id="{{ .Params.article_id }}">
+  <h1>{{ .Title }}</h1>
+  {{ partial "byline.html" . }}
+  {{ if .Draft }}<p class="draft">{{ i18n "draft" }}</p>{{ end }}
+  <div class="content">{{ .Content }}</div>
+  {{ partial "discussion.html" . }}
+</article>
+{{ end }}

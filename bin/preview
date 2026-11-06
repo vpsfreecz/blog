@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(dirname "$0")/.."
+echo 'Czech:   http://localhost:1313/'
+echo 'English: http://localhost:1314/'
+echo 'Synthetic fixtures: /synteticky-priklad_1/ and /synthetic-example_1/'
+exec hugo server --environment preview --buildDrafts --bind 127.0.0.1 \
+  --config hugo.toml,fixtures/hugo.toml,config/preview/hugo.toml --disableFastRender

@@ -1,0 +1,38 @@
+[skip]
+other = "Přejít k obsahu"
+
+[tagline]
+other = "Blog členů vpsFree.cz"
+
+[navigation]
+other = "Navigace"
+
+[home]
+other = "Články"
+
+[languages]
+other = "Jazyky"
+
+[missingTranslation]
+other = "Překlad zatím není k dispozici."
+
+[preview]
+other = "Lokální náhled. Diskuse jsou vypnuté."
+
+[draft]
+other = "Koncept"
+
+[readMore]
+other = "Číst dál"
+
+[empty]
+other = "Zatím tu nejsou žádné publikované články."
+
+[discussion]
+other = "Diskuse"
+
+[discussionDisabled]
+other = "Diskuse zatím nejsou zapnuté."
+
+[forum]
+other = "Otevřít fórum"

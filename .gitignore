@@ -1,0 +1,7 @@
+/result
+/result-*
+/public/
+/resources/
+/.hugo_build.lock
+/.preview/
+__pycache__/
