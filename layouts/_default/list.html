@@ -1,14 +1,12 @@
 {{ define "main" }}
-<h1>{{ if .IsHome }}{{ i18n "home" }}{{ else }}{{ .Title }}{{ end }}</h1>
+{{ if not .IsHome }}<header class="archive-header"><h1>{{ if eq .Kind "term" }}{{ partial "term-name.html" (dict "kind" .Data.Plural "slug" .Data.Term) }}{{ else }}{{ .Title }}{{ end }}</h1></header>{{ end }}
 {{ $pages := .RegularPages }}
 {{ if .IsHome }}{{ $pages = where .Site.RegularPages "Type" "posts" }}{{ end }}
 {{ range (.Paginate $pages).Pages }}
-<article>
-  <h2><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>
-  {{ partial "byline.html" . }}
-  {{ .Summary }}
-  <a href="{{ .RelPermalink }}">{{ i18n "readMore" }}</a>
+<article class="hentry">
+  <header class="entry-header"><h2 class="entry-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>{{ partial "byline.html" . }}</header>
+  <div class="entry-content entry-summary">{{ partial "article-html.html" (dict "page" . "html" .Summary) }}<a href="{{ .RelPermalink }}">{{ i18n "readMore" }}</a></div>
 </article>
-{{ else }}<p>{{ i18n "empty" }}</p>{{ end }}
+{{ else }}<div class="hentry"><p>{{ i18n "empty" }}</p></div>{{ end }}
 {{ template "_internal/pagination.html" . }}
 {{ end }}

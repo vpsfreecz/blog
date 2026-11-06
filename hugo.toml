@@ -1,7 +1,6 @@
 title = 'vpsFree.cz blog'
 defaultContentLanguage = 'cs'
 timeZone = 'Europe/Prague'
-disableKinds = ['taxonomy', 'term']
 enableRobotsTXT = true
 
 [languages.cs]
@@ -24,3 +23,15 @@ section = ['HTML']
 
 [markup.goldmark.renderer]
 unsafe = false
+
+[taxonomies]
+category = "categories"
+tag = "tags"
+
+[permalinks.term]
+categories = "/category/:slug/"
+tags = "/tag/:slug/"
+
+# The imported corpus is sanitized native HTML; new articles may use Markdown.
+[security]
+allowContent = ['^text/html$', '^text/markdown$']

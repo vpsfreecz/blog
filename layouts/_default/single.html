@@ -1,9 +1,9 @@
 {{ define "main" }}
-<article data-article-id="{{ .Params.article_id }}">
-  <h1>{{ .Title }}</h1>
-  {{ partial "byline.html" . }}
-  {{ if .Draft }}<p class="draft">{{ i18n "draft" }}</p>{{ end }}
-  <div class="content">{{ .Content }}</div>
-  {{ partial "discussion.html" . }}
+<article class="hentry" data-article-id="{{ .Params.article_id }}">
+  <header class="entry-header"><h1 class="entry-title">{{ .Title }}</h1>{{ partial "byline.html" . }}</header>
+  {{ if .Draft }}<p class="draft">{{ if and (eq .Language.Lang "en") (ne .Params.translation_status "reviewed") }}{{ i18n "unreviewedTranslation" }}{{ else }}{{ i18n "draft" }}{{ end }}</p>{{ end }}
+  <div class="entry-content">{{ partial "article-html.html" (dict "page" . "html" .Content) }}</div>
+  <footer class="entry-taxonomies">{{ range $kind := slice "categories" "tags" }}{{ with $.GetTerms $kind }}<span>{{ i18n $kind }}: {{ range $i, $term := . }}{{ if $i }}, {{ end }}<a href="{{ .RelPermalink }}">{{ partial "term-name.html" (dict "kind" $kind "slug" .Data.Term) }}</a>{{ end }}</span>{{ end }}{{ end }}</footer>
 </article>
+{{ partial "discussion.html" . }}
 {{ end }}

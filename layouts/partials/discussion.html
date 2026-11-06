@@ -1,7 +1,12 @@
-{{/* The later discussion package owns production embedding and legacy comments. */}}
 {{ $discussionURL := "" }}
 {{ with index hugo.Data.articles .Params.article_id }}{{ $discussionURL = .discussion_url }}{{ end }}
-<section id="comments" aria-label="{{ i18n "discussion" }}"{{ with $discussionURL }} data-discussion-url="{{ . }}"{{ end }}>
-  <h2>{{ i18n "discussion" }}</h2>
-  <p>{{ i18n "discussionDisabled" }} <a href="https://discourse.vpsfree.cz/">{{ i18n "forum" }}</a></p>
+{{ $comments := slice }}{{ with index hugo.Data "legacy-comments" }}{{ with index . $.Params.article_id }}{{ $comments = . }}{{ end }}{{ end }}
+<section id="comments" class="comments-area" aria-label="{{ i18n "discussion" }}"{{ with $discussionURL }} data-discussion-url="{{ . }}"{{ end }}>
+  {{ if $comments }}
+    <h2 class="comments-title">{{ i18n "legacyComments" }}</h2>
+    <p class="archive-note">{{ i18n "originalComments" }}</p>
+    {{ partial "comment-thread.html" (dict "comments" $comments "parent" 0) }}
+  {{ end }}
+  <div id="respond"><h2 class="comments-title">{{ i18n "discussion" }}</h2>
+  <p>{{ i18n "discussionDisabled" }} <a href="https://discourse.vpsfree.cz/">{{ i18n "forum" }}</a></p></div>
 </section>

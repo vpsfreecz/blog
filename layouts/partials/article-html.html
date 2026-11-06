@@ -1,0 +1,59 @@
+{{/* Rewrite only media-bearing HTML tags, preserving literal URLs in prose/code and source hashes. */}}
+{{- $prefix := "/wp-content/uploads/" -}}
+{{- $themePrefix := "/theme/legacy-embeds/" -}}
+{{- if .absolute -}}
+  {{- $base := urls.Parse .page.Site.BaseURL -}}
+  {{- $origin := printf "%s://%s" $base.Scheme $base.Host -}}
+  {{- $prefix = printf "%s%s" $origin $prefix -}}
+  {{- $themePrefix = printf "%s%s" $origin $themePrefix -}}
+{{- end -}}
+{{- $images := dict
+  "https://discourse.vpsfree.cz/uploads/default/original/1X/1c6e46d683e6dfe2c5a48bebd15f08379f514d64.png" "1c6e46d683e6dfe2c5a48bebd15f08379f514d64.png"
+  "https://discourse.vpsfree.cz/uploads/default/optimized/1X/ff84bffeca5a0820b5637be2c6d6d760da968e0b_2_690x462.png" "ff84bffeca5a0820b5637be2c6d6d760da968e0b_2_690x462.png"
+  "https://discourse.vpsfree.cz/images/emoji/twitter/slight_smile.png?v=12" "slight_smile.png"
+-}}
+{{- $html := .html -}}
+{{- range findRE `(?is)<(?:a|img|source)\b[^>]*>` $html -}}
+  {{- $tag := replaceRE `(?:https?:)?//blog\.vpsfree\.cz/wp-content/uploads/` $prefix . -}}
+  {{- range $source, $file := $images -}}{{- $tag = replace $tag $source (printf "%s%s" $themePrefix $file) -}}{{- end -}}
+  {{- $html = replace $html . $tag -}}
+{{- end -}}
+{{/* Legacy root-relative article links identify Czech originals in every EN mode. */}}
+{{- if eq .page.Language.Lang "en" -}}
+  {{- $originals := dict -}}
+  {{- range hugo.Data.articles -}}
+    {{- with .discussion_url -}}{{- $originals = merge $originals (dict (urls.Parse .).Path .) -}}{{- end -}}
+  {{- end -}}
+  {{- $parts := slice -}}
+  {{- $codeDepth := 0 -}}
+  {{- range findRE `(?is)<!--.*?-->|<(?:[^>"']|"[^"]*"|'[^']*')*>|[^<]+|<` $html -}}
+    {{- $token := . -}}
+    {{- if findRE `(?i)^<\s*/\s*(?:pre|code)\s*>` $token -}}
+      {{- $codeDepth = math.Max 0 (sub $codeDepth 1) -}}
+    {{- else if findRE `(?i)^<\s*(?:pre|code)(?:\s|>)` $token -}}
+      {{- $codeDepth = add $codeDepth 1 -}}
+    {{- else if and (eq $codeDepth 0) (findRE `(?i)^<a(?:\s|>)` $token) -}}
+      {{- range findRE `(?is)\s+href\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)` $token 1 -}}
+        {{- $attribute := . -}}
+        {{- $value := replaceRE `(?is)^\s+href\s*=\s*` "" $attribute -}}
+        {{- $quote := "" -}}
+        {{- if or (hasPrefix $value `"`) (hasPrefix $value `'`) -}}
+          {{- $quote = substr $value 0 1 -}}
+          {{- $value = strings.TrimSuffix $quote (strings.TrimPrefix $quote $value) -}}
+        {{- end -}}
+        {{- if and (hasPrefix $value "/") (not (hasPrefix $value "//")) -}}
+          {{- $path := index (findRE `^[^?#]+` $value 1) 0 -}}
+          {{- with index $originals $path -}}
+            {{- $target := printf "%s%s" . (strings.TrimPrefix $path $value) -}}
+            {{- $lead := index (findRE `(?is)^\s+href\s*=\s*` $attribute 1) 0 -}}
+            {{- $replacement := printf "%s%s%s%s" $lead $quote $target $quote -}}
+            {{- $token = replace $token $attribute $replacement -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+    {{- $parts = $parts | append $token -}}
+  {{- end -}}
+  {{- $html = delimit $parts "" -}}
+{{- end -}}
+{{- return ($html | safeHTML) -}}

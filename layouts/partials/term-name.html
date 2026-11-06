@@ -1,0 +1,6 @@
+{{- $name := .slug -}}
+{{- with index hugo.Data.taxonomies .kind -}}{{- with index . $.slug -}}{{- $name = .name -}}{{- end -}}{{- end -}}
+{{- if eq site.Language.Lang "en" -}}
+  {{- with i18n (printf "taxonomy_%s_%s" .kind .slug) -}}{{- $name = . -}}{{- end -}}
+{{- end -}}
+{{- return $name -}}

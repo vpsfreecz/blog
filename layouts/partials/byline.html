@@ -1,4 +1,5 @@
-<p class="byline"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date | time.Format ":date_long" }}</time>
-{{ with index hugo.Data.articles .Params.article_id }}
-  {{ range .author_ids }}{{ with index hugo.Data.authors . }} · {{ .name }}{{ end }}{{ end }}
-{{ end }}</p>
+{{ $article := index hugo.Data.articles .Params.article_id }}
+<div class="entry-meta"><a href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2.1.2006" }}</time></a>
+{{ with $article }} {{ i18n "by" }} {{ range $i, $id := .author_ids }}{{ if $i }}, {{ end }}{{ with index hugo.Data.authors $id }}{{ if .slug }}<a href="{{ site.Home.RelPermalink }}author/{{ .slug }}/">{{ .name }}</a>{{ else }}{{ .name }}{{ end }}{{ end }}{{ end }}{{ end }}
+{{ $count := 0 }}{{ with index hugo.Data "legacy-comments" }}{{ with index . $.Params.article_id }}{{ $count = len . }}{{ end }}{{ end }}
+<span class="sep">·</span><a href="{{ .RelPermalink }}#comments">{{ i18n "commentCount" (dict "Count" $count) }}</a></div>

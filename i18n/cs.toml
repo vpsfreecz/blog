@@ -2,7 +2,7 @@
 other = "Přejít k obsahu"
 
 [tagline]
-other = "Blog členů vpsFree.cz"
+other = "Zápisky nejen ze serverovny"
 
 [navigation]
 other = "Navigace"
@@ -23,7 +23,7 @@ other = "Lokální náhled. Diskuse jsou vypnuté."
 other = "Koncept"
 
 [readMore]
-other = "Číst dál"
+other = "Pokračovat ve čtení"
 
 [empty]
 other = "Zatím tu nejsou žádné publikované články."
@@ -36,3 +36,47 @@ other = "Diskuse zatím nejsou zapnuté."
 
 [forum]
 other = "Otevřít fórum"
+
+[toggleSidebar]
+other = "Zobrazit postranní panel"
+
+[join]
+other = "Přidej se"
+
+[search]
+other = "Hledat"
+
+[searchUnavailable]
+other = "Vyhledávání zatím není dostupné."
+
+[recent]
+other = "Nejnovější příspěvky"
+
+[tags]
+other = "Štítky"
+
+[categories]
+other = "Rubriky"
+
+[archives]
+other = "Archiv"
+
+[by]
+other = "od"
+
+[mainSite]
+other = "Hlavní web"
+
+[unreviewedTranslation]
+other = "Tento anglický překlad zatím neprošel redakční kontrolou."
+
+[legacyComments]
+other = "Archiv komentářů"
+
+[originalComments]
+other = "Komentáře z původního blogu jsou bez překladu."
+
+[commentCount]
+one = "{{ .Count }} komentář"
+few = "{{ .Count }} komentáře"
+other = "{{ .Count }} komentářů"

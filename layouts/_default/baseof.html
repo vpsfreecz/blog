@@ -7,29 +7,35 @@
   <link rel="canonical" href="{{ .Permalink }}">
   {{ range .AllTranslations }}<link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}">{{ end }}
   <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ .Site.Home.Permalink }}feed/">
-  {{ $css := resources.Get "css/site.css" | fingerprint }}
+  {{ $css := resources.Get "css/site.css" | resources.ExecuteAsTemplate "css/site.css" . | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
   {{ if ne hugo.Environment "production" }}<meta name="robots" content="noindex, nofollow">{{ end }}
 </head>
 <body>
-  <a class="skip-link" href="#main">{{ i18n "skip" }}</a>
-  <aside class="sidebar">
-    <a class="brand" href="{{ .Site.Home.RelPermalink }}">vpsFree.cz</a>
-    <p>{{ i18n "tagline" }}</p>
-    <nav aria-label="{{ i18n "navigation" }}">
-      <a href="{{ .Site.Home.RelPermalink }}">{{ i18n "home" }}</a>
-      <a href="{{ .Site.Home.Permalink }}feed/">RSS</a>
-      <a href="https://vpsfree.cz/">vpsFree.cz</a>
-    </nav>
-    {{ if .Translations }}
-    <nav class="languages" aria-label="{{ i18n "languages" }}">
-      {{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}
-    </nav>
-    {{ else if .IsPage }}<p>{{ i18n "missingTranslation" }}</p>{{ end }}
+<a class="skip-link" href="#main">{{ i18n "skip" }}</a>
+<div id="page">
+  <aside id="secondary">
+    <header id="masthead">
+      <div class="site-title"><a href="{{ .Site.Home.RelPermalink }}"><img src="{{ partial "legacy-asset.html" "2014/11/vpsFree-bile1.png" }}" width="230" height="90" alt="vpsFree.cz"></a></div>
+      <p class="site-description">{{ i18n "tagline" }}</p>
+    </header>
+    <input type="checkbox" id="sidebar-open" class="sidebar-state" aria-label="{{ i18n "toggleSidebar" }}">
+    <label for="sidebar-open" class="sidebar-toggle" title="{{ i18n "toggleSidebar" }}">☰</label>
+    <div class="sidebar-widgets">
+      <section class="widget join"><a href="https://vpsfree.cz/registrace/"><img src="/theme/branding/pridej-se.png" width="150" height="147" alt="{{ i18n "join" }}"></a></section>
+      <nav class="widget site-navigation" aria-label="{{ i18n "navigation" }}">
+        <a href="{{ .Site.Home.RelPermalink }}">{{ i18n "home" }}</a> · <a href="{{ .Site.Home.Permalink }}feed/">RSS</a>
+        {{ if .Translations }}<div class="languages">{{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}</div>
+        {{ else if .IsPage }}<p>{{ i18n "missingTranslation" }}</p>{{ end }}
+      </nav>
+      <section class="widget search"><label class="sr-only" for="site-search">{{ i18n "searchUnavailable" }}</label><input id="site-search" type="search" disabled placeholder="{{ i18n "search" }}" aria-describedby="search-note"><small id="search-note">{{ i18n "searchUnavailable" }}</small></section>
+      {{ partial "sidebar.html" . }}
+    </div>
   </aside>
-  <main id="main">
-    {{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}
+  <main id="main" class="content-area">
     {{ block "main" . }}{{ end }}
+    <footer class="site-footer">vpsFree.cz · <a href="https://vpsfree.cz/">{{ i18n "mainSite" }}</a>{{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}</footer>
   </main>
+</div>
 </body>
 </html>

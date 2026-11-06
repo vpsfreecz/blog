@@ -9,6 +9,7 @@ import subprocess
 import tempfile
 import tomllib
 from urllib.request import build_opener, HTTPRedirectHandler
+from urllib.parse import urlparse
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -53,12 +54,74 @@ def check_roots(destination, hosts):
         assert page.has('link', rel='canonical', href=host)
         for path in root.rglob('*.html'):
             text = path.read_text()
-            assert '<iframe' not in text and '<script' not in text, path
-            assert '/en/' not in text and '/cs/' not in text, path
+            assert '<script' not in text and 'DiscourseEmbed' not in text, path
+            assert not any(t == 'iframe' and 'discourse.vpsfree.cz' in a.get('src', '') for t, a in Page(path).elements), path
+            for tag, attrs in Page(path).elements:
+                if tag in ('img', 'source'):
+                    for key in ('src', 'srcset'):
+                        for candidate in attrs.get(key, '').split(','):
+                            if candidate.strip():
+                                url = candidate.strip().split()[0]
+                                assert not urlparse(url).netloc, (path, url)
+                                assert (root / urlparse(url).path.lstrip('/')).is_file(), (path, url)
+
+            for tag, attrs in Page(path).elements:
+                if tag == 'link' and attrs.get('rel') == 'canonical':
+                    assert not urlparse(attrs['href']).path.startswith(('/en/', '/cs/')), path
+
+
+def check_taxonomy_labels(work):
+    destination = work / 'taxonomy-preview'
+    run('hugo', '--environment', 'preview', '--buildDrafts', '--destination', str(destination), '--panicOnWarning')
+    translations = {'categories': {'akce': 'Events', 'bezpecnost': 'Security',
+                    'distribuce': 'Distributions', 'nezarazene': 'Uncategorized',
+                    'podpora': 'Support', 'skoly': 'Schools', 'technologie': 'Technology'},
+                    'tags': {'energie': 'energy', 'sit': 'network'}}
+
+    class Labels(HTMLParser):
+        def __init__(self, path):
+            super().__init__()
+            self.active, self.labels = [], []
+            self.feed(path.read_text())
+
+        def handle_starttag(self, tag, attrs):
+            if tag in ('a', 'h1'):
+                self.active.append((tag, dict(attrs), []))
+
+        def handle_data(self, text):
+            for _, _, parts in self.active:
+                parts.append(text)
+
+        def handle_endtag(self, tag):
+            if self.active and self.active[-1][0] == tag:
+                name, attrs, parts = self.active.pop()
+                self.labels.append((name, attrs, ''.join(parts)))
+
+    taxonomies = json.loads((ROOT / 'data/taxonomies.json').read_text())
+    for lang in ('cs', 'en'):
+        home = Labels(destination / lang / 'index.html').labels
+        for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
+            for slug, term in taxonomies[kind].items():
+                expected = translations[kind].get(slug, term['name']) if lang == 'en' else term['name']
+                route = f'/{prefix}/{slug}/'
+                assert any(tag == 'a' and attrs.get('href') == route and text == expected
+                           for tag, attrs, text in home), (lang, kind, slug)
+                archive = Labels(destination / lang / route.strip('/') / 'index.html').labels
+                assert any(tag == 'h1' and text == expected for tag, _, text in archive), (lang, kind, slug)
+    # Article association labels use the same resolver as the sidebar and headings.
+    for source in (ROOT / 'content/posts').glob('*/index.en.html'):
+        frontmatter = tomllib.loads(source.read_text().split('+++')[1])
+        labels = Labels(destination / 'en' / frontmatter['url'].strip('/') / 'index.html').labels
+        for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
+            for slug in frontmatter.get(kind, []):
+                expected = translations[kind].get(slug, taxonomies[kind][slug]['name'])
+                assert any(tag == 'a' and attrs.get('href') == f'/{prefix}/{slug}/' and text == expected
+                           for tag, attrs, text in labels), (source, kind, slug)
 
 
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
+    check_taxonomy_labels(work)
     production, repeat, drafts, fixture_production = [work / x for x in
         ('production', 'repeat', 'drafts', 'fixture-production')]
     run('bin/build', str(production))
@@ -72,6 +135,42 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         assert name.startswith(('cs/', 'en/')), name
     assert not (production / 'cs/metadata.json').exists()
     assert not (production / 'en/metadata.json').exists()
+
+    manifest_path = ROOT / 'data/migration/source-manifest.json'
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text())
+        article_data = json.loads((ROOT / 'data/articles.json').read_text())
+        posts = []
+        for article in manifest['articles']:
+            source = ROOT / article['cs_file']
+            frontmatter = tomllib.loads(source.read_text().split('+++')[1])
+            path = production / 'cs' / article['cs_path'].strip('/') / 'index.html'
+            page = Page(path)
+            assert page.has('article', **{'data-article-id': article['article_id']})
+            assert page.has('section', id='comments') and page.has('div', id='respond')
+            assert page.has('span', id='more-' + str(article['legacy_post_id']))
+            comments_file = ROOT / 'data/legacy-comments' / (article['article_id'] + '.json')
+            for comment in json.loads(comments_file.read_text()):
+                assert page.has('li', id='comment-' + str(comment['id']))
+            month = frontmatter['date'][:7].replace('-', '/')
+            assert (production / 'cs' / month / 'index.html').is_file()
+        for author in json.loads((ROOT / 'data/authors.json').read_text()).values():
+            assert (production / 'cs/author' / author['slug'] / 'index.html').is_file()
+        for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
+            for slug in json.loads((ROOT / 'data/taxonomies.json').read_text())[kind]:
+                assert (production / 'cs' / prefix / slug / 'index.html').is_file()
+        for source in (ROOT / 'content/posts').glob('*/index.cs.*'):
+            frontmatter = tomllib.loads(source.read_text().split('+++')[1])
+            if not frontmatter.get('draft', False):
+                posts.append(frontmatter)
+        items = ET.parse(production / 'cs/feed/index.xml').findall('channel/item')
+        expected = sorted(posts, key=lambda post: post['date'], reverse=True)[:10]
+        assert len(items) == len(expected)
+        for post, item in zip(expected, items):
+            assert item.findtext('guid') == article_data[post['params']['article_id']]['feed_guids']['cs']
+            assert item.find('guid').get('isPermaLink') == 'false'
+            assert item.findtext('{http://purl.org/rss/1.0/modules/content/}encoded')
+
 
     config = 'hugo.toml,fixtures/hugo.toml'
     run('hugo', '--environment', 'production', '--config', config,
@@ -131,12 +230,84 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         'date = "2026-01-01T12:00:00+01:00"\ndraft = true\n'
         'lastmod = "2026-01-01T12:00:00+01:00"\n'
         'url = "/temporary-check-draft/"\ntranslationKey = "temporary-check"\n'
-        '[params]\narticle_id = "temporary-check"\n+++\n\nTemporary local check only.\n')
+        '[params]\narticle_id = "temporary-check"\n+++\n\nTemporary local check only.\n'
+        '\n`https://blog.vpsfree.cz/wp-content/uploads/2014/11/foto5.jpg`\n'
+        '\n![Local media](https://blog.vpsfree.cz/wp-content/uploads/2014/11/foto5.jpg)\n')
     real_output = work / 'real-preview'
     run('hugo', '--environment', 'preview', '--buildDrafts', '--contentDir', str(real),
         '--destination', str(real_output), '--panicOnWarning')
     assert (real_output / 'cs/temporary-check-draft/index.html').is_file()
+    real_page = Page(real_output / 'cs/temporary-check-draft/index.html')
+    assert real_page.has('img', src='/wp-content/uploads/2014/11/foto5.jpg')
+    assert '<code>https://blog.vpsfree.cz/wp-content/uploads/2014/11/foto5.jpg</code>' in (real_output / 'cs/temporary-check-draft/index.html').read_text()
     assert not (real_output / 'cs/synteticky-priklad_1').exists()
+
+    # EN legacy anchors keep their authoritative Czech destination in every mode.
+    originals = {urlparse(article['discussion_url']).path: article['discussion_url']
+                 for article in json.loads((ROOT / 'data/articles.json').read_text()).values()}
+    legacy_path = '/setrvacnost-konferencniho-efektu/'
+    other_path = '/nominujte-vpsfree-cz-do-kristalove-lupy/'
+    suffix = '?source=preview&amp;literal=$value#comments'
+    link_source = work / 'link-content'
+    link_source.mkdir()
+    body = (f'<p><a id="known" href="{legacy_path}{suffix}">known</a></p>\n'
+            '<!--more-->\n'
+            f"<a id='single' href='{other_path}#respond'>single quote</a>\n"
+            f'<a id="bare" href={other_path}>unquoted</a>\n'
+            f'<pre><a id="pre" href="{legacy_path}">pre</a></pre>\n'
+            f'<code><a id="code" href="{legacy_path}">code</a></code>\n'
+            f'<!-- <a href="{legacy_path}">comment</a> -->\n'
+            f'<p>Literal {legacy_path}</p>\n'
+            f'<a id="attribute" data-href="{legacy_path}" href="#comments">data</a>\n'
+            f'<a id="absolute" href="https://blog.vpsfree.cz{legacy_path}">absolute</a>\n'
+            f'<a id="protocol" href="//blog.vpsfree.cz{legacy_path}">protocol</a>\n'
+            '<a id="unknown" href="/unknown-legacy-path/">unknown</a>\n'
+            '<a id="media" href="/wp-content/uploads/file.pdf">media</a>\n'
+            '<a id="query" href="?query=unchanged">query</a>\n'
+            f'<a id="exact" href="{legacy_path.rstrip("/")}">missing slash</a>\n')
+    for lang in ('cs', 'en'):
+        (link_source / f'links.{lang}.html').write_text('+++\ntitle = "Link contract"\n'
+            'date = "2026-01-01T12:00:00+01:00"\ndraft = false\ntype = "posts"\n'
+            f'url = "/link-contract-{lang}/"\ntranslationKey = "link-contract"\n'
+            '[params]\narticle_id = "wp-123"\n+++\n' + body)
+    for environment in ('production', 'preview', 'vpn'):
+        destination = work / ('link-' + environment)
+        run('hugo', '--environment', environment, '--contentDir', str(link_source),
+            '--destination', str(destination), '--panicOnWarning')
+        for lang in ('cs', 'en'):
+            root = destination if environment == 'vpn' else destination / lang
+            page_path = root / f'link-contract-{lang}/index.html'
+            text = page_path.read_text()
+            page = Page(page_path)
+            expected = originals[legacy_path] if lang == 'en' else legacy_path
+            other = originals[other_path] if lang == 'en' else other_path
+            assert f'href="{expected}{suffix}"' in text, (environment, lang,
+                [attrs for tag, attrs in page.elements if attrs.get('id') == 'known'])
+            assert page.has('a', id='single', href=other + '#respond')
+            assert page.has('a', id='bare', href=other)
+            for context in ('pre', 'code'):
+                assert f'<{context}><a id="{context}" href="{legacy_path}">' in text
+            assert f'<!-- <a href="{legacy_path}">comment</a> -->' in text
+            assert f'<p>Literal {legacy_path}</p>' in text
+            for identifier, href in (('attribute', '#comments'),
+                    ('absolute', 'https://blog.vpsfree.cz' + legacy_path),
+                    ('protocol', '//blog.vpsfree.cz' + legacy_path),
+                    ('unknown', '/unknown-legacy-path/'),
+                    ('media', '/wp-content/uploads/file.pdf'),
+                    ('query', '?query=unchanged'), ('exact', legacy_path.rstrip('/'))):
+                assert page.has('a', id=identifier, href=href)
+            home = root / ('en/index.html' if environment == 'vpn' and lang == 'en' else 'index.html')
+            assert f'href="{expected}{suffix}"' in home.read_text()
+            feed_root = root / ('en' if environment == 'vpn' and lang == 'en' else '')
+            feed_body = ET.parse(feed_root / 'feed/index.xml').findtext(
+                'channel/item/{http://purl.org/rss/1.0/modules/content/}encoded')
+            # Hugo's existing RSS serializer makes remaining relative hrefs absolute.
+            origin = {'production': {'cs': 'https://blog.vpsfree.cz', 'en': 'https://blog.vpsfree.org'},
+                      'preview': {'cs': 'http://localhost:1313', 'en': 'http://localhost:1314'},
+                      'vpn': {'cs': base.rstrip('/'), 'en': base.rstrip('/')}}[environment][lang]
+            feed_expected = expected if lang == 'en' else origin + legacy_path
+            assert f'href="{feed_expected}{suffix}"' in feed_body
+            assert f'<pre><a id="pre" href="{origin}{legacy_path}">' in feed_body
 
     # Exercise production host metadata without publishing a fixture.
     prod_hosts = work / 'fixture-hosts'

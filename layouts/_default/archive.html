@@ -1,0 +1,15 @@
+{{ define "main" }}
+{{ $pages := where .Site.RegularPages "Type" "posts" }}
+{{ if .Params.archive_author }}
+  {{ $authorID := .Params.archive_author }}
+  {{ $ids := slice }}{{ range $id, $article := hugo.Data.articles }}{{ if in $article.author_ids $authorID }}{{ $ids = $ids | append $id }}{{ end }}{{ end }}
+  {{ $pages = where $pages "Params.article_id" "in" $ids }}
+{{ else if .Params.archive_month }}
+  {{ $month := .Params.archive_month }}{{ $matched := slice }}{{ range $pages }}{{ if eq (.Date.Format "2006/01") $month }}{{ $matched = $matched | append . }}{{ end }}{{ end }}{{ $pages = $matched }}
+{{ end }}
+<header class="archive-header"><h1>{{ .Title }}</h1></header>
+{{ range (.Paginate $pages).Pages }}
+<article class="hentry"><header class="entry-header"><h2 class="entry-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>{{ partial "byline.html" . }}</header><div class="entry-content entry-summary">{{ partial "article-html.html" (dict "page" . "html" .Summary) }}<a href="{{ .RelPermalink }}">{{ i18n "readMore" }}</a></div></article>
+{{ else }}<div class="hentry"><p>{{ i18n "empty" }}</p></div>{{ end }}
+{{ template "_internal/pagination.html" . }}
+{{ end }}

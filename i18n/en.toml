@@ -2,7 +2,7 @@
 other = "Skip to content"
 
 [tagline]
-other = "The vpsFree.cz member blog"
+other = "Notes from the server room and beyond"
 
 [navigation]
 other = "Navigation"
@@ -23,7 +23,7 @@ other = "Local preview. Discussions are disabled."
 other = "Draft"
 
 [readMore]
-other = "Read more"
+other = "Continue reading"
 
 [empty]
 other = "There are no published articles yet."
@@ -36,3 +36,73 @@ other = "Discussions are not enabled yet."
 
 [forum]
 other = "Open the forum"
+
+[toggleSidebar]
+other = "Show sidebar"
+
+[join]
+other = "Join us"
+
+[search]
+other = "Search"
+
+[searchUnavailable]
+other = "Search is not available yet."
+
+[recent]
+other = "Recent posts"
+
+[tags]
+other = "Tags"
+
+[categories]
+other = "Categories"
+
+[archives]
+other = "Archives"
+
+[by]
+other = "by"
+
+[mainSite]
+other = "Main website"
+
+[unreviewedTranslation]
+other = "This English translation is awaiting human review."
+
+[legacyComments]
+other = "Archived comments"
+
+[originalComments]
+other = "Historical comments are shown in their original language."
+
+[commentCount]
+one = "{{ .Count }} comment"
+other = "{{ .Count }} comments"
+
+[taxonomy_categories_akce]
+other = "Events"
+
+[taxonomy_categories_bezpecnost]
+other = "Security"
+
+[taxonomy_categories_distribuce]
+other = "Distributions"
+
+[taxonomy_categories_nezarazene]
+other = "Uncategorized"
+
+[taxonomy_categories_podpora]
+other = "Support"
+
+[taxonomy_categories_skoly]
+other = "Schools"
+
+[taxonomy_categories_technologie]
+other = "Technology"
+
+[taxonomy_tags_energie]
+other = "energy"
+
+[taxonomy_tags_sit]
+other = "network"
