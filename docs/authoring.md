@@ -52,7 +52,8 @@ Add the article's shared entry to `data/articles.json`, preserving other entries
 ```
 
 Reuse a stable author ID from `data/authors.json`, or add an approved public
-byline, for example `"example-author": {"name": "Public author name"}`.
+byline with a stable archive slug, for example
+`"example-author": {"name": "Public author name", "slug": "public-author"}`.
 Both languages use the same author IDs and the same absolute Czech
 `discussion_url`. Never replace it with the English or preview URL. Article
 writing needs no forum credentials or manual topic-creation step; native
@@ -62,8 +63,8 @@ For new articles, assign the per-language URNs shown above once and retain them
 through corrections. Imported Czech articles retain their exact original
 `https://blog.vpsfree.cz/?p=<sourceID>` GUID; imported English articles use
 `urn:vpsfree:blog:wp-<sourceID>:en`. These GUIDs are identifiers, not navigation
-URLs, and the planned RSS serialization uses `isPermaLink="false"`.
-The current RSS template has no article items and does not consume `feed_guids`.
+URLs. RSS uses `isPermaLink="false"` and emits up to ten full-content articles
+with their original publication dates. Production builds exclude drafts.
 
 Put approved article images in `static/images/<article_id>/` and refer to them
 with root-relative Markdown links, for example
@@ -75,7 +76,11 @@ outside this clone and all build inputs.
 
 ## Add or revise English
 
-Create `index.en.md` alongside the Czech file. Give it an English title and
+Create `index.en.md` alongside a new Markdown article's Czech file. Imported
+articles use `index.cs.html`; translate them in `index.en.html`, preserving HTML
+structure, code, links and media while translating visible prose and image
+descriptions. Keep one file per language; do not add a Markdown duplicate of an
+existing HTML variant. Give the English variant an English title and
 explicit English `url`, such as `/network-update/`. Copy the original `date`,
 `translationKey` and `params.article_id`; retain the shared byline and discussion
 identity. A missing translation stays absent rather than showing Czech at an
@@ -85,7 +90,7 @@ Under the English file's `[params]`, record the editorial state:
 
 ```toml
 translation_status = "draft"
-translation_source_sha256 = "<SHA-256 of the current index.cs.md bytes>"
+translation_source_sha256 = "<SHA-256 of the complete current Czech file bytes>"
 ```
 
 Calculate that hash after finalizing the Czech source:
@@ -93,6 +98,13 @@ Calculate that hash after finalizing the Czech source:
 ```sh
 nix develop -c python3 -c 'import hashlib,pathlib; print(hashlib.sha256(pathlib.Path("content/posts/post-2026-11-network-update/index.cs.md").read_bytes()).hexdigest())'
 ```
+
+For an imported article, use its actual `index.cs.html` path instead. Hash the
+complete current file, including frontmatter and original line endings. The
+import manifest's `cs_file_sha256` identifies that file; the separate
+`params.source_body_sha256` identifies the private raw WordPress body and must
+not be used as the translation source hash. Approved historical comments remain
+in their original language and are shared across both article variants.
 
 Keep the English page's top-level `draft = true` while preparing it. A human
 reviewer compares meaning, commands/code, links, chronology, attribution and
@@ -141,11 +153,13 @@ nix develop -c bin/check
 nix build .#site
 ```
 
-The checks cover scaffold routes, metadata, isolated fixtures and reproducible
-output; they do not replace article or translation review. The production build
+The checks cover article/archive routes, feeds, metadata, isolated fixtures and
+reproducible output; they do not replace article or translation review. The production build
 excludes drafts and synthetic fixtures. `result/cs/` and `result/en/` are separate
-document roots; `metadata.json` remains outside them. The feed shell, historical
-comments, imported HTML and production Discourse embedding are incomplete.
+document roots; `metadata.json` remains outside them. Imported HTML and approved
+historical comment threads are rendered, and the feeds contain full article
+content. Approved historical YouTube/SuperLectures media iframes are retained;
+production Discourse comment embeds remain disabled.
 
 ## Prepare publication
 

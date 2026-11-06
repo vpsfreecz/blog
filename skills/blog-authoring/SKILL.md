@@ -18,12 +18,17 @@ ordinary clone; it requires no skill registry or external development workspace.
    public authors, the original absolute Czech `discussion_url` and immutable
    per-language `feed_guids` as described in the guide.
 3. Add English in `index.en.md` without altering the Czech source. Keep it a
-   draft until a human reviews meaning and voice. Record translation status,
-   current Czech SHA-256, reviewer and review timestamp; re-review source changes.
+   draft until a human reviews meaning and voice. Imported articles instead use
+   `index.cs.html` and `index.en.html`; preserve HTML/code/links and translate
+   visible prose. Record translation status, the SHA-256 of the complete current
+   Czech `.md` or `.html` file, reviewer and review timestamp; re-review source
+   changes.
    These records are not enforced by the current checks.
 4. Preview real drafts with `nix develop -c bin/preview`; use `--fixtures` only
    for the isolated demo. Check both pages, bylines, images, code and reciprocal
-   language links. Follow host service-registration rules in managed environments.
+   language links. Historical comments and approved media iframes are supported;
+   production Discourse embeds remain disabled. Follow host service-registration
+   rules in managed environments.
 5. Run `nix develop -c bin/check` and `nix build .#site`. Inspect the diff and
    production output. Keep private exports, credentials and unapproved personal
    data outside source and build inputs. Do not create forum topics or request
@@ -31,6 +36,7 @@ ordinary clone; it requires no skill registry or external development workspace.
 6. Prepare publication only within the requested scope and Git host permissions.
    Follow branch protections and editorial review; set `draft=false` only for an
    approved variant, and commit intended files with ordinary hooks. Do not
-   initialize an empty remote without maintainer direction. Actions publishing,
-   RSS article serialization and production discussions are not implemented, so
-   pushing a commit currently does not make an article live.
+   initialize an empty remote without maintainer direction. Full-content RSS
+   uses stable per-language identities and excludes drafts in production builds.
+   Actions publishing and production Discourse integration are not implemented,
+   so pushing a commit currently does not make an article live.
