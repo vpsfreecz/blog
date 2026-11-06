@@ -11,12 +11,23 @@ nix build .#site
 nix develop -c bin/preview
 ```
 
-The preview listens on loopback: Czech at <http://localhost:1313/>, English at
-<http://localhost:1314/>. Its language switches link paired local pages. Synthetic
-fixtures live under `fixtures/`; the normal production build never reads them.
-Production builds also exclude drafts. Preview pages contain no Discourse
-scripts or iframes. Agent-owned previews must be launched through the workspace's
-registered temporary-service command.
+The preview shows repository content, including drafts, on loopback: Czech at
+<http://localhost:1313/>, English at <http://localhost:1314/>. Its language switches
+link paired local pages. Add `--fixtures` to preview only the isolated synthetic
+demo instead. The normal production build never reads `fixtures/` and excludes
+drafts. Preview pages contain no Discourse scripts or iframes. Agent-owned previews
+in the managed workspace use its registered temporary-service command.
+
+`nix develop -c bin/preview --vpn --fixtures` serves the synthetic demo on the
+VPN address `172.16.106.40:4567`: Czech at
+<http://aitherdev.int.vpsfree.cz:4567/> and English at
+<http://aitherdev.int.vpsfree.cz:4567/en/>. English fixture articles keep their
+explicit root paths, such as `/synthetic-example_1/`; only the English homepage
+and feed use `/en/`. This single-origin preview is separate from production's
+two host roots. `--vpn` without `--fixtures` shows real repository drafts on
+that VPN listener. Only share drafts intended for everyone with VPN access.
+`bin/preview --help` lists these options; both flags can be combined in either
+order. No proxy or firewall changes are part of the preview command.
 
 `result/cs/` and `result/en/` are separate document roots. Both include `/feed/`
 and a sitemap. `result/metadata.json` records source/build inputs and SHA-256

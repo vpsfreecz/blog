@@ -7,12 +7,14 @@ import json
 from pathlib import Path
 import subprocess
 import tempfile
+import tomllib
 from urllib.request import build_opener, HTTPRedirectHandler
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--preview', action='store_true', help='also check the running loopback preview')
+parser.add_argument('--vpn', action='store_true', help='also check the running VPN fixture preview')
 options = parser.parse_args()
 
 
@@ -96,6 +98,46 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     assert 'Překlad zatím není k dispozici.' in unpaired.read_text()
     assert not (drafts / 'en/synteticky-bez-prekladu').exists()
 
+    vpn = work / 'vpn'
+    run('hugo', '--environment', 'vpn', '--buildDrafts', '--config', config,
+        '--destination', str(vpn), '--panicOnWarning')
+    base = 'http://aitherdev.int.vpsfree.cz:4567/'
+    fixture_urls = []
+    for source in (ROOT / 'fixtures/content').rglob('*.md'):
+        frontmatter = tomllib.loads(source.read_text().split('+++')[1])
+        fixture_urls.append(frontmatter['url'])
+    assert len(fixture_urls) == len(set(fixture_urls)), 'singlehost fixture URL collision'
+    for home in ('', 'en/'):
+        page = Page(vpn / home / 'index.html')
+        assert page.has('link', rel='canonical', href=base + home)
+        assert page.has('link', rel='alternate', type='application/rss+xml',
+                        href=base + home + 'feed/')
+        feed = ET.parse(vpn / home / 'feed/index.xml').getroot()
+        assert feed.find('channel/{http://www.w3.org/2005/Atom}link').get('href') == base + home + 'feed/'
+    for path, other in [('synteticky-priklad_1', 'synthetic-example_1'),
+                        ('synthetic-example_1', 'synteticky-priklad_1')]:
+        page = Page(vpn / path / 'index.html')
+        assert page.has('link', rel='canonical', href=base + path + '/')
+        assert page.has('a', href=base + other + '/')
+    for source in vpn.rglob('*.html'):
+        text = source.read_text()
+        assert '<script' not in text and '<iframe' not in text
+        assert 'localhost:' not in text
+
+    # Test default real-content selection without touching the repository corpus.
+    real = work / 'real-content'
+    real.mkdir()
+    (real / 'temporary.cs.md').write_text('+++\ntitle = "Temporary check draft"\n'
+        'date = "2026-01-01T12:00:00+01:00"\ndraft = true\n'
+        'lastmod = "2026-01-01T12:00:00+01:00"\n'
+        'url = "/temporary-check-draft/"\ntranslationKey = "temporary-check"\n'
+        '[params]\narticle_id = "temporary-check"\n+++\n\nTemporary local check only.\n')
+    real_output = work / 'real-preview'
+    run('hugo', '--environment', 'preview', '--buildDrafts', '--contentDir', str(real),
+        '--destination', str(real_output), '--panicOnWarning')
+    assert (real_output / 'cs/temporary-check-draft/index.html').is_file()
+    assert not (real_output / 'cs/synteticky-priklad_1').exists()
+
     # Exercise production host metadata without publishing a fixture.
     prod_hosts = work / 'fixture-hosts'
     run('hugo', '--environment', 'production', '--buildDrafts', '--config', config,
@@ -109,18 +151,34 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         assert page.has('link', rel='alternate', hreflang=other_locale,
                         href=f'https://{other_host}/{other_path}/')
 
-if options.preview:
+if options.preview or options.vpn:
     class NoRedirect(HTTPRedirectHandler):
         def redirect_request(self, *args, **kwargs):
             return None
 
     opener = build_opener(NoRedirect)
-    for port in (1313, 1314):
-        url = f'http://localhost:{port}/feed/'
+    urls = [f'http://localhost:{port}/feed/' for port in (1313, 1314)] if options.preview else []
+    if options.vpn:
+        urls += ['http://172.16.106.40:4567/feed/', 'http://172.16.106.40:4567/en/feed/']
+    for url in urls:
         with opener.open(url, timeout=5) as response:
             assert response.status == 200 and response.url == url
             assert response.headers.get('Location') is None
             assert response.headers.get_content_type() == 'application/rss+xml'
             assert ET.fromstring(response.read()).tag == 'rss'
+    if options.vpn:
+        advertised = 'http://aitherdev.int.vpsfree.cz:4567/'
+        for path in ('', 'en/', 'synteticky-priklad_1/', 'synthetic-example_1/'):
+            url = 'http://172.16.106.40:4567/' + path
+            with opener.open(url, timeout=5) as response:
+                assert response.status == 200 and response.headers.get('Location') is None
+                text = response.read().decode()
+                assert f'href="{advertised}{path}"' in text, path
+                assert 'localhost:' not in text, path
+                assert '<script' not in text and '<iframe' not in text, path
+                assert 'noindex, nofollow' in text, path
+                if path.startswith(('synteticky-', 'synthetic-')):
+                    assert advertised + 'synteticky-priklad_1/' in text
+                    assert advertised + 'synthetic-example_1/' in text
 
 print('Passed: dual-host routes, metadata, pairing, draft isolation and deterministic output')

@@ -1,0 +1,5 @@
+[languages.cs]
+baseURL = 'https://blog.vpsfree.cz/'
+
+[languages.en]
+baseURL = 'https://blog.vpsfree.org/'

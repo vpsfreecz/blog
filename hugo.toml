@@ -5,13 +5,11 @@ disableKinds = ['taxonomy', 'term']
 enableRobotsTXT = true
 
 [languages.cs]
-baseURL = 'https://blog.vpsfree.cz/'
 locale = 'cs-CZ'
 label = 'Česky'
 weight = 1
 
 [languages.en]
-baseURL = 'https://blog.vpsfree.org/'
 locale = 'en'
 label = 'English'
 weight = 2

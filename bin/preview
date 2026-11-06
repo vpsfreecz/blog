@@ -1,8 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-echo 'Czech:   http://localhost:1313/'
-echo 'English: http://localhost:1314/'
-echo 'Synthetic fixtures: /synteticky-priklad_1/ and /synthetic-example_1/'
-exec hugo server --environment preview --buildDrafts --bind 127.0.0.1 \
-  --config hugo.toml,fixtures/hugo.toml,config/preview/hugo.toml --disableFastRender
+environment=preview
+bind_address=127.0.0.1
+port=1313
+config=hugo.toml
+fixtures=false
+server_options=()
+for argument in "$@"; do
+  case "$argument" in
+    --fixtures) fixtures=true; config=hugo.toml,fixtures/hugo.toml ;;
+    --vpn) environment=vpn; bind_address=172.16.106.40; port=4567 ;;
+    --help|-h)
+      echo 'Usage: bin/preview [--fixtures] [--vpn]'
+      echo 'Preview repository content including drafts; --fixtures selects synthetic demo content.'
+      echo '--vpn binds the VPN address on port 4567; both flags can be combined.'
+      exit 0 ;;
+    *) echo "Unknown option: $argument" >&2; exit 2 ;;
+  esac
+done
+if [[ "$environment" == vpn ]]; then
+  # Hugo server otherwise replaces the configured hostname with localhost.
+  server_options=(--baseURL http://aitherdev.int.vpsfree.cz:4567/)
+  echo 'Czech:   http://aitherdev.int.vpsfree.cz:4567/'
+  echo 'English: http://aitherdev.int.vpsfree.cz:4567/en/'
+  echo 'Explicit article URLs keep their declared root paths in this preview.'
+else
+  echo 'Czech:   http://localhost:1313/'
+  echo 'English: http://localhost:1314/'
+fi
+if [[ "$fixtures" == true ]]; then
+  echo 'Synthetic fixtures: /synteticky-priklad_1/ and /synthetic-example_1/'
+fi
+exec hugo server --environment "$environment" --buildDrafts --bind "$bind_address" \
+  --port "$port" --config "$config" --disableFastRender --disableLiveReload "${server_options[@]}"

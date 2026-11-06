@@ -6,7 +6,7 @@
   <title>{{ if not .IsHome }}{{ .Title }} | {{ end }}{{ .Site.Title }}</title>
   <link rel="canonical" href="{{ .Permalink }}">
   {{ range .AllTranslations }}<link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}">{{ end }}
-  <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ "feed/" | absURL }}">
+  <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ .Site.Home.Permalink }}feed/">
   {{ $css := resources.Get "css/site.css" | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
   {{ if ne hugo.Environment "production" }}<meta name="robots" content="noindex, nofollow">{{ end }}
@@ -18,7 +18,7 @@
     <p>{{ i18n "tagline" }}</p>
     <nav aria-label="{{ i18n "navigation" }}">
       <a href="{{ .Site.Home.RelPermalink }}">{{ i18n "home" }}</a>
-      <a href="{{ "feed/" | absURL }}">RSS</a>
+      <a href="{{ .Site.Home.Permalink }}feed/">RSS</a>
       <a href="https://vpsfree.cz/">vpsFree.cz</a>
     </nav>
     {{ if .Translations }}

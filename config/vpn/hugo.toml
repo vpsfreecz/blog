@@ -1,0 +1,24 @@
+baseURL = 'http://aitherdev.int.vpsfree.cz:4567/'
+defaultContentLanguageInSubdir = false
+
+[[server.redirects]]
+from = '/feed/'
+to = '/feed/index.xml'
+status = 200
+force = true
+
+[[server.redirects]]
+from = '/en/feed/'
+to = '/en/feed/index.xml'
+status = 200
+force = true
+
+[[server.headers]]
+for = '/feed/**'
+[server.headers.values]
+Content-Type = 'application/rss+xml; charset=utf-8'
+
+[[server.headers]]
+for = '/en/feed/**'
+[server.headers.values]
+Content-Type = 'application/rss+xml; charset=utf-8'
