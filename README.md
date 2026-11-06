@@ -5,6 +5,10 @@ Hugo builds Czech and English sites for `blog.vpsfree.cz` and
 synthetic draft fixtures; it has no imported articles or production discussion
 integration.
 
+For a new article or translation, follow [the author guide](docs/authoring.md).
+Agents start with [AGENTS.md](AGENTS.md) and can read the repository's
+[authoring skill](skills/blog-authoring/SKILL.md) without installing anything.
+
 ```sh
 nix develop -c bin/check
 nix build .#site
@@ -56,8 +60,10 @@ Optional historical comments will live in
 `data/legacy-comments/<article_id>.json`; their importer/rendering contract is
 not implemented here. Missing shared data is tolerated by the shell.
 
-The RSS shell has no items yet. Legacy feed GUIDs, full-content serialization,
-imported HTML, historic comments, real authoring/translation workflows, CI and
-deployment belong to later packages. Do not use this scaffold for a production
+The author guide documents draft preparation and manual translation review;
+those editorial fields are not enforced by the current checks. The RSS shell
+has no items yet. Legacy feed serialization, imported HTML, historic comments,
+CI publishing and deployment remain incomplete. A Git push currently does not
+deploy an article. Do not use this scaffold for a production
 cutover. Keep raw exports, email addresses, credentials and private operator
 data outside this repository and its build inputs.
