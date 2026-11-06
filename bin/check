@@ -4,7 +4,9 @@ import argparse
 import hashlib
 from html.parser import HTMLParser
 import json
+import os
 from pathlib import Path
+import re
 import subprocess
 import tempfile
 import tomllib
@@ -15,7 +17,9 @@ import xml.etree.ElementTree as ET
 ROOT = Path(__file__).resolve().parent.parent
 parser = argparse.ArgumentParser(description=__doc__)
 parser.add_argument('--preview', action='store_true', help='also check the running loopback preview')
-parser.add_argument('--vpn', action='store_true', help='also check the running VPN fixture preview')
+vpn_checks = parser.add_mutually_exclusive_group()
+vpn_checks.add_argument('--vpn', action='store_true', help='also check the running VPN fixture preview')
+vpn_checks.add_argument('--real-vpn', action='store_true', help='also check the running real-content VPN preview')
 options = parser.parse_args()
 
 
@@ -68,6 +72,32 @@ def check_roots(destination, hosts):
             for tag, attrs in Page(path).elements:
                 if tag == 'link' and attrs.get('rel') == 'canonical':
                     assert not urlparse(attrs['href']).path.startswith(('/en/', '/cs/')), path
+
+
+def check_preview_isolation(work):
+    stubs, output = work / 'preview-bin', work / 'preview-output'
+    stubs.mkdir()
+    output.mkdir()
+    hugo = stubs / 'hugo'
+    hugo.write_text('#!/usr/bin/env python3\nimport json, pathlib, sys\n'
+        'args = sys.argv[1:]\n'
+        'destination = pathlib.Path(args[args.index("--destination") + 1])\n'
+        'mode = args[args.index("--environment") + 1]\n'
+        '(destination / "en").mkdir()\n'
+        '(destination / "en/index.html").write_text(mode)\n'
+        'print(json.dumps({"destination": str(destination), "mode": mode}))\n')
+    hugo.chmod(0o755)
+    results = []
+    for flags in (('--fixtures',), ('--vpn',), ('--vpn', '--fixtures')):
+        result = subprocess.run(['bin/preview', *flags], cwd=ROOT, check=True,
+            env={**os.environ, 'PATH': str(stubs) + os.pathsep + os.environ['PATH'], 'TMPDIR': str(output)},
+            capture_output=True, text=True)
+        results.append(json.loads(result.stdout.splitlines()[-1]))
+    assert len({item['destination'] for item in results}) == 3
+    for item in results:
+        destination = Path(item['destination'])
+        assert destination.parent == output
+        assert (destination / 'en/index.html').read_text() == item['mode']
 
 
 def check_taxonomy_labels(work):
@@ -177,6 +207,7 @@ def check_discussions(work):
 
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
+    check_preview_isolation(work)
     check_taxonomy_labels(work)
     check_discussions(work)
     production, repeat, drafts, fixture_production = [work / x for x in
@@ -379,14 +410,14 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         assert page.has('link', rel='alternate', hreflang=other_locale,
                         href=f'https://{other_host}/{other_path}/')
 
-if options.preview or options.vpn:
+if options.preview or options.vpn or options.real_vpn:
     class NoRedirect(HTTPRedirectHandler):
         def redirect_request(self, *args, **kwargs):
             return None
 
     opener = build_opener(NoRedirect)
     urls = [f'http://localhost:{port}/feed/' for port in (1313, 1314)] if options.preview else []
-    if options.vpn:
+    if options.vpn or options.real_vpn:
         urls += ['http://172.16.106.40:4567/feed/', 'http://172.16.106.40:4567/en/feed/']
     for url in urls:
         with opener.open(url, timeout=5) as response:
@@ -408,5 +439,24 @@ if options.preview or options.vpn:
                 if path.startswith(('synteticky-', 'synthetic-')):
                     assert advertised + 'synteticky-priklad_1/' in text
                     assert advertised + 'synthetic-example_1/' in text
+    if options.real_vpn:
+        advertised = 'http://aitherdev.int.vpsfree.cz:4567/'
+        pair = {lang: tomllib.loads((ROOT / f'content/posts/wp-615/index.{lang}.html').read_text().split('+++')[1])['url']
+                for lang in ('cs', 'en')}
+        for path in ('/', '/en/', pair['cs'], pair['en']):
+            with opener.open('http://172.16.106.40:4567' + path, timeout=5) as response:
+                assert response.status == 200 and response.headers.get('Location') is None
+                text = response.read().decode()
+            assert f'<link rel="canonical" href="{advertised.rstrip("/")}{path}">' in text, path
+            assert 'localhost:' not in text and not re.search(r'<script\b', text, re.I), path
+            assert not any('discourse.vpsfree.cz' in tag for tag in re.findall(r'<iframe\b[^>]*>', text, re.I)), path
+            assert 'noindex, nofollow' in text and 'id="discourse-comments"' not in text, path
+            if path in pair.values():
+                assert advertised.rstrip('/') + pair['cs'] in text
+                assert advertised.rstrip('/') + pair['en'] in text
+            if path == pair['en']:
+                assert 'This English translation is awaiting human review.' in text
+            if path == '/en/':
+                assert '/en/category/akce/' in text and '>Events</a>' in text
 
 print('Passed: dual-host routes, metadata, pairing, draft isolation and deterministic output')

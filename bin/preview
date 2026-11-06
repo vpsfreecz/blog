@@ -32,5 +32,8 @@ fi
 if [[ "$fixtures" == true ]]; then
   echo 'Synthetic fixtures: /synteticky-priklad_1/ and /synthetic-example_1/'
 fi
+# Concurrent singlehost and multihost servers must never share public/en files.
+preview_destination=$(mktemp --directory "${TMPDIR:-/tmp}/vpsfree-blog-${environment}.XXXXXXXX")
 exec hugo server --environment "$environment" --buildDrafts --bind "$bind_address" \
-  --port "$port" --config "$config" --disableFastRender --disableLiveReload "${server_options[@]}"
+  --port "$port" --config "$config" --destination "$preview_destination" \
+  --disableFastRender --disableLiveReload "${server_options[@]}"
