@@ -119,9 +119,66 @@ def check_taxonomy_labels(work):
                            for tag, attrs, text in labels), (source, kind, slug)
 
 
+def check_discussions(work):
+    content, data, config_dir = (work / name for name in ('discussion-content', 'discussion-data', 'empty-config'))
+    for path in (content, data, config_dir):
+        path.mkdir()
+    source_url = 'https://blog.vpsfree.cz/shared-discussion-fixture/'
+    sources = {'published': source_url, 'draft': source_url,
+               'escaped': 'https://blog.vpsfree.cz/a&b/',
+               'wrong-host': 'https://blog.vpsfree.cz.invalid/article/',
+               'query': source_url + '?preview=1', 'fragment': source_url + '#comments',
+               'port': 'https://blog.vpsfree.cz:443/article/'}
+    (data / 'articles.json').write_text(json.dumps({key: {'discussion_url': value, 'author_ids': []}
+                                                  for key, value in sources.items()}))
+    (data / 'authors.json').write_text('{}')
+    for article_id in sources:
+        for lang in ('cs', 'en'):
+            (content / f'{article_id}.{lang}.html').write_text('+++\ntitle = "Synthetic discussion check"\n'
+                'date = "2026-01-01T12:00:00+01:00"\ntype = "posts"\n'
+                f'draft = {str(article_id == "draft").lower()}\n'
+                f'url = "/discussion-{article_id}-{lang}/"\n'
+                f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id}"\n'
+                '+++\n<p>Synthetic local check only.</p>\n')
+    cases = (('production', True, False), ('production', False, False),
+             ('preview', True, False), ('vpn', True, False), ('production', True, True))
+    for number, (environment, enabled, wrong_origin) in enumerate(cases):
+        config = tomllib.loads((ROOT / 'hugo.toml').read_text())
+        config.update(contentDir=str(content), dataDir=str(data))
+        config['params']['discourse']['enabled'] = enabled
+        for lang, host in (('cs', 'blog.vpsfree.cz'), ('en', 'blog.vpsfree.org')):
+            config['languages'][lang]['baseURL'] = f'https://{lang}.preview.invalid/' if wrong_origin else f'https://{host}/'
+        config_path = work / f'discussion-{number}.json'
+        config_path.write_text(json.dumps(config))
+        destination = work / f'discussion-{number}'
+        run('hugo', '--environment', environment, '--buildDrafts', '--configDir', str(config_dir),
+            '--config', str(config_path), '--destination', str(destination), '--panicOnWarning')
+        identities = []
+        for article_id in sources:
+            for lang in ('cs', 'en'):
+                path = destination / lang / f'discussion-{article_id}-{lang}/index.html'
+                text = path.read_text()
+                should_embed = environment == 'production' and enabled and not wrong_origin and article_id in ('published', 'escaped')
+                assert ('window.DiscourseEmbed =' in text) == should_embed, (number, article_id, lang)
+                assert Page(path).has('a', href='https://discourse.vpsfree.cz/')
+                if should_embed:
+                    encoded = text.split('window.DiscourseEmbed = ', 1)[1]
+                    payload, _ = json.JSONDecoder().raw_decode(encoded)
+                    assert payload == {'discourseUrl': 'https://discourse.vpsfree.cz/',
+                                       'discourseEmbedUrl': sources[article_id]}
+                    if article_id == 'published':
+                        identities.append(payload['discourseEmbedUrl'])
+                    if article_id == 'escaped':
+                        assert r'\u0026' in encoded
+                    assert Page(path).has('div', id='discourse-comments')
+        if identities:
+            assert identities == [source_url, source_url]
+
+
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
     check_taxonomy_labels(work)
+    check_discussions(work)
     production, repeat, drafts, fixture_production = [work / x for x in
         ('production', 'repeat', 'drafts', 'fixture-production')]
     run('bin/build', str(production))

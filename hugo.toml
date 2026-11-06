@@ -35,3 +35,6 @@ tags = "/tag/:slug/"
 # The imported corpus is sanitized native HTML; new articles may use Markdown.
 [security]
 allowContent = ['^text/html$', '^text/markdown$']
+
+[params.discourse]
+enabled = false

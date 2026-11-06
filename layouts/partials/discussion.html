@@ -1,5 +1,11 @@
 {{ $discussionURL := "" }}
 {{ with index hugo.Data.articles .Params.article_id }}{{ $discussionURL = .discussion_url }}{{ end }}
+{{ $validSource := false }}
+{{ with try (urls.Parse $discussionURL) }}{{ with .Value }}
+  {{ $validSource = and (eq .Scheme "https") (eq .Host "blog.vpsfree.cz") (not .User) (not .RawQuery) (not .ForceQuery) (not .Fragment) (ne .Path "/") (findRE `^/[A-Za-z0-9._~!$&'()*+,;=:@%/-]+/$` .EscapedPath) }}
+{{ end }}{{ end }}
+{{ $expectedBase := index (dict "cs" "https://blog.vpsfree.cz/" "en" "https://blog.vpsfree.org/") .Language.Lang }}
+{{ $enabled := and (eq hugo.Environment "production") (not hugo.IsServer) (eq .Site.Params.discourse.enabled true) (not .Draft) (eq .Type "posts") $expectedBase (eq .Site.BaseURL $expectedBase) $validSource }}
 {{ $comments := slice }}{{ with index hugo.Data "legacy-comments" }}{{ with index . $.Params.article_id }}{{ $comments = . }}{{ end }}{{ end }}
 <section id="comments" class="comments-area" aria-label="{{ i18n "discussion" }}"{{ with $discussionURL }} data-discussion-url="{{ . }}"{{ end }}>
   {{ if $comments }}
@@ -8,5 +14,19 @@
     {{ partial "comment-thread.html" (dict "comments" $comments "parent" 0) }}
   {{ end }}
   <div id="respond"><h2 class="comments-title">{{ i18n "discussion" }}</h2>
-  <p>{{ i18n "discussionDisabled" }} <a href="https://discourse.vpsfree.cz/">{{ i18n "forum" }}</a></p></div>
+  {{ if $enabled }}
+  <div id="discourse-comments"></div>
+  <script>
+    window.DiscourseEmbed = {{ dict "discourseUrl" "https://discourse.vpsfree.cz/" "discourseEmbedUrl" $discussionURL | jsonify | safeJS }};
+    (() => {
+      const embed = document.createElement('script');
+      embed.async = true;
+      embed.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js';
+      document.head.appendChild(embed);
+    })();
+  </script>
+  <p><a href="https://discourse.vpsfree.cz/">{{ i18n "forum" }}</a></p>
+  {{ else }}
+  <p>{{ i18n "discussionDisabled" }} <a href="https://discourse.vpsfree.cz/">{{ i18n "forum" }}</a></p>
+  {{ end }}</div>
 </section>
