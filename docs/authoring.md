@@ -56,8 +56,9 @@ byline with a stable archive slug, for example
 `"example-author": {"name": "Public author name", "slug": "public-author"}`.
 Both languages use the same author IDs and the same absolute Czech
 `discussion_url`. Never replace it with the English or preview URL. Article
-writing needs no forum credentials or manual topic-creation step; native
-Discourse integration is planned but not implemented.
+writing needs no forum credentials or manual topic-creation step. The optional
+[production Discourse embed](discussions.md) is disabled by default; its runtime
+forum setup and activation remain unverified.
 
 For new articles, assign the per-language URNs shown above once and retain them
 through corrections. Imported Czech articles retain their exact original
@@ -173,8 +174,10 @@ hooks and contribution policy.
 
 Push the working branch only with the Git host's write permission. Follow any
 required review and protected-publication-branch policy before advancing that
-branch; an agent cannot grant itself permission. Actions publishing is not
-implemented yet, so a successful push currently does not deploy an article.
-A maintainer must configure and verify the publishing pipeline before Git pushes
-can serve as live publication. Do not initialize the remote or perform a server
+branch; an agent cannot grant itself permission. The Actions workflow checks
+source and packages trusted-main [release artifacts](deployment.md), but target
+activation and its timer remain disabled and blocked on verified machine
+admission. A successful push currently does not deploy an article. A maintainer
+must complete the documented deployment gates before Git pushes can serve as
+live publication. Do not initialize the remote or perform a server
 deployment as part of routine article writing without maintainer direction.

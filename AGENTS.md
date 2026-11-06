@@ -27,7 +27,9 @@ it needs no installation or external workspace.
   outside the repository and its build inputs. Synthetic fixtures stay draft-only.
 - Git host write permissions and branch protections control publication access.
   Follow the requested branch/review policy; never assume an agent can grant
-  itself push permission. Actions publishing is not implemented: pushing a commit
-  does not deploy the site. Do not initialize an empty remote without maintainer
+  itself push permission. The workflow prepares release artifacts; activation is
+  disabled and blocked on verified machine admission. Pushing a commit does not
+  deploy the site. Do not initialize an empty remote without maintainer
   direction. Imported articles, historical comments and full-content feeds are
-  implemented; production Discourse integration and deployment remain incomplete.
+  implemented. The optional production Discourse embed defaults off; forum setup
+  and deployment still need verification and approval.

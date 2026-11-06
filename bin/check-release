@@ -1,0 +1,59 @@
+#!/usr/bin/env python3
+"""Tiny offline release-packager fixtures; no site build or network."""
+import hashlib
+import importlib.machinery
+import importlib.util
+import json
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+loader = importlib.machinery.SourceFileLoader('package_release', str(Path(__file__).with_name('package-release')))
+spec = importlib.util.spec_from_loader(loader.name, loader)
+release = importlib.util.module_from_spec(spec)
+loader.exec_module(release)
+
+
+class Package(unittest.TestCase):
+    def test_clean_identity_determinism_and_rejection(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, site = root / 'source', root / 'site'
+            source.mkdir()
+            subprocess.run(['git', 'init', '--quiet', str(source)], check=True)
+            (source / 'source.txt').write_text('Fixture source\n')
+            subprocess.run(['git', '-C', str(source), 'add', 'source.txt'], check=True)
+            message = root / 'message.txt'
+            message.write_text('Create isolated packaging fixture\n')
+            subprocess.run(['git', '-C', str(source), '-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid', 'commit', '--quiet', '-F', str(message)], check=True)
+            sha = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
+            files = {}
+            for language in ('cs', 'en'):
+                for name, content in [('index.html', b'<p>Public fixture</p>'), ('feed/index.xml', b'<rss/>')]:
+                    path = site / language / name
+                    path.parent.mkdir(parents=True, exist_ok=True)
+                    path.write_bytes(content)
+                    files[language + '/' + name] = hashlib.sha256(content).hexdigest()
+            metadata = {'schema': 1, 'inputs': {'revision': sha, 'sourceNarHash': 'sha256-fixture', 'nixpkgsRevision': '1' * 40}, 'files': files}
+            (site / 'metadata.json').write_text(json.dumps(metadata))
+            release.package(site, root / 'first', sha, 7, 1, source)
+            release.package(site, root / 'repeat', sha, 7, 1, source)
+            for name in ('payload.tar.gz', 'receipt.json'):
+                self.assertEqual((root / 'first' / name).read_bytes(), (root / 'repeat' / name).read_bytes())
+            (source / 'source.txt').write_text('Dirty fixture')
+            with self.assertRaisesRegex(ValueError, 'clean checkout'):
+                release.package(site, root / 'dirty', sha, 7, 1, source)
+            (source / 'source.txt').write_text('Fixture source\n')
+            metadata['inputs']['revision'] = None
+            (site / 'metadata.json').write_text(json.dumps(metadata))
+            with self.assertRaisesRegex(ValueError, 'Build inputs'):
+                release.package(site, root / 'null', sha, 7, 1, source)
+            metadata['inputs']['revision'] = sha
+            (site / 'metadata.json').write_text(json.dumps(metadata))
+            (site / 'unexpected.sql').write_text('Untracked payload')
+            with self.assertRaisesRegex(ValueError, 'Undeclared'):
+                release.package(site, root / 'extra', sha, 7, 1, source)
+
+
+unittest.main(verbosity=1)

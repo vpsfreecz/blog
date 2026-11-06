@@ -3,12 +3,15 @@
 Hugo builds Czech and English sites for `blog.vpsfree.cz` and
 `blog.vpsfree.org`. Each site uses its own host root. The repository contains
 125 imported Czech articles, their public bylines, historical comments and
-media. English translations remain drafts until human review. Production
-Discourse integration and automatic deployment are not implemented.
+media. English translations remain drafts until human review. The optional
+production Discourse embed is disabled by default; runtime forum setup remains
+unverified. The build-artifact workflow does not activate a live deployment.
 
 For a new article or translation, follow [the author guide](docs/authoring.md).
 Agents start with [AGENTS.md](AGENTS.md) and can read the repository's
 [authoring skill](skills/blog-authoring/SKILL.md) without installing anything.
+See [discussion setup](docs/discussions.md) for the opt-in embed and
+[release artifacts](docs/deployment.md) for the inactive deployment candidate.
 
 ```sh
 nix develop -c bin/check
@@ -68,8 +71,9 @@ the public projection and its source/hash manifest.
 The author guide documents draft preparation and manual translation review;
 those editorial fields are not enforced by the current checks. Each feed emits
 up to ten full-content articles using stable language-specific GUIDs and original
-publication dates; draft translations stay out of production builds. Production
-Discourse integration, CI publishing and deployment remain incomplete. A Git push
-currently does not deploy an article. A production transition needs separate
+publication dates; draft translations stay out of production builds. CI checks
+and trusted-main artifact packaging are prepared; target activation and its timer
+remain disabled and blocked on verified machine admission. A Git push currently
+does not deploy an article. Forum setup and a production transition need separate
 approval. Keep raw exports, private email addresses, credentials and operator
 data outside this repository and its build inputs.

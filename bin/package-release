@@ -1,0 +1,88 @@
+#!/usr/bin/env python3
+"""Package a clean exact-commit Nix site; ordinary dirty previews stay supported."""
+import argparse
+import gzip
+import hashlib
+import io
+import json
+from pathlib import Path, PurePosixPath
+import re
+import subprocess
+import tarfile
+
+REPOSITORY = 'vpsfreecz/blog'
+WORKFLOW = '.github/workflows/build.yml'
+
+
+def sha(data):
+    return hashlib.sha256(data).hexdigest()
+
+
+def encode(value):
+    return (json.dumps(value, sort_keys=True, indent=2) + '\n').encode()
+
+
+def package(site, output, revision, run_id, attempt, source_root):
+    if not re.fullmatch(r'[0-9a-f]{40}', revision):
+        raise ValueError('Release requires an exact source commit')
+    def git(*args):
+        return subprocess.check_output(['git', '-C', str(source_root), *args], text=True).strip()
+    if git('rev-parse', 'HEAD') != revision or git('status', '--porcelain', '--untracked-files=normal'):
+        raise ValueError('Release requires a clean checkout of the requested commit')
+    if run_id < 1 or attempt < 1:
+        raise ValueError('Workflow run identity is required')
+    metadata_bytes = (site / 'metadata.json').read_bytes()
+    metadata = json.loads(metadata_bytes)
+    inputs = metadata['inputs']
+    if inputs.get('revision') != revision or not inputs.get('sourceNarHash') or not inputs.get('nixpkgsRevision'):
+        raise ValueError('Build inputs do not identify the clean exact source')
+    payload = {}
+    for name, expected in metadata['files'].items():
+        path = PurePosixPath(name)
+        if path.is_absolute() or '..' in path.parts or path.parts[0] not in ('cs', 'en'):
+            raise ValueError('Unexpected web payload path')
+        p = site / path
+        if p.is_symlink() or not p.is_file():
+            raise ValueError('Only regular web files can be released')
+        content = p.read_bytes()
+        if sha(content) != expected:
+            raise ValueError('Site file hash mismatch')
+        payload[name] = content
+    actual = {p.relative_to(site).as_posix() for p in site.rglob('*') if p.is_file()}
+    if actual != set(payload) | {'metadata.json'}:
+        raise ValueError('Undeclared site payload')
+    for lang in ('cs', 'en'):
+        if not {lang + '/index.html', lang + '/feed/index.xml'} <= payload.keys():
+            raise ValueError('Missing language root or feed')
+    identity = {'schema': 1, 'repository': REPOSITORY, 'source_sha': revision,
+                'workflow_path': WORKFLOW, 'run_id': run_id, 'run_attempt': attempt,
+                'artifact_name': 'blog-' + revision, 'inputs': inputs,
+                'metadata_sha256': sha(metadata_bytes)}
+    payload['metadata.json'] = metadata_bytes
+    payload['release.json'] = encode(identity)
+    if output.exists():
+        raise ValueError('Release output must not exist')
+    output.mkdir(parents=True)
+    archive = output / 'payload.tar.gz'
+    with archive.open('wb') as target, gzip.GzipFile(filename='', mode='wb', fileobj=target, mtime=0) as compressed:
+        with tarfile.open(fileobj=compressed, mode='w') as tar:
+            for name, content in sorted(payload.items()):
+                member = tarfile.TarInfo(name)
+                member.size, member.mode, member.mtime = len(content), 0o644, 0
+                tar.addfile(member, io.BytesIO(content))
+    receipt = {**identity, 'archive_sha256': sha(archive.read_bytes())}
+    (output / 'receipt.json').write_bytes(encode(receipt))
+    return receipt
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--site', type=Path, required=True)
+    parser.add_argument('--output', type=Path, required=True)
+    parser.add_argument('--sha', required=True)
+    parser.add_argument('--run-id', type=int, required=True)
+    parser.add_argument('--run-attempt', type=int, required=True)
+    options = parser.parse_args()
+    result = package(options.site, options.output, options.sha, options.run_id,
+                     options.run_attempt, Path(__file__).resolve().parent.parent)
+    print(json.dumps({'source_sha': result['source_sha'], 'archive_sha256': result['archive_sha256']}))

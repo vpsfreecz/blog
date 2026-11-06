@@ -38,5 +38,6 @@ ordinary clone; it requires no skill registry or external development workspace.
    approved variant, and commit intended files with ordinary hooks. Do not
    initialize an empty remote without maintainer direction. Full-content RSS
    uses stable per-language identities and excludes drafts in production builds.
-   Actions publishing and production Discourse integration are not implemented,
-   so pushing a commit currently does not make an article live.
+   The workflow prepares artifacts and the optional production Discourse embed
+   defaults off. Forum setup is unverified; activation remains disabled and
+   blocked on machine admission. Pushing a commit does not make an article live.
