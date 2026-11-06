@@ -1,0 +1,24 @@
++++
+title = "HaveAPI v0.7: blocking actions"
+date = "2016-11-24T12:16:27+00:00"
+lastmod = "2016-11-24T12:16:27+00:00"
+draft = true
+url = "/haveapi-v0-7-blocking-actions/"
+translationKey = "wp-470"
+categories = ["technologie"]
+tags = ["haveapi"]
+[params]
+article_id = "wp-470"
+source_body_sha256 = "3d0be899d3881d423151622bc7ccbe719791fcb13a54acfd632066680205d253"
+translation_status = "draft"
+translation_source_sha256 = "0382da692f4be127c32ad4488a3f7e2fc146fec6b14845b6b1cadef29a1cac3c"
++++
+
+<p>The new HaveAPI release mainly adds support for long-running blocking actions.<br>
+<!--more--><span id="more-470"></span></p>
+<p><a href="https://github.com/vpsfreecz/haveapi">HaveAPI</a> version 0.7 adds support for so-called blocking actions: actions that take longer to execute. In our API, these include creating a VPS, reinstalling, starting/stopping/restarting, cloning, swapping and so on. Clients can now monitor the progress of these actions or block until they finish, as the <a href="https://github.com/vpsfreecz/haveapi-client">console client</a> does, for example.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/haveapi_cli_block.png"><img alt="haveapi_cli_block" class="aligncenter size-medium wp-image-471" height="123" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/haveapi_cli_block-300x123.png" width="300"></a></p>
+<p>The online documentation has also improved. It now shows usage examples in each client's syntax (Ruby/JS/PHP/FS/curl/HTTP).</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/haveapi_client_example.png"><img alt="haveapi_client_example" class="aligncenter size-medium wp-image-472" height="131" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/haveapi_client_example-300x131.png" width="300"></a></p>
+<p>The documentation links directly to <a href="https://github.com/vpsfreecz/haveapi-webui">haveapi-webui</a>, which connects to the API so you can start using it straight away.</p>
+<p>The full list of changes is in the <a href="https://github.com/vpsfreecz">individual repositories' changelogs</a>. Our API will run this version tomorrow.</p>

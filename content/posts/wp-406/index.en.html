@@ -1,0 +1,28 @@
++++
+title = "Our first server with SSDs and 512 GB of RAM"
+date = "2016-09-12T06:39:41+00:00"
+lastmod = "2016-09-12T06:43:01+00:00"
+draft = true
+url = "/our-first-server-with-ssds-and-512-gb-of-ram/"
+translationKey = "wp-406"
+categories = ["technologie"]
+tags = ["disk", "ssd"]
+[params]
+article_id = "wp-406"
+source_body_sha256 = "4c036ed75b603fa6a61466560ae94eab5a41e5e0d377f1b4bc6b0e6c526fe0e6"
+translation_status = "draft"
+translation_source_sha256 = "a4f4958c7dfe8b57282c1829f1137018382f043934ac84a612904548a969ff30"
++++
+
+<p>We bought a new server full of SSDs at a very good price and moved our most demanding VPSes onto it.</p>
+<p><!--more--><span id="more-406"></span></p>
+<p>Some time ago, our <a href="http://www.abacus.cz/">server supplier</a> contacted us to say that Intel was selling off its DCS3700 SSDs because it had a new 3710 series. We could buy the remaining stock at half price: an 800GB drive reduced from 28 to 14 thousand crowns. We know these drives, have had excellent experience with them, and they deliver a constant IOPS figure of around 10K. You cannot overwhelm a drive like that.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_02.jpg"><img alt="SSD_node_02" class="aligncenter size-medium wp-image-415" height="261" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_02-300x261.jpg" width="300"></a></p>
+<p>We also connected the drives through three powerful SAS3 controllers, which are considerably faster than the onboard controller. That removes any bottleneck and lets us make full use of the drives under a high, sustained load.</p>
+<p>So we bought a new server with eight of these drives in a single RAIDZ2 (something like RAID 6). The rest of the server is up to the same standard: two of the latest 14nm Broadwell-EP processors with ten physical cores each. With HT, the system sees 40 cores. Unless your terminal is big enough, you cannot press one in top to display them all.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_03.jpg"><img alt="SSD_node_03" class="aligncenter size-medium wp-image-418" height="169" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_03-300x169.jpg" width="300"></a></p>
+<p>We also had 512GB of DDR4 memory installed, because the price has finally fallen to where it should have been all along. A 32GB module costs only about 20% more than a 16GB DDR3 module. So a small extra payment gets us twice as much memory.</p>
+<p>A machine this powerful suits members who need high disk performance. Even with our aggressive caching, <a href="https://blog.vpsfree.cz/jak-vyuzit-256-gb-ram-na-serveru/">plenty of node memory</a> and SSD caches, writes can still put a regular node under pressure. We have quite a lot of them, and ZFS starts syncing its write cache after every 64 MB of unwritten data. We reach that very quickly, so we are writing practically all the time. At that point, disks are busy writing and have less time for reads. Demanding applications can struggle.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_01.jpg"><img alt="SSD_node_01" class="aligncenter size-medium wp-image-414" height="275" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/SSD_node_01-300x275.jpg" width="300"></a></p>
+<p>That is why we moved the most demanding VPSes to the new node 14, taking some load off the other servers. We have not hit the new server's limit yet, and we will see how much it can handle. There are certainly more and more services capable of putting a heavy load on ordinary disks.</p>
+<p>Eventually, we would like everything to be on SSDs, but prices still need to fall by at least a third. Replacing the drives in one node with SSDs currently costs about 90 thousand crowns. We need another price drop before we can start making those replacements.</p>

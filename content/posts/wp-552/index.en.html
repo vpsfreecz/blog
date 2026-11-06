@@ -1,0 +1,24 @@
++++
+title = "vpsAdminOS status report: what we are working on"
+date = "2018-07-09T07:19:43+00:00"
+lastmod = "2018-07-09T07:19:43+00:00"
+draft = true
+url = "/vpsadminos-status-report-what-we-are-working-on/"
+translationKey = "wp-552"
+categories = ["technologie", "vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-552"
+source_body_sha256 = "1c8811d856179afb255b77b5e2277fde32e1f4d4563238e071eca1046397b2a4"
+translation_status = "draft"
+translation_source_sha256 = "90a0dd880357df80f97f0c10e4f6c893d7de9aeaed05181293910fdf7a860672"
++++
+
+<p>After a few weeks, here is another update on vpsAdminOS, what we are working on and what we are struggling with.<br>
+<!--more--><span id="more-552"></span></p>
+<p>We are still working on LXCFS on node1.stg because the upstream version and kernel cannot do what we need. We need to set the number of available CPUs without pinning specific CPUs with cpuset, as OpenVZ can. Each VPS should be able to use any 8 CPUs, depending on which are currently free. It should not see more than that, even if the node has more: node1.stg has 32, for example. This is confusing, especially for users. If you see 32 available CPUs but can only fully use 8, you conclude that it does not work.</p>
+<p>On vpsAdminOS, we use CPU quotas (cfs_quota/period_us) to set CPU limits, but there is no mechanism available to limit the number of visible CPUs. So I am currently <a href="https://github.com/aither64/lxcfs/commits/cpu-views">modifying LXCFS</a> to show the correct CPU count in /proc/stat and /proc/cpuinfo based on the quota. These are the files read by top, htop and other monitoring tools.</p>
+<p>LXCFS only solves part of the problem, though. If you ask the kernel how many CPUs you have through a syscall, you still get the "wrong" answer. The kernel does not care about modified values in LXCFS. For example, <code>nproc</code> on node1.stg still returned 32 instead of 8. Various build systems may use <code>nproc</code>, so I tried to address that. The result is a <a href="https://github.com/vpsfreecz/vpsadminos/blob/devel/os/packages/linux/sched_getaffinity_cfs_quota.patch">short kernel patch</a> that changes the return value of <code>sched_getaffinity()</code> to contain only a limited number of CPUs. With this change, <code>nproc</code> returns the correct number, but the solution is not ideal and may break some applications. We will see.</p>
+<p>These changes have been deployed on node1.stg since last week. Please report anything unusual or not working as it should.</p>
+<p>We also updated the kernel to 4.17. A <a href="https://github.com/NixOS/nixpkgs/issues/39225">NixOS bug</a> that made the kernel incompatible with ZFS held us up for a long time. Now we are eagerly awaiting 4.18, which will support FUSE in a user namespace. That should allow sshfs and similar tools to work.</p>
+<p>node1.stg will stay available for at least a few more months, and there is plenty of space. Join in. We have not had much feedback yet. You can run anything that can tolerate frequent outages. We do not delete the VPSes you create as long as there is space.</p>

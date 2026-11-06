@@ -1,0 +1,26 @@
++++
+title = "Test support for new Let's Encrypt certificates at test.vpsfree.cz"
+date = "2020-11-24T10:14:15+00:00"
+lastmod = "2020-11-24T10:20:18+00:00"
+draft = true
+url = "/test-support-for-new-lets-encrypt-certificates-at-test-vpsfree-cz/"
+translationKey = "wp-695"
+categories = ["bezpecnost"]
+tags = ["lets-encrypt"]
+[params]
+article_id = "wp-695"
+source_body_sha256 = "de8936a312086185615b50f617d800c85ab4f3e271224c035a1ec989dbafb659"
+translation_status = "draft"
+translation_source_sha256 = "20a7ffa11247bf1a0971f00a3adbe56fe0a2b792375c6a7d8ed2a6f26e9bea1e"
++++
+
+<p>From January next year, Let's Encrypt will issue certificates based on a new root. Test whether your Android device already supports it.</p>
+<p><!--more--><span id="more-695"></span></p>
+<p>From 11 January 2021, Let's Encrypt will <a href="https://letsencrypt.org/2020/11/06/own-two-feet.html">issue certificates based on a new root</a>. It has existed since 2015, and most devices already have the necessary updates and include the new ISRG Root X1.</p>
+<p>But owners of Android devices <a href="https://www.root.cz/clanky/let-s-encrypt-se-stavi-na-vlastni-nohy-zmena-korene-odrizne-tretinu-androidu/">older than 7.1.1</a> have a problem. That version came out in December 2016. If your Android is older, websites with the new certificate will be untrusted.</p>
+<p>We have prepared <a href="https://test.vpsfree.cz/">test.vpsfree.cz</a> so you can try it. This page already uses the new <strong>ISRG Root X1</strong> root. Just open it in your chosen browser.</p>
+<p>If you see an error about an invalid certificate authority, you have a problem. Your device has old software that does not know the new Let's Encrypt certificate authority. The solution is either to replace the old device that no longer receives security updates, or at least install <strong>Firefox for mobile</strong>. It handles certificates itself and updates them independently of the operating system.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2020/11/testvpsfree.png"><img alt="" class="aligncenter size-medium wp-image-696" height="166" src="https://blog.vpsfree.cz/wp-content/uploads/2020/11/testvpsfree-300x166.png" width="300"></a></p>
+<p>If you want to try the new root yourself and use the ACME.sh client, you can use the following option when generating a certificate.</p>
+<pre>$ acme.sh --issue -d test.vpsfree.cz --preferred-chain "ISRG"</pre>
+<p>Until September next year, you can still manually <a href="https://github.com/acmesh-official/acme.sh/wiki/Preferred-Chain">request a certificate</a> based on the old DST Root CA X3. After that, it will be over for good, because the original root expires.</p>

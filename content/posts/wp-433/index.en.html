@@ -1,0 +1,25 @@
++++
+title = "20 gigabits is coming this year!"
+date = "2016-09-26T06:23:22+00:00"
+lastmod = "2016-09-26T06:26:26+00:00"
+draft = true
+url = "/20-gigabits-is-coming-this-year/"
+translationKey = "wp-433"
+categories = ["server"]
+tags = ["sit"]
+[params]
+article_id = "wp-433"
+source_body_sha256 = "7bbc456270d951aa221d05ed3eb3daf572743a512494838ab398d473840104ee"
+translation_status = "draft"
+translation_source_sha256 = "b0b06408005491a3a0129a2d8a4738e17816939c6d88809d79338a497e4807b0"
++++
+
+<p>We originally planned to upgrade the network in about six months, but things have moved forward, and the change will happen this year.<br>
+<!--more--><span id="more-433"></span></p>
+<p>After our <a href="https://blog.vpsfree.cz/proc-chceme-mit-20gigabitovou-sit/">previous post about the network upgrade</a>, Michal Kolář from <a href="http://www.ofx.cz/">OFX</a> contacted us and offered to sell us Gnodal GS4008 switches. They had bought them some time ago, but the switches lack some features OFX needs: they are not suitable for a peering center and cannot do policing.</p>
+<p>But they should suit us, since we only need "dumb" L2 switches. These also support stacking, but we do not need it. We will have three units, each at a fantastic price of 40 000 CZK. On eBay, they <a href="http://www.ebay.com/itm/New-Gnodal-GS4008-Layer-2-Ethernet-ToR-Switch-40-x-10GbE-SFP-8-x-40GbE-QSFP-/380792446303?hash=item58a8ff9d5f:g:8JoAAOxyRhBSp2vy">cost roughly twice as much</a>. The price is so low because Gnodal no longer exists. It was ahead of its time and went bankrupt in 2013.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Gnodal_GS4008.jpg"><img alt="gnodal_gs4008" class="aligncenter size-medium wp-image-434" height="146" src="https://blog.vpsfree.cz/wp-content/uploads/2016/09/Gnodal_GS4008-300x146.jpg" width="300"></a></p>
+<p>These specialized switches focus on low latency (150 ns port-to-port) and are intended for <abbr title="High-Performance Computing">HPC</abbr> and stock market transactions. Each has 40 × 10GbE SFP+ ports, plus 8 × 40GbE. For now, we plan to use only the slower ports, but if we need to add servers in another rack, we will buy more switches and connect them with 40 GbE.</p>
+<p>The switches are on their way, and we are ordering network cards. We chose 10 GbE <a href="http://www.abacus.cz/supermicro-stgn-i2s-dual-port-10gbe-sfp-pci-e8-g2-lp-odpovida-e10g42afda_d5019865.html">Supermicro AOC-STGN-I2S</a> cards, which cost about 8000 CZK. A 40 GbE alternative costs roughly twice as much, but we have no use for those yet.</p>
+<p>We will test the new network over the next month. If all goes well, we plan to put it into production very quickly, probably this year. With no support available, however, we want to test the switches thoroughly first to make sure their firmware has no critical bugs that could cause trouble later.</p>
+<p>If you want to see the new equipment for yourself, come to <a href="https://www.linuxdays.cz/2016/">LinuxDays</a>. We will show it to you at our stand.</p>

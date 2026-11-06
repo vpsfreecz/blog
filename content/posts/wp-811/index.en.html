@@ -1,0 +1,23 @@
++++
+title = "Automatic VPS disk expansion"
+date = "2023-07-10T11:43:43+00:00"
+lastmod = "2023-07-10T11:43:43+00:00"
+draft = true
+url = "/automatic-vps-disk-expansion/"
+translationKey = "wp-811"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-811"
+source_body_sha256 = "d4c3a12579faac9087797bc343ad5eb683f94cb5aee294c194b736e89a3615a6"
+translation_status = "draft"
+translation_source_sha256 = "b0163f6673dacdb614162dec6ecfc3820c7769ebc8689ef040967203ba8d8341"
++++
+
+<p>A virtual server running out of disk space is quite a common occurrence here. To protect applications and filesystems, we have decided to automate the response.<br>
+<!--more--><span id="more-811"></span></p>
+<p>Someone regularly runs out of disk space inside a VPS. vpsAdmin sends warnings from 90% usage, but even that does not always prevent it. A full disk stops applications that use it from working and can also make it impossible to log in to the VPS and free up space manually.</p>
+<p>We, as vpsFree.cz administrators, also deal with every individual case, because ZFS has historically had trouble working with full datasets (VPS disks). With dynamic block sizes and compression, ZFS does not know in advance how much space data will occupy on disk. To avoid exceeding the dataset's quota, it closes txgs early: these are transaction groups in which data is periodically written to disk. More frequent txgs then slow down every VPS.</p>
+<p>Another factor is that we have encountered race conditions in these situations that can stop I/O on the node and require a reset. We have modified ZFS not to close txgs early, instead allowing the quota to be exceeded within a single txg. But we still do not want to risk an outage, and monitoring sends us an SMS when a VPS dataset fills up. When several VPSes do this and members do not respond, it is quite exhausting for us.</p>
+<p>vpsAdmin will therefore now automatically enlarge datasets in VPSes running out of space. Expansion happens when less than 512 MiB remains, or less than 1% of total capacity. We increase the disk by 20 GiB or 10% of capacity, whichever is larger. Expansion can happen up to 3 times, and you have 30 days from the first expansion to address it. After that, the VPS will be shut down repeatedly until dataset usage is back within its original size or we agree on a permanent increase.</p>
+<p>The original size is restored automatically when there is at least 1 GiB and 5% free space available. You can also change the size at any time in the VPS details in vpsAdmin. </p>

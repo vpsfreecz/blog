@@ -1,0 +1,26 @@
++++
+title = "How to use 256 GB of RAM in a server"
+date = "2016-01-28T12:06:29+00:00"
+lastmod = "2016-01-28T12:28:15+00:00"
+draft = true
+url = "/how-to-use-256-gb-of-ram-in-a-server/"
+translationKey = "wp-244"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-244"
+source_body_sha256 = "782557956c878aa4225723c9aa47948ac3a4c2943f8a3bc69daaff3b06bf4545"
+translation_status = "draft"
+translation_source_sha256 = "a674ddc68292d33205034d9e7c6a9941cf7cbc02a1bdaa912d9304a743dc206c"
++++
+
+<p>All our servers now have 256 GB of memory. What can you do with a server that has that much RAM?<br>
+<!--more--><span id="more-244"></span></p>
+<p>Last night, we finished expanding the memory in all our nodes. The project took about a year, and every server now has a quarter of a terabyte of memory. Having plenty of memory in a server makes sense because it lets us do interesting things.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/RAM.jpg"><img alt="RAM" class="aligncenter size-medium wp-image-245" height="200" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/RAM-300x200.jpg" width="300"></a></p>
+<p>Of course, users consume some of the memory themselves, with between 60 and 100 virtual servers running on each server today. Each VPS uses <strong>an average of 1067 MB</strong> of memory. The median is 680 MB, and half of all virtual servers fit within one GB.</p>
+<p>Virtual servers have a default memory limit of <strong>4 GB</strong>, and a single VPS can be allocated at most 16 GB. But only 9 VPSes have extra memory. The vast majority of users fit comfortably within 4 GB. The following graph shows actual usage:</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram.png"><img alt="ram" class="aligncenter size-medium wp-image-246" height="196" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram-300x196.png" width="300"></a></p>
+<p>The rest of the memory (the larger part) is used for caching. We use the <abbr title="Adaptive Replacement Cache">ARC</abbr> cache, part of the ZFS filesystem. Unlike the kernel's default <abbr title="Least Recently Used">LRU</abbr> cache, it keeps more detailed information about individual pages: not just when they were <strong>last</strong> used, but also how <strong>often</strong> they are used.</p>
+<p>When the system needs to evict some pages and replace them with others, it makes a more considered choice. It does not unnecessarily discard frequently used memory that happens not to have been used for a little while. Its statistics tell it that the data still matters, so it chooses less frequently used pages instead.</p>
+<p>Evicted pages are not discarded completely, either. They go into the L2ARC cache on a fast SSD. If the system needs them, it can retrieve them faster than from spinning disks.</p>

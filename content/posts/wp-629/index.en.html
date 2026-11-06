@@ -1,0 +1,24 @@
++++
+title = "Let's Encrypt is revoking three million certificates, check yours"
+date = "2020-03-03T21:39:50+00:00"
+lastmod = "2020-03-03T21:44:32+00:00"
+draft = true
+url = "/lets-encrypt-is-revoking-three-million-certificates-check-yours/"
+translationKey = "wp-629"
+categories = ["bezpecnost"]
+tags = ["lets-encrypt"]
+[params]
+article_id = "wp-629"
+source_body_sha256 = "a3d0a68fc6939e0362d8556750aa82c2c5cc34b31c721a29d7bb61166cc98a41"
+translation_status = "draft"
+translation_source_sha256 = "e6561237ca3fff4b2834a8dc19b1b3586d2776c3d1712affdb9c890889aedbe0"
++++
+
+<p>The widely used certificate authority Let's Encrypt is revoking three million certificates because of a discovered bug. Is yours among them?<br>
+<!--more--><span id="more-629"></span></p>
+<p>Let's Encrypt is now the world's most widely used certificate authority. Unfortunately, it is not immune to security problems. Its certificate-issuing software, Boulder, <a href="https://community.letsencrypt.org/t/2020-02-29-caa-rechecking-bug/114591">contained a security bug</a> that caused incorrect checks of CAA records in DNS.</p>
+<p>These records let domain operators specify which authority may issue trusted certificates for their domain. Under the current rules, these records are valid for eight hours. If the authority has cached CAA information for longer, it must check the record again at the next validation request.</p>
+<p>Let's Encrypt also keeps a list of domains validated for each account. This list is valid for 30 days, and if a user requests a certificate within that time, they receive one. But because of the rule above, the CAA record is checked again before issuance to confirm that it still points to the correct authority.</p>
+<p>However, when a request validated multiple domains, the authority's software incorrectly checked only the first domain's CAA record. Instead of checking ten domains in sequence, it checked the first one ten times. The bug entered the code on 25 July 2019, so there is a risk that certificates were issued for some domain names without authorization.</p>
+<p>The bug was fixed two hours after it was reported, on 29 February 2020. But 3 048 289 potentially misissued certificates remain. That is about 2.6% of the 116 million certificates currently valid. All these certificates will be <strong>revoked</strong> during 4 March, so browsers may start rejecting them as invalid.</p>
+<p>Let's Encrypt has <a href="https://checkhost.unboundtest.com/">released a web tool</a> where you can enter a domain and check whether its certificate is affected. Michal Špaček has <a href="https://gist.githubusercontent.com/spaze/e7b366c6bcb6145524b0764444f76274/raw/cz-stripped-subdomains.txt">published a list on GitHub</a> of around 23 thousand Czech domains. Some belong to our members, so please check whether you need to generate new certificates for any of your domains.</p>

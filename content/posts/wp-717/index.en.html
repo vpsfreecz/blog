@@ -1,0 +1,22 @@
++++
+title = "We can allocate a dedicated /64 IPv6 block to each server"
+date = "2021-03-18T14:09:23+00:00"
+lastmod = "2021-03-18T14:09:42+00:00"
+draft = true
+url = "/we-can-allocate-a-dedicated-64-ipv6-block-to-each-server/"
+translationKey = "wp-717"
+categories = ["server"]
+tags = ["vpsadmin", "vpsadminos"]
+[params]
+article_id = "wp-717"
+source_body_sha256 = "520a19c8a89f14a472822a9899dce45105940795fd633800d076f6d67668268d"
+translation_status = "draft"
+translation_source_sha256 = "eff43a200e5423267408affa90c8579ea563ff6d36ee457c0879d4cb8eff62b7"
++++
+
+<p>Thanks to vpsAdminOS, we can now allocate a dedicated /64 IPv6 block to each VPS.<br>
+<!--more--><span id="more-717"></span></p>
+<p>Until recently, we had to allocate only individual addresses (/128) for IPv6 to each virtual server. The original OpenVZ could not handle larger blocks, so there was no other option. Although allocating /64 ranges is only a recommendation, blacklists enforce it in practice, blocking not just spammers but others in the affected ranges.</p>
+<p>If you would like your own /64 IPv6 block, just log in to vpsAdmin. Each user can allocate entire address blocks to their VPS themselves. Each contains 18.45×10<sup>18</sup> addresses.</p>
+<p>When adding it, remember not only to route the new address but also to add it to the VPS interface. You can do this in vpsAdmin with the "Add route and an address to interface venet0" button in the final step. This assigns the /64 block to a specific interface.</p>
+<p>How the block is used is up to each user and their applications. We can also set the corresponding reverse records; just contact support.</p>

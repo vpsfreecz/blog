@@ -1,0 +1,27 @@
++++
+title = "vpsAdmin can upload SSH keys to VPSes"
+date = "2016-11-28T11:38:36+00:00"
+lastmod = "2016-11-28T11:38:36+00:00"
+draft = true
+url = "/vpsadmin-can-upload-ssh-keys-to-vpses/"
+translationKey = "wp-474"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-474"
+source_body_sha256 = "304c6ccd37cbc7b9f9e7cdeb581a59e9325f30663889559c93e4c613c47d691b"
+translation_status = "draft"
+translation_source_sha256 = "3ac1252d728259fb154294492c8a4295dbb723392f9635ccf49ff052524596f0"
++++
+
+<p>We have improved the vpsAdmin control panel. It now lets you put SSH keys directly into a newly created VPS.<br>
+<!--more--><span id="more-474"></span></p>
+<p>vpsAdmin <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.6.0/">version 2.6.0</a> lets members save public keys and then upload them to a VPS (<code>/root/.ssh/authorized_keys</code>). Add keys through the web interface: Edit profile → Public keys → Add public key in the right-hand panel.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Add_SSH_key.png"><img alt="add_ssh_key" class="aligncenter size-medium wp-image-475" height="154" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Add_SSH_key-300x154.png" width="300"></a></p>
+<p>For each key, you can choose whether it should be uploaded automatically to new or reinstalled VPSes. Otherwise, keys can be uploaded at any time through the form in the VPS details, just below the password-setting form.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Deploy_SSH_key.png"><img alt="deploy_ssh_key" class="aligncenter size-medium wp-image-476" height="130" src="https://blog.vpsfree.cz/wp-content/uploads/2016/11/Deploy_SSH_key-300x130.png" width="300"></a></p>
+<p>Be aware that all distribution templates still <strong>allow</strong> SSH login as root with a password, if one is set. Keys are not always available. To disable password authentication, set this line in <code>/etc/ssh/sshd_config</code>:</p>
+<pre>PasswordAuthentication no</pre>
+<p>vpsAdmin now uses <a href="/haveapi-v0-7-blokujici-akce/">HaveAPI's blocking actions</a> wherever possible, so you can finally know exactly when operations have finished and when you can call further actions on objects without getting the error<br>
+"Resource is locked". As far as I know, that was the last major shortcoming of our API that could make it difficult to use.</p>
+<p>If you use <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfree-client</a> or any other HaveAPI client, update it. The HaveAPI protocol version has changed. Everything will still work, but you may see warnings.</p>

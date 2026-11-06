@@ -1,0 +1,58 @@
++++
+title = "Revising distribution templates: openSUSE, Slackware and Void Linux on staging"
+date = "2019-06-11T09:49:45+00:00"
+lastmod = "2019-06-11T09:49:45+00:00"
+draft = true
+url = "/revising-distribution-templates-opensuse-slackware-and-void-linux-on-staging/"
+translationKey = "wp-610"
+categories = ["distribuce"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-610"
+source_body_sha256 = "531ca828430a915661bea740970662d71ac97b3f033d62fd86e1ed2956f41bf8"
+translation_status = "draft"
+translation_source_sha256 = "60008671d429a3ac36b7a1b6c4ce0d0ef0a9c08c67cbdbb92dfcf01dae60cc87"
++++
+
+<p>We are gradually preparing to move to the new vpsAdminOS container platform. That also involves the template system.<br>
+<!--more--><span id="more-610"></span></p>
+<p>Staging now supports openSUSE Leap 15.1 and Tumbleweed, Slackware 14.2 and Void Linux (glibc, musl).</p>
+<p>Over the last two weeks, I have tried to improve how we build the distribution templates used to create new VPSes. <a href="https://lists.vpsfree.cz/pipermail/community-list/2014-June/006697.html">Since 2014</a>, we have used the <a href="https://github.com/vpsfreecz/build-vpsfree-templates">build-vpsfree-templates scripts</a>. Even then, the aim was regular, automated builds, but we never finished it. You cannot simply build templates and start using them: distributions change, and the scripts may not work reliably. Every template needs testing before use, and that always had to be done manually.</p>
+<p>Anyone wanting to contribute had to work out where and how to build and test templates. Dependencies such as debootstrap, yum/dnf and zypper had to be installed manually. To really check that a template worked, you needed to install OpenVZ.</p>
+<p>Updating one distribution's template meant getting the script to work, copying the result to a system with OpenVZ, creating a VPS from it, discovering something broken (startup, ssh, console, password...) and going back to the beginning. With vpsAdminOS, everything had to be done twice, since <a href="https://github.com/vpsfreecz/build-vpsfree-templates/tree/vpsadminos">the templates naturally differ</a>.</p>
+<p>As a result, templates were only updated when absolutely necessary. For stable distributions such as Debian, that is not a problem: updating the system after creating a VPS works fine. Rolling-release distributions such as Arch or Gentoo fare worse, and after a long gap, updating takes more work.</p>
+<p>So I tried to improve this at least on vpsAdminOS, by providing the same build environment and automating tests. Nix and vpsAdminOS can provide that consistent environment. I used this and added the template-building program directly to the OS. To build templates, you therefore <a href="https://vpsadminos.org/user-guide/setup/">just need to boot vpsAdminOS</a>, in QEMU, for example. Then clone the <a href="https://github.com/vpsfreecz/build-vpsfree-templates/tree/vpsadminos">scripts for vpsAdminOS templates</a>:</p>
+<pre>
+$ git clone -b vpsadminos https://github.com/vpsfreecz/build-vpsfree-templates.git
+$ cd build-vpsfree-templates
+</pre>
+<p>The template-building program is called <a href="https://man.vpsadminos.org/osctl-image/man8/osctl-image.8.html">osctl-image</a>. It cannot build a template on its own: it works with the scripts above and expects them in the working directory. List the templates available to build like this:</p>
+<pre>
+$ osctl-image ls
+</pre>
+<p>You need any ZFS dataset to build a template. The QEMU configuration provides a zpool called tank automatically, so we can use tank/image-builds, for example. Building a selected template then looks like this:</p>
+<pre>
+$ osctl-image build --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>By default, built templates are stored in ./output. Testing a built template is simple:</p>
+<pre>
+$ osctl-image test --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>Currently, the tests cover VPS start/stop, networking, setting the root password and hostname, and SSH access. We should also test that the console and login work.</p>
+<p>If something does not work, we can easily create a VPS from the template:</p>
+<pre>
+$ osctl-image instantiate --build-dataset tank/image-builds ubuntu-18.04
+</pre>
+<p>The command above prints the VPS ID, which we can then inspect:</p>
+<pre>
+$ osctl ct start -F instance-abcdefgh
+$ osctl ct attach instance-abcdefgh
+</pre>
+<p>Once everything is working, it is time for a pull request. We add the template to the repository from which vpsAdminOS downloads it when creating a new VPS:</p>
+<pre>
+$ osctl-image deploy --build-dataset tank/image-builds ubuntu-18.04 /kde/je/repozitar
+</pre>
+<p>This is how we maintain the default repository at <a href="https://images.vpsadminos.org">images.vpsadminos.org</a>.</p>
+<p>The whole process can be reduced to that final command. If needed, <code>osctl-image deploy</code> automatically builds and tests the template, then adds it to the repository only if everything passes. The <code>test</code> and <code>instantiate</code> commands work similarly. That is why <code>--build-dataset</code> appears everywhere: the template may need to be built. In the background, osctl-image manages VPSes for building and testing templates. The manual describes exactly how that works.</p>
+<p>To minimize the ongoing work, <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/modules/services/osctl/image-repository.nix">I prepared a Nix module</a> for declaratively configuring regular repository builds and their contents. You can <a href="https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/configs/image-repository.nix">see the result in vpsfree-cz-configuration</a>.</p>
+<p>We have configured templates to build once a week, on Saturday morning. Those that build and test successfully are added to the repository immediately. If anything fails, we receive an email with the path to the log explaining what happened and why. We will see what else turns up, but so far it looks as though this could work.</p>

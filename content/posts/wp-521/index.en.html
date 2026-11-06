@@ -1,0 +1,51 @@
++++
+title = "What is a reverse DNS record (PTR), and how do you set it?"
+date = "2017-06-26T11:47:28+00:00"
+lastmod = "2024-09-10T07:52:39+00:00"
+draft = true
+url = "/what-is-a-reverse-dns-record-ptr-and-how-do-you-set-it/"
+translationKey = "wp-521"
+categories = ["podpora"]
+tags = []
+[params]
+article_id = "wp-521"
+source_body_sha256 = "49348094f5362af03ecf71dfc827cbfadea490f123d96e29470ad1ee6c3a72cf"
+translation_status = "draft"
+translation_source_sha256 = "e1a7a5cef3d5167a1a93df5c3927688444266382ce2f6e2a2ce7a5293edf0278"
++++
+
+<p>Support keeps receiving questions about reverse DNS records. Many users have only a vague idea of what they are and how to use them.<br>
+<!--more--><span id="more-521"></span></p>
+<p>You can <a href="https://kb.vpsfree.cz/navody/vps/rdns">set reverse records in vpsAdmin</a> for your IP addresses. But users often approach reverse records incorrectly, misunderstand them or use them the wrong way. So how do they work?</p>
+<p>A PTR (pointer record) answers a reverse DNS query. Normally, we ask, "Which IP addresses belong to this domain name?" and look for A and AAAA records. But DNS also has a hierarchical tree containing answers to the opposite (reverse) question: "Which domain name belongs to this IP address?"</p>
+<p>While forward records are managed by the domain administrator, reverse records are created by the administrator of the allocated IP addresses. The query is automatically made under the top-level domain (TLD) <code>.arpa</code>, specifically <code>in-addr.arpa</code> and <code>ip6.arpa</code>. It works the same way as a forward record: the most specific part is on the left, and the most general on the right. For example:</p>
+<pre>
+$ host 37.205.9.45
+45.9.205.37.in-addr.arpa domain name pointer mxproxy.vpsfree.cz.
+
+$ host 2a01:430:17:1::ffff:427
+7.2.4.0.f.f.f.f.0.0.0.0.0.0.0.0.1.0.0.0.7.1.0.0.0.3.4.0.1.0.a.2.ip6.arpa domain name pointer mxproxy.vpsfree.cz.
+</pre>
+<p>Why does a reverse record matter? Mail servers receiving mail now check that the two records agree: the domain name points to an IP address whose reverse record points back to the same domain. This is basic spam protection. The administrator is effectively showing control of records in both directions, rather than merely operating a compromised machine that "happens" to send mail.</p>
+<p>A common mistake is trying to list every domain for which the mail server will receive mail in the reverse records. That is not how it works. A reverse record contains the <strong>server's name</strong>, not the domains it manages. Ideally, something like <code>mail.example.com</code>. It must be the name the mail server uses to introduce itself when exchanging mail. For Postfix, this is the configuration setting:</p>
+<pre>
+myhostname="mail.example.com"
+</pre>
+<p>You can only set <strong>one</strong> PTR record per IP address. So you have to choose what your server will actually be called. You cannot give one address several domain names.</p>
+<p>This setting has no effect on email addresses or the domains that receive mail. The connection between a domain and a mail server is made through an MX record in DNS. This specifies which server should receive mail for a given domain name. Notice that the mail server does not need to be in the same domain at all:</p>
+<pre># dig MX vpsfree.org
+…
+;; ANSWER SECTION:
+vpsfree.org.		1800	IN	MX	10 mxproxy.vpsfree.cz.
+vpsfree.org.		1800	IN	MX	15 mx2.vpsfree.cz.
+…
+</pre>
+<p>So to set a reverse record, choose a domain name for your mail server under any subdomain you control. Set that name in vpsAdmin for both your IPv4 and IPv6 addresses. This matters because many mail servers (including Gmail) now use the modern IPv6 protocol, and everything must be correct there too.</p>
+<p>You can then configure your mail server however you like, add more domains for receiving mail and use the domain name in the MX records of every domain it should receive mail for. There is no need to change the reverse record again.</p>
+<p>The main points:</p>
+<ul>
+<li>set the reverse record in vpsAdmin</li>
+<li>it points to the server's name, not the domains that receive mail</li>
+<li>it always points to just one domain name</li>
+<li>when setting a reverse record, remember the IPv6 address</li>
+</ul>

@@ -1,0 +1,81 @@
++++
+title = "vpsAdminOS development, NFS on staging, the overlay2 driver for Docker and more"
+date = "2019-10-29T18:29:11+00:00"
+lastmod = "2019-10-29T18:29:11+00:00"
+draft = true
+url = "/vpsadminos-development-nfs-on-staging-the-overlay2-driver-for-docker-and-more/"
+translationKey = "wp-615"
+categories = ["vpsfree-cz"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-615"
+source_body_sha256 = "dec2f2ee1b2e4f552eebbf24bda4a5cd83d5c7af855a343e82bbee4cb4b9845d"
+translation_status = "draft"
+translation_source_sha256 = "6d77f5ccb749cba267b4bb0a87e612bb0a3c4f9c65d9f9ab7e19bbe2ebaa2915"
++++
+
+<p>Here is another update on the move to vpsAdminOS and what we have been working on since the last report in June. It has been a while, so this is... a longer one. The most important news comes first.</p>
+<p><!--more--><span id="more-615"></span></p>
+<p><strong>Current status</strong></p>
+<p>NFS access is now the last issue to resolve before we can launch a production node with vpsAdminOS. We spent a long time looking for a workable way to access nasbox from both OpenVZ and vpsAdminOS, and it looks as though we have finally found one. More on that below.</p>
+<p>As for the subsequent OpenVZ -&gt; vpsAdminOS migration, our current plan is to add another production node running vpsAdminOS and move VPSes from staging to it individually. We will keep their IP addresses. New members will go on the new system, while existing VPSes will continue to run on OpenVZ. Anyone who wants to will be able to move to the new system, but we will not be pushing anyone to do so in the foreseeable future.</p>
+<p><strong>NFS in production and on staging</strong></p>
+<p>In the <a href="https://lists.vpsfree.cz/pipermail/community-list/2019-June/010062.html">last report</a>, I outlined how we would handle dataset exports and mounts on vpsAdminOS. That approach would have worked, but it had one major drawback: a NAS dataset could not be mounted in both OpenVZ and vpsAdminOS VPSes at the same time. One of the two systems would have no access to the data. We could have lived with that, but it would have made VPS migration unnecessarily difficult for all of us.</p>
+<p>I also mentioned that kernel 5.2 added user namespace support to the NFS client. So we tried allowing NFS mounts inside a VPS, and it works. The NFS server receives user and group IDs as the VPS, or rather its user namespace, sees them, so sharing data with VPSes on OpenVZ is no problem.</p>
+<p>This does mean a major change in how you access nasbox. On OpenVZ, you configure a mount in vpsAdmin and it mounts it for you. You do not even need to know how it works. That cannot work the same way on vpsAdminOS. To send the correct UID/GID to the NFS server, the mount must be created from inside the VPS. The kernel remembers which user namespace a mount was created in and behaves accordingly.</p>
+<p>For staging/vpsAdminOS, you will configure exports on the NFS server in vpsAdmin instead of mounts inside the VPS. You choose which VPSes may access a dataset, and vpsAdmin shows you the address and export path to mount from inside your VPS. vpsAdmin provides an example mount command, an <code>/etc/fstab</code> entry and even a systemd mount unit. Of course, you need the NFS utilities installed in the VPS. You now have more control over export settings (ro/rw per host, root_squash, sync, etc.) and can choose any mount options you need. Just do not use -<code>oproto=udp</code>: it does not work reliably, and we will be disabling it.</p>
+<p>Sharing VPS datasets and subdatasets remains a problem. That will not be possible for now; we have not found an ideal solution yet. I expect that in the future you will be able to share data between VPSes by running an NFS server inside them. We will see how urgent that becomes. One use case we lose with this change is repairing a VPS that will not start by mounting its disk in another VPS. Instead, I plan to add an option in vpsAdmin to start a VPS from a clean distribution template, from which you can access the broken system much as you would by booting a live system.</p>
+<p>That is the current plan for making nasbox available on staging. Everything is already deployed, so you can start using it. Please report any problems to support. To sum up:</p>
+<ul>
+<li>datasets and snapshots are mounted in OpenVZ VPSes as before</li>
+<li>on vpsAdminOS, instead of creating a mount in vpsAdmin, you create a dataset/snapshot export and mount it yourself from inside the VPS</li>
+<li>a dataset/snapshot can only be exported once, but can be mounted anywhere (including OpenVZ)</li>
+</ul>
+<p>For more information, see the <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/storage">article in our knowledge base</a>.</p>
+<p>We will leave it running like this for a while. If we do not run into any complications, we can launch vpsAdminOS in production. We will wait at least for Linux 5.4, because it will be an LTS release that we can stay on for longer.</p>
+<p><strong>Docker storage driver</strong></p>
+<p>The main problem with Docker on vpsAdminOS was the <a href="https://docs.docker.com/storage/storagedriver/select-storage-driver/">lack of a working, efficient storage driver</a>. Until now, only the VFS driver worked here, and it is very inefficient. It copies data back and forth on disk whenever it creates a container layer. That is why Docker was slower here than elsewhere. The short version is that we got the overlay2 driver working thanks to snajpa adding overlayfs support to ZFS. Getting there was not easy, though.</p>
+<p>Docker's default driver is overlay2, which uses overlayfs. Unfortunately, it still <a href="https://github.com/zfsonlinux/zfs/pull/9414">does not work on unmodified ZFS</a>, because the kernel requires certain flags to be implemented in <code>renameat2()</code>. Another problem is that ZFS presents itself to the kernel as a "remote filesystem" and requires dentry revalidation, which overlayfs does not do.</p>
+<p>Docker also has a ZFS driver, but we cannot use it inside a VPS because ZFS does not support user namespaces, and it is not clear how that would even work. In other words, we have no way to pass a dataset safely from the host into a VPS. It probably would not be a good idea anyway. ZFS is great when it is not panicking, but it brings its own complications, and dealing with those on the host is quite enough.</p>
+<p>AUFS is another possible driver. It is a predecessor to overlayfs with more features, but it never made it into Linux. We tried adding it to the staging kernel, but Docker still would not use it on its own: it assumes AUFS does not work in a user namespace and never tries. With a patch, Docker works with AUFS and is much faster. Unfortunately, that would require installing Docker from our own repositories, which we would have to maintain. Docker also marks AUFS as superseded and might remove it, leaving us to maintain that support ourselves.</p>
+<p>In the end, we managed to adapt ZFS so that overlayfs works on top of it. We have a <a href="https://github.com/zfsonlinux/zfs/pull/9414">pull request</a> for this, but it has not been merged yet.</p>
+<p>If you think Docker then picks the overlay2 driver on its own and everything works, you would be wrong. Of course, <a href="https://github.com/docker/docker-ce/blob/master/components/engine/daemon/graphdriver/overlay2/overlay.go#L165">the code hardcodes the assumption</a> that it does not work on ZFS. So we lie to Docker from the kernel and tell it that it is not running on ZFS... and then it works. Hooray.</p>
+<p>This has been deployed for several weeks, and the feedback is that container builds are much faster. The only snag was a bug in our overlayfs patch that broke disk space accounting when moving or deleting files. Space could not be reclaimed, so VPS dataset quotas gradually filled up. The cause was an important function being called inside an ASSERT macro that is only implemented in debug builds. With debugging disabled, it did nothing.</p>
+<p><strong>Docker-in-Docker</strong></p>
+<p>Another treat is Docker inside Docker, used for things such as CI in GitLab. It does not work out of the box here because it attempts <code>mount -t securityfs</code> at startup, which is not possible in a VPS with a user namespace. We have not yet managed to change the kernel to allow it, but if you run into this, there is a simple workaround. Just add a volume:</p>
+<pre>
+$ docker run -v /sys/kernel/security:/sys/kernel/security ...
+</pre>
+<p><strong>osctl-exportfs</strong></p>
+<p>For a long time, nasbox has lacked a way to tell who is using it and how when the disks struggle to keep up. Kernel 5.3 adds support for an NFS server in a network namespace, which opens up some interesting possibilities.</p>
+<p><a href="https://man.vpsadminos.org/osctl-exportfs/man8/osctl-exportfs.8.html">osctl-exportfs</a> is a vpsAdminOS tool for creating small containers for NFS servers, each with its own IP address and set of exports. When you configure an export in vpsAdmin, a dedicated NFS server starts for you. vpsAdmin will then be able to count transferred data and monitor the usage of individual NFS servers.</p>
+<p><strong>syslog namespace</strong></p>
+<p>Over the summer, we added a syslog namespace to the kernel, so you can read the kernel log from inside a VPS, as with dmesg. You can see messages from the OOM killer, iptables logs and more.</p>
+<p><strong>Setting oom_score_adj</strong></p>
+<p>We added an exception to the kernel to allow arbitrary values to be set in <code>/proc/&lt;pid&gt;/oom_score_adj</code> inside a VPS. This lets you protect important processes, such as sshd, from the OOM killer. At least distributions using systemd will make use of this automatically.</p>
+<p><strong>/sys restrictions</strong></p>
+<p>Part of <code>/sys</code> is shared between the host and all VPSes; other parts adapt to things such as the network namespace. We changed the permissions on sensitive directories so that they cannot be accessed from inside a VPS. Some programs may have trouble with this. For example, we had to relax the restrictions a little for libvirt. Please get in touch if you find anything else.</p>
+<p><strong>vpsfree-cz-configuration and monitoring</strong></p>
+<p>Over the summer, I largely <a href="https://github.com/vpsfreecz/vpsfree-cz-configuration">reworked the configuration</a> of our vpsAdminOS nodes and NixOS servers/VPSes. System configuration is now defined in one place for different outputs, such as a netboot server and live system updates.</p>
+<p>A server's configuration can refer to the addresses, services and ports of other systems in the cluster. That is useful for connecting services, setting precise firewall rules or generating DNS. We also have new monitoring that automatically watches every system included in the configuration.</p>
+<p>The new monitoring uses Prometheus and Alertmanager, and we also use Graylog for centralized logging. We now monitor more of the things that have caused us trouble. I worked on this mainly because of the frequent outages caused by ZFS panics, which had been bothering us since the start of the summer. The old monitoring failed completely: if a node stopped doing disk operations at 4 in the morning, we would not find out until one of us woke up.</p>
+<p>Graylog now processes logs from all nodes and sends an alert through Alertmanager if a ZFS panic occurs. We get an SMS within a minute. There is still a lot to tune, especially delivering SMS messages to different people at different times so we do not go mad. Unfortunately, I have not found an existing solution for that yet.</p>
+<p>In the future, I would also like to give members access to Grafana with data from Prometheus as a replacement for Munin. But there are an enormous number of parameters to display, and it needs more time than we currently have.</p>
+<p><strong>Buildbot for vpsAdminOS</strong></p>
+<p>For years, we have wanted some form of CI and QA to check updates and new features. Having absolutely no tests makes that a little more complicated, but we also had not found a technology we wanted to build it on. I have now made some progress: Buildbot watches the vpsAdminOS repository and builds it automatically whenever it changes. It looks quite usable, and we would like to do more with it over time. It is already useful for filling the binary cache, from which you can download our kernel builds, ZFS and so on. On NixOS, you can use it like this:</p>
+<pre>
+nix = {
+    binaryCaches = [
+      "https://cache.vpsadminos.org"
+    ];
+    binaryCachePublicKeys = [
+      "cache.vpsadminos.org:wpIJlNZQIhS+0gFf1U3MC9sLZdLW3sh5qakOWGDoDrE="
+    ];
+  };
+</pre>
+<p><strong>Unmounting snapshots in vpsAdmin</strong></p>
+<p>If you have mounted a snapshot in a VPS, you have probably noticed that it often could not be unmounted. To mount a snapshot in an OpenVZ VPS, the snapshot is cloned on the backup server using zfs clone, and the resulting filesystem is exported over NFS. The node then mounts it inside the VPS. When unmounting, the VPS mount is removed first, and vpsAdmin then tries to delete the cloned snapshot on the backup server. That is where it gets stuck. For some reason, either the mountpoint or the dataset is busy, so it cannot be removed. As a result, the snapshot unmount operation in vpsAdmin would fail and restore the mount to its original state by mounting it again.</p>
+<p>In support requests, I advised everyone to "disable" the mount. vpsAdmin would then keep trying to unmount it until it eventually succeeded. Unfortunately, a dataset stuck like that could take days or even weeks to sort itself out. Snapshot clones are now deleted in the background without affecting mounts inside VPSes. This will still cause us trouble, but at least those mounts no longer appear in vpsAdmin.</p>
+<p><strong>A final thought</strong></p>
+<p>The first commit in vpsAdminOS was made two years ago, on 3 November 2017. I doubt anyone expected it to be this much work. Looking back, it could not even have worked then, mainly because only recent kernel versions have added features we cannot do without, such as an NFS client in a user namespace. Even with the latest kernel, LXC and so on, we cannot build system containers on a par with OpenVZ 10 years ago without our own changes. We have patches large and small in the kernel, ZFS, LXC and LXCFS, and we could not operate without them.</p>
+<p>With OpenVZ, on the other hand, we went a long time without needing any changes of our own. Using what was available was no problem. But OpenVZ (Legacy) has not been developed for roughly the last 4 years, and getting current distributions running on it is becoming increasingly difficult. Never mind today's application containers such as Docker. Just to get Ubuntu 18.04 working, we had to prepare our own kernel with a missing syscall. It is still a difficult road, but we are looking forward to running vpsAdminOS in production.</p>

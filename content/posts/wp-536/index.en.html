@@ -1,0 +1,22 @@
++++
+title = "vpsAdmin v2.9 brings simple VPS monitoring"
+date = "2017-09-11T10:36:31+00:00"
+lastmod = "2017-09-11T10:36:31+00:00"
+draft = true
+url = "/vpsadmin-v2-9-brings-simple-vps-monitoring/"
+translationKey = "wp-536"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-536"
+source_body_sha256 = "d3f7b861fe286492712a412a82fc6fdde960c735225f208b09f38a966cb450a0"
+translation_status = "draft"
+translation_source_sha256 = "b3103b4a35377d5e709024a5fb53e1bbaa04d27299ab9cedfa6f92f2072d4fe4"
++++
+
+<p>We have released a new vpsAdmin, mainly adding simple monitoring for your VPS.</p>
+<p><!--more--><span id="more-536"></span></p>
+<p>The new <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.9.0/">vpsAdmin v2.9</a> mainly brings simple VPS monitoring. It is not a monitoring system for watching your own services. It only uses the information vpsAdmin collects from VPSes and nodes. It currently checks free dataset space, CPU usage against the rules and the amount of transferred data. Monitoring only sends notifications; it takes no action itself.</p>
+<p>The most important feature is monitoring free space inside a VPS. Many times, space has run out unexpectedly, leaving it impossible even to log in. This way, you will be notified about a full disk in time.</p>
+<p>Every monitoring email contains an acknowledge link to confirm the event. Acknowledging it tells vpsAdmin you are aware of it, and it will not notify you again until the issue is resolved. You can also ignore an event completely, effectively disabling monitoring for it. Monitored events appear in vpsAdmin under Status → Monitoring.</p>
+<p>Please let us know if you have comments or if it does not work as expected. The other changes are mostly internal; see the changelog.</p>

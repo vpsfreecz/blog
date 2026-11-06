@@ -1,0 +1,76 @@
++++
+title = "vpsAdmin: mount changes and the remote console"
+date = "2015-10-26T09:07:54+00:00"
+lastmod = "2016-01-25T10:55:12+00:00"
+draft = true
+url = "/vpsadmin-mount-changes-and-the-remote-console/"
+translationKey = "wp-139"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-139"
+source_body_sha256 = "c72302558208c1197b9d07f010a47bdf465126b54ef0dbf4dee15c5f6d5c8013"
+translation_status = "draft"
+translation_source_sha256 = "74012f8de806242d10fd4447d7b7854eccd517ed3c21532747c52a551232dc6b"
++++
+
+<p>We have deployed a new version of the vpsAdmin web interface, improving disk partition management.<br>
+<!--more--><span id="more-139"></span></p>
+<p>The newly deployed version of <a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a> brings:</p>
+<ul>
+<li>settings for mount behavior when a remote server is unavailable<br>
+   (such as nasbox.prg),</li>
+<li>display of the current mount state (mounted/unmounted),</li>
+<li>the option to enable or disable a mount permanently,</li>
+<li>an updated remote console,</li>
+<li>and bug fixes, of course.</li>
+</ul>
+<p>The list of known bugs is <a href="https://redmine.vpsfree.cz/issues?query_id=2">in Redmine</a>. The changes are described in more detail below.</p>
+<h2>Mount failure when starting a VPS</h2>
+<p>vpsAdmin lets you define what happens to each mount if it cannot<br>
+be mounted when the VPS starts. You can choose from four behaviors:</p>
+<ol>
+<li>Skip the mount. It will not be mounted in the VPS, and the member is responsible for trying to mount it later if needed.</li>
+<li>Continue starting the VPS; vpsAdmin will regularly try to mount it.</li>
+<li>Abort VPS startup. The VPS stays off, and the member is responsible for trying to start it again.</li>
+<li>Wait until the mount succeeds. VPS startup will take as long as it takes for the remote server to become available again.</li>
+</ol>
+<p>Choose options one or two if the mount is not essential to starting the VPS and<br>
+its absence only limits some functionality. For example, an application using<br>
+the mounted data might not work, while others will. You are responsible for<br>
+checking whether the mount is present and acting accordingly.</p>
+<p>Options three and four are for mounts without which there is no point starting the VPS,<br>
+since it would not work. Part of the system might be missing, or the VPS might work solely<br>
+with data from that mount, for example.</p>
+<p>All existing mounts have been set to behavior 2), meaning<br>
+delayed mounting if the server is unavailable. If you prefer something else,<br>
+you can change the setting.</p>
+<p>This setting has no effect if the remote server goes down after the VPS<br>
+has started. Defining the behavior in that situation will come in a later version<br>
+of vpsAdmin.</p>
+<h2>Current mount state</h2>
+<p>vpsAdmin stores the last known mount state and displays it in<br>
+the mount list in the VPS details.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_mounts.png"><img alt="vpsAdmin_mounts" class="aligncenter size-medium wp-image-143" height="81" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_mounts-300x81.png" width="300"></a></p>
+<p>A mount can be in one of five states:</p>
+<ul>
+<li>newly created, mounting</li>
+<li>mounted</li>
+<li>unmounted</li>
+<li>skipped</li>
+<li>deferred, will be mounted later</li>
+<li>waiting to mount</li>
+</ul>
+<p>If you manually unmount it from inside the VPS rather than through vpsAdmin,<br>
+the displayed mount state will not match reality.</p>
+<h2>Disabling a mount</h2>
+<p>Disable: the mount is unmounted and will not be mounted after a VPS restart<br>
+Enable: the mount is mounted and will be mounted after a restart</p>
+<p>This makes it easy to unmount or mount it when there is a problem.</p>
+<h2>Remote console</h2>
+<p>The console's web interface uses ShellInABox, which has been inactive for three years<br>
+and contains bugs. I deployed <a href="https://github.com/shellinabox/shellinabox/tree/master/shellinabox">fixes from an unofficial fork</a>,<br>
+then some of my own. Now you can type (hopefully) all characters, the<br>
+on-screen keyboard works, text can be pasted from the clipboard and<br>
+you can switch color schemes.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_konzole.png"><img alt="vpsAdmin_konzole" class="aligncenter size-medium wp-image-140" height="268" src="https://blog.vpsfree.cz/wp-content/uploads/2015/10/vpsAdmin_konzole-300x268.png" width="300"></a></p>

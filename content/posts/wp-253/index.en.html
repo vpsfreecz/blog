@@ -1,0 +1,26 @@
++++
+title = "vpsAdmin 2.1.0: the VPS console in your terminal"
+date = "2016-01-25T10:53:39+00:00"
+lastmod = "2016-04-19T09:29:21+00:00"
+draft = true
+url = "/vpsadmin-2-1-0-the-vps-console-in-your-terminal/"
+translationKey = "wp-253"
+categories = ["server", "vpsfree-cz"]
+tags = ["haveapi", "vpsadmin"]
+[params]
+article_id = "wp-253"
+source_body_sha256 = "4ac9f0d36cf662f41adb2107570e674361b5c9eb30b70a6e2784223c603a45bd"
+translation_status = "draft"
+translation_source_sha256 = "111274a283350285a00f1b3698279105d86b8fe390853ea40250b88f8b56058c"
++++
+
+<p>We have deployed version 2.1 of the vpsAdmin interface, which adds, among other things, remote access to the VPS console.<br>
+<!--more--><span id="more-253"></span></p>
+<p><a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a> 2.1.0 uses <a href="https://github.com/vpsfreecz/haveapi">HaveAPI v0.4</a>, so its main change is a <a href="https://github.com/vpsfreecz/haveapi-client#cli">reworked CLI</a>. This also lets you connect to the <a href="https://kb.vpsfree.cz/navody/vps/konzole">remote VPS console</a>:</p>
+<pre>$ vpsfreectl vps remote_console &lt;vps id&gt;</pre>
+<p>This console works much better than the one in a web browser. Your terminal simply renders it, without having to do anything complicated in JavaScript. It also adapts to the terminal window size. The implementation is described in the <a href="https://projects.vpsfree.cz/vpsadmin-doc/vps/remote_console/">vpsAdmin documentation</a>.</p>
+<p>A video demonstration:</p>
+<p><iframe allowfullscreen="" frameborder="0" height="315" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.youtube.com/embed/Eg_i_iX7l6I?rel=0" title="Embedded video" width="560"></iframe></p>
+<p>The new CLI features are described in the <a href="http://lists.vpsfree.cz/pipermail/community-list/2016-January/003456.html">email about HaveAPI v0.4</a> and the <a href="https://kb.vpsfree.cz/navody/vps/api#cli">knowledge-base article</a>.</p>
+<p>Another change concerns setting a VPS hostname. This was always managed through vpsAdmin, which set it and overwrote /etc/hosts every time the VPS started. You can now manage the hostname manually, outside vpsAdmin.</p>
+<p>The full list of changes is in the <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.1.0/">release notes</a>. The knowledge-base console guide <a href="https://kb.vpsfree.cz/navody/vps/konzole#zajisteni_spravne_funkce">has a few tips</a> on configuring it correctly.</p>

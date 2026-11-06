@@ -1,0 +1,69 @@
++++
+title = "devcgprog: a utility for configuring the cgroupv2 devices controller"
+date = "2023-04-27T08:55:18+00:00"
+lastmod = "2023-04-27T08:56:33+00:00"
+draft = true
+url = "/devcgprog-a-utility-for-configuring-the-cgroupv2-devices-controller/"
+translationKey = "wp-807"
+categories = ["server", "technologie"]
+tags = []
+[params]
+article_id = "wp-807"
+source_body_sha256 = "cf58669d63b02144250382fe4b08725b1bc3d4e6914e50f19b52a4094941c76f"
+translation_status = "draft"
+translation_source_sha256 = "17f2a24b109917792aca912a2aae9caaf5bbb6afc11d4163f2f6ca60a5367497"
++++
+
+<p>Since the beginning of 2022, we have been working on the move to cgroups v2. It requires changes to the Linux kernel as well as userspace integration. That is why the devcgprog utility came about.<br>
+<!--more--><span id="more-807"></span></p>
+<p>In my previous post, I wrote about the <a href="https://blog.vpsfree.cz/novinky-ve-vpsadminu-hostitelske-klice-ssh-upravy-v-sablonach-a-cgroups/">planned move to cgroups v2</a>. We have been working on it gradually since the beginning of 2022. It requires changes to our kernel, still in progress, and userspace integration: controller delegation, different ways of configuring and reading parameters, and finally integration with vpsAdmin. For me, the devices controller has probably been the toughest part so far. I will describe what it is for and how it works, for anyone interested.</p>
+<p>The devices controller is essential to us. We cannot operate without it because it controls access to every device: block devices such as disks at <code>/dev/sda</code> and character devices such as <code>/dev/tty, /dev/null</code> and <code>/dev/zero</code>. Since you can use <code>mknod</code> inside a VPS to create any device node, the devices cgroup is necessary to control access.</p>
+<p>By default, we allow access to <code>/dev/{console, full, kmsg, null, ptmx, random, urandom, tty*}</code>, and depending on the VPS features, also <code>/dev/{net/tun, kvm, ppp}</code>. Our most important requirement is to prevent access to the disk devices underlying ZFS.</p>
+<p>The devices controller in cgroups v1 is beautifully simple. Allowed devices appear in devices.list:</p>
+<pre>
+# cat /sys/fs/cgroup/devices/devices.list
+c 1:3 rwm
+c 1:5 rwm
+c 1:7 rwm
+c 1:8 rwm
+c 1:9 rwm
+c 1:11 rwm
+c 5:0 rwm
+c 5:1 rwm
+c 5:2 rwm
+c 136:* rwm
+b *:* m
+c *:* m
+</pre>
+<p>That means read-write-mknod (rwm) for selected devices and mknod (m) for everything else. Normally, Linux does not allow mknod in a user namespace, but vpsAdminOS does. This is useful when unpacking an archive containing device files, for example.</p>
+<p>To get this <code>devices.list</code> configuration, we first deny access to everything:</p>
+<pre>
+# echo a &gt; devices.deny
+</pre>
+<p>Then allow selected devices:</p>
+<pre>
+echo c 1:3 rwm &gt; devices.allow
+echo c 1:5 rwm &gt; devices.allow
+[...]
+</pre>
+<p>It is wonderfully simple, both to inspect and to configure. The only catch is that <code>echo a &gt; devices.deny</code> works only if the cgroup has no children. Since cgroups are used from various places, I addressed this by configuring the devices cgroup first when starting the system or creating a VPS.</p>
+<p>For a long time, cgroups v2 had no devices controller at all... and when it arrived, it used BPF. You write a BPF program, compile it, load it into the kernel and attach it to the cgroup. When a device is accessed, that BPF program runs and either allows or denies access. An example program is <a href="https://github.com/torvalds/linux/blob/v5.10/tools/testing/selftests/bpf/progs/dev_cgroup.c">included in the kernel</a>.</p>
+<p>My biggest problem was that I could not get it to compile, no matter what I tried. Of course, I no longer remember the details, but I was utterly desperate. Compiling programs this way would not be ideal, since it requires LLVM and increases the rootfs size... but at least it would have been a start.</p>
+<p>Projects such as systemd and LXC also use the devices cgroup. They do not compile programs with LLVM; they construct them directly from BPF instructions. You can <a href="https://github.com/lxc/lxc/blob/lxc-5.0.2/src/lxc/cgroups/cgroup2_devices.c#L178">see this nicely in LXC</a>.</p>
+<p>I liked this approach much more, but still got nowhere. We cannot use this LXC feature directly because we run LXC as an unprivileged user, and only root can configure the devices cgroup. Copying the code out is not simple either: it needs a lot of surrounding code, and apparently I did not have the patience for it. I tried libbpf too, without success.</p>
+<p>I gave up and returned to it about a year later... the situation was exactly the same. But I found a Go library that lets me assemble a program from instructions, load it into the kernel and even attach it to a cgroup! Best of all, it needs no LLVM, kernel source files, libbpf or anything else: <a href="https://github.com/cilium/ebpf">Go is enough</a>.</p>
+<p>Another necessary piece is the bpffs virtual filesystem. A BPF program only stays in the kernel while the process that loaded it is running. We effectively have no such permanent process; everything can restart during an update... which would suddenly remove all the programs guarding device access.</p>
+<p>But if we create a reference to the BPF program in bpffs, the program stays in the kernel even after the process that created it exits. We then release the program by deleting the file (its reference) in bpffs. Similarly, we can create references to a program's attachment (attach/link) to a cgroup.</p>
+<p>Our whole stack is in Ruby, so I wrote a separate Go program to configure the devices cgroup: devcgprog. We call it from Ruby with the cgroup path and a list of devices to allow. devcgprog creates a BPF program, loads it into the kernel, stores it in bpffs and attaches it to the cgroup. If anyone else happens to need this, <a href="https://github.com/vpsfreecz/devcgprog">devcgprog is on GitHub</a>.</p>
+<p>Usage is simple:</p>
+<pre>
+devcgprog set /sys/fs/bpf/my-program \
+              /sys/fs/cgroup/my-cgroup \
+              /sys/fs/bpf/my-program-on-my-cgroup \
+              allow \
+              c:1:3:rwm c:1:5:rwm [...]
+</pre>
+<p>The parameters are: the reference to create in bpffs, the cgroup path, the reference to the cgroup link, the list type (allow for an allowlist and deny for a denylist), and the device list.</p>
+<p>You can load a BPF program once and use it with multiple cgroups through devcgprog new/attach. For us, the possible combinations are limited by VPS features. We name programs using a hash of all the devices, giving programs for the different combinations of TUN/TAP, KVM and PPP. If a program with that hash already exists, we simply attach it to another VPS cgroup.</p>
+<p>Compared with cgroups v1, this is still harder to inspect. A BPF program is opaque next to devices.list. A cgroup can also be deleted and recreated with the same name, leaving the link file in bpffs even though the program is no longer attached. So a reference existing in bpffs does not mean everything is correct. We therefore call bpftool regularly to check that programs are configured properly. This is just a precaution: only root on the node controls the cgroups we configure, so the situation should not arise.</p>
+<p>I am not saying BPF is not great. For tracing, flame graphs and so on, it is excellent. It is just not always easy to use.</p>

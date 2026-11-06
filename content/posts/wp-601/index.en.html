@@ -1,0 +1,23 @@
++++
+title = "Two-factor login to vpsAdmin for better security"
+date = "2019-05-22T12:03:56+00:00"
+lastmod = "2019-05-22T12:04:25+00:00"
+draft = true
+url = "/two-factor-login-to-vpsadmin-for-better-security/"
+translationKey = "wp-601"
+categories = ["bezpecnost"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-601"
+source_body_sha256 = "6ba77a5e661edf29db871bb198ef7d65fb14cf6bcdf3489df1313bf718d4b820"
+translation_status = "draft"
+translation_source_sha256 = "54e098c71610d369c5a8510f6bc1f89b04d5ef188e54d89fe51ccb2870ad3354"
++++
+
+<p>To protect our members, we are introducing two-factor authentication in vpsAdmin using TOTP.<br>
+<!--more--><span id="more-601"></span></p>
+<p>You can now set up <a href="https://en.wikipedia.org/wiki/Time-based_One-time_Password_algorithm">two-factor authentication (2FA) using TOTP</a> in vpsAdmin. For example, you can authenticate with a phone running <a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Google Authenticator</a>, <a href="https://freeotp.github.io/">FreeOTP</a> or any program implementing TOTP. To set it up, scan the QR code with the application or enter the secret key. The application can then display the current login password at any time; it changes every 30 seconds.</p>
+<p>You can add several authentication devices to vpsAdmin and use whichever you have to hand to log in. Two-factor authentication is enforced if at least one device is configured and enabled. Without that device, you cannot log in to vpsAdmin, either through the <a href="https://vpsadmin.vpsfree.cz">web interface</a> or the <a href="https://api.vpsfree.cz">API</a>.</p>
+<p>If you lose your authentication device, you can use the recovery code vpsAdmin shows you once when setting up the device.</p>
+<p>The setup procedure, with screenshots, is <a href="https://kb.vpsfree.cz/navody/vps/uzivatele#dvoufaktorove_prihlasovani_2fa">described in the knowledge base</a>.</p>
+<p>Introducing 2FA required a backwards-incompatible change to the <a href="https://github.com/vpsfreecz/haveapi">HaveAPI protocol</a>. If you <a href="https://kb.vpsfree.cz/navody/vps/api#cli">use vpsfreectl</a> or another library for <a href="https://kb.vpsfree.cz/navody/vps/api#prace_s_api">accessing the API</a>, you must update it.</p>

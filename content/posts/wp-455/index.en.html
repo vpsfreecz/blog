@@ -1,0 +1,25 @@
++++
+title = "vpsAdmin v2.5.0: private IP addresses and an improved traffic overview"
+date = "2016-10-25T08:59:00+00:00"
+lastmod = "2016-10-25T09:18:27+00:00"
+draft = true
+url = "/vpsadmin-v2-5-0-private-ip-addresses-and-an-improved-traffic-overview/"
+translationKey = "wp-455"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-455"
+source_body_sha256 = "842ed6b5e809f67298eac4b9e259eb1f7e016e7446480d2fc276b68625d63e4a"
+translation_status = "draft"
+translation_source_sha256 = "6d482521f8227020ed503ca4568c07dfea93504e17857332c1919616e4a16769"
++++
+
+<p>vpsAdmin version 2.5.0 mainly improves network configuration, IP addresses and traffic monitoring.<br>
+<!--more--><span id="more-455"></span></p>
+<p>For some time, vpsAdmin has let you <a href="https://kb.vpsfree.cz/navody/vps/sprava">divide system resources</a> among multiple VPSes, but additional public IPv4 addresses cost extra. Often, no public IP address is needed at all: a private address behind NAT is enough. vpsAdmin now distinguishes public and private addresses. To obtain a private address, contact support, and bear in mind that private addresses may change when we <a href="https://blog.vpsfree.cz/20-gigabitu-bude-uz-letos/">introduce the 10Gbit network</a>. It is best to wait a little longer.</p>
+<p>We plan to allow private addresses to be allocated in larger blocks (/27, or 32 addresses). It currently looks as though we will make this available when the 10Gbit network is introduced. vpsAdmin already has everything it needs.</p>
+<p>Private addresses also bring a change in traffic accounting. Traffic within our network is counted as private and does not count towards the set limit. Traffic between VPSes on the same node is not counted at all.</p>
+<p>Traffic collection and storage have been reworked because the old solution could no longer keep up. The traffic table in the database has about 80 million rows, and calculating monthly traffic had become inefficient, with results commonly taking tens of seconds to appear. The new solution maintains monthly totals in another, much smaller table that is faster to work with.</p>
+<p>The live traffic monitor finally works as it should. The web interface has more filtering options and updates automatically. You can also monitor traffic in a terminal: <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfreectl</a> has a <a href="https://kb.vpsfree.cz/navody/vps/prenosy#monitor_v_cli">new command</a>, <code>ip_traffic top</code>, a TUI application similar to iftop.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/10/net_monitor_cli.png"><img alt="net_monitor_cli" class="aligncenter size-medium wp-image-457" height="184" src="https://blog.vpsfree.cz/wp-content/uploads/2016/10/net_monitor_cli-300x184.png" width="300"></a></p>
+<p>The full list of changes is in the <a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.5.0/">release notes</a>.</p>

@@ -1,0 +1,26 @@
++++
+title = "99.986% availability"
+date = "2015-11-03T08:54:56+00:00"
+lastmod = "2015-11-03T08:54:56+00:00"
+draft = true
+url = "/99-986-percent-availability/"
+translationKey = "wp-137"
+categories = ["technologie", "vpsfree-cz"]
+tags = []
+[params]
+article_id = "wp-137"
+source_body_sha256 = "6c51241b05d9da9b9ecb470a01bff7de37a22434691a293885db50a6a1225202"
+translation_status = "draft"
+translation_source_sha256 = "4e288a84c21c7ce53d233f91996387024a1eaab7515229e018219d81fe8c3813"
++++
+
+<p>Prospective members often ask about the uptime and availability of our servers. Here are the statistics.<br>
+<!--more--><span id="more-137"></span></p>
+<p>We have been measuring availability at several points in our infrastructure for a long time, so we have precise data on our availability and the length of individual outages. The results are quite good.</p>
+<p>The simplest measurement is a ping to some of our servers. Its long-term figure is <strong>99.986%</strong>. That means our servers are unavailable for a total of about <strong>6 minutes</strong> per month (<a href="http://uptime.is/">calculator</a>). This does not account for the overall functioning of every component, though. It only confirms that the network works and the server responds to ping.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/11/dostupnost_ns1.png"><img alt="dostupnost_ns1" class="aligncenter size-medium wp-image-170" height="129" src="https://blog.vpsfree.cz/wp-content/uploads/2015/11/dostupnost_ns1-300x129.png" width="300"></a></p>
+<p>Regular HTTP requests provide a deeper test. They can establish that the whole application works, the database responds and the filesystem serves data. Our long-term availability for this measurement is 99.875%. The measured servers are then unavailable for <strong>54 minutes</strong> per month, or 12 minutes per week. This shows that every hundredth of a percent makes a big <a href="https://en.wikipedia.org/wiki/High_availability#Percentage_calculation">difference in absolute numbers</a>.</p>
+<p>In practice, however, most outages last less than ten minutes. Together, these short outages account for almost 80% of cases. Only five outages in the past year lasted longer than 30 minutes. So it is not too dramatic, although there is certainly room for improvement.</p>
+<p>Reaching higher figures is very difficult. The <a href="https://cs.wikipedia.org/wiki/Paret%C5%AFv_princip">Pareto principle</a> applies: achieving 80% success takes 20% of the effort. But as you approach 100%, the effort required rises ever more steeply. We are not letting up, though, and continue to make changes that help us improve availability a little at a time.</p>
+<p>At present, the combination of Linux and ZFS causes us the most trouble. The Linux kernel is not designed for heavy memory pressure and sometimes <a href="https://github.com/zfsonlinux/zfs/issues/3961">deadlocks</a>. Solaris, for example, does not have this problem. But by actively reporting bugs and debugging with the <a href="http://zfsonlinux.org/">ZFS on Linux</a> developers, we have resolved most of the major problems. In practice, hangs are now rare, but we are continuing to debug.</p>
+<p>Eventually, we would like to set up our own QA test cluster at <a href="http://base48.cz/">the Base48 hackerspace</a> in Brno, so we can catch problems before deploying a new kernel in production. We would then maintain our own set of tested components, knowing that they work and that no new bug has been introduced during recent development.</p>

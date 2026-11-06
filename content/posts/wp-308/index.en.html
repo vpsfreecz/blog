@@ -1,0 +1,135 @@
++++
+title = "HaveAPI-fs: mount your API as a filesystem"
+date = "2016-04-19T09:28:49+00:00"
+lastmod = "2016-04-19T14:13:02+00:00"
+draft = true
+url = "/haveapi-fs-mount-your-api-as-a-filesystem/"
+translationKey = "wp-308"
+categories = ["technologie"]
+tags = ["haveapi"]
+[params]
+article_id = "wp-308"
+source_body_sha256 = "481fcb0ccb4c8c5c1c31c8a362cda59fd122561465abbc59f891e575b6be1b26"
+translation_status = "draft"
+translation_source_sha256 = "55a2e45f414324afd823cea76729a906261287f2d4f9a4852105fc48a124849e"
++++
+
+<p>FUSE lets you mount almost anything as a filesystem. With HaveAPI-fs, you can mount your API and work with it as files and directories.<br>
+<!--more--><span id="more-308"></span></p>
+<p><a href="https://github.com/vpsfreecz/haveapi-fs">haveapi-fs</a> is a virtual filesystem built on <a href="https://en.wikipedia.org/wiki/FUSE_%28Linux%29">FUSE</a>. It lets you mount any API using <a href="https://github.com/vpsfreecz/haveapi">HaveAPI</a> and work with it through directories and files. Of course, it also works with our <a href="https://api.vpsfree.cz/">api.vpsfree.cz</a> (<a href="https://kb.vpsfree.cz/navody/vps/api">documentation</a>).</p>
+<p>Working with haveapi-fs should be even easier than using the console client, because everything is immediately visible as directories and files. There is no need to look up the names of objects, actions, parameters, options and so on.</p>
+<p>haveapi-fs is written in Ruby and installed with RubyGems:</p>
+<pre>$ gem install haveapi-fs</pre>
+<p>Mount the API with this command:</p>
+<pre>$ haveapi-fs &lt;api_url&gt; &lt;mountpoint&gt;</pre>
+<p>For our API, that means:</p>
+<pre>$ haveapi-fs https://api.vpsfree.cz /mnt/api.vpsfree.cz</pre>
+<p>Unmount it either with <code>umount</code> as root or with <code>fusermount -u /mnt/api.vpsfree.cz</code> as an unprivileged user.</p>
+<p>The mountpoint contains a list of API objects and help files:</p>
+<pre>$ cd /mnt/api.vpsfree.cz
+$ tree -L 1 .
+├── ...
+├── dataset/
+├── environment/
+├── location/
+├── node/
+├── vps/
+├── help.html
+├── help.man
+├── help.md
+├── help.txt
+└── ...
+</pre>
+<p>The <code>help.{html,man,md,txt}</code> files appear in every directory. They describe the current directory, its properties, subdirectories and files.</p>
+<p>An object's directory lists all its records, for example all VPSes belonging to the account:</p>
+<pre>
+$ tree -L 1 vps/
+vps
+├── 1112/
+├── 1171/
+├── 1234/
+├── 1245/
+├── actions/
+├── create.yml
+├── help.html
+├── help.man
+├── help.md
+└── help.txt
+</pre>
+<p>We can also filter records directly:</p>
+<pre>
+$ tree -L 1 vps/by-node/103/by-os_template/26
+vps/by-node/103/by-os_template/26
+├── 1112/
+└── ...
+
+$ cat vps/by-node/103/by-os_template/26/1112/node_id
+103
+
+$ cat vps/by-node/103/by-os_template/26/1112/os_template_id
+26
+</pre>
+<p>Inside a particular VPS's directory, its attributes appear as files and associated objects as directories. Actions we can call are in <code>actions/</code>:</p>
+<pre>
+$ tree -L 1 vps/1112
+vps/1112
+├── actions/
+├── id
+├── hostname
+├── node/
+├── os_template/
+├── edit.yml
+├── save
+└── ...
+
+
+$ cat vps/1112/hostname
+moje-vps
+
+$ cat vps/1112/node/domain_name
+node3.prg
+
+$ cat vps/1112/node/location/label
+Praha
+
+$ cat vps/1112/os_template/label
+Scientific Linux 6.6
+</pre>
+<p>Depending on permissions, some attributes can also be changed. For example, to change the hostname:</p>
+<pre>
+$ echo novy-hostname &gt; vps/1112/hostname
+$ echo 1 &gt; vps/1112/save
+</pre>
+<p>Any other action can be called too:</p>
+<pre>
+$ tree -L 1 vps/1112/actions
+vps/1112/actions
+├── ...
+├── passwd/
+├── reinstall/
+├── restart/
+├── start/
+├── stop/
+├── swap_with/
+└── update/
+
+$ echo 1 &gt; vps/1112/actions/passwd/exec
+</pre>
+<p>The <code>status</code> file always tells us whether the action succeeded or failed:</p>
+<pre>
+$ cat vps/1112/actions/passwd/status
+1
+</pre>
+<p>Output parameters are in the <code>output/</code> directory:</p>
+<pre>
+$ cat vps/1112/actions/passwd/output/password
+cmrdBcm72KkAM85Ux2MK
+</pre>
+<p>Other files provide any error message (<code>message</code>), a list of errors (<code>errors/</code>) and a way to supply input parameters (<code>input/</code>).</p>
+<p>Actions can also be run through an <code>exec.yml</code> file. Fill in its input parameters in YAML, then save and close the file to execute the action. This also makes it easy to create new objects (<code>create.yml</code>) and edit existing ones (<code>edit.yml</code>).</p>
+<pre>
+$ vim vps/1112/edit.yml
+hostname: dalsi-zmena
+:wq
+</pre>
+<p>The full description of what haveapi-fs can do is in <a href="https://github.com/vpsfreecz/haveapi-fs#usage">README.md</a>.</p>

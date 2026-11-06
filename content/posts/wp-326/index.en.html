@@ -1,0 +1,25 @@
++++
+title = "Migrating a VPS between providers"
+date = "2016-05-02T11:19:57+00:00"
+lastmod = "2016-05-04T06:43:44+00:00"
+draft = true
+url = "/migrating-a-vps-between-providers/"
+translationKey = "wp-326"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-326"
+source_body_sha256 = "39b7f366c58e17805769cd6bdcc9a9fb450c12b81c95c1d4455966146a9f20f4"
+translation_status = "draft"
+translation_source_sha256 = "2f0b9f21590d5608eb430bc5e89deee1afce7d1ea9432c5561242012650e7a58"
++++
+
+<p>New members often ask us how to migrate from their old VPS provider.<br>
+<!--more--><span id="more-326"></span></p>
+<p>New members quite often come to us from other VPS providers. Sometimes those services no longer meet their needs, or have become too expensive. The reasons vary widely, but they have one thing in common: they need to move their entire VPS to us.</p>
+<p>The best situation is when the provider offers a way to download an image of the whole machine. Of course, you can also create one from a running system and copy it to your own disk. But what next?</p>
+<p>Our knowledge base has an <a href="https://kb.vpsfree.cz/navody/vps/oprava">article on repairing a VPS</a>, which explains that disks (ZFS <a href="https://kb.vpsfree.cz/navody/vps/datasety">datasets</a>) can be mounted in different VPSes. The simplest approach is to start a <a href="https://kb.vpsfree.cz/navody/vps/playgroundvps">temporary test VPS</a> in playground and mount the production server's disk in it, with the production server switched off, of course. Then just unpack and copy the VPS contents onto the disk.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/05/mounts_dataset.png"><img alt="mounts_dataset" class="aligncenter size-medium wp-image-327" height="160" src="https://blog.vpsfree.cz/wp-content/uploads/2016/05/mounts_dataset-300x160.png" width="300"></a></p>
+<p>Next, check that the correct distribution version is set for the VPS in <a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a>. This affects network settings, the hostname and other system configuration. Then just start the production VPS, and it should come up. This works for all distributions that run under OpenVZ, which includes every distribution we support.</p>
+<p>Half a year ago at <a href="http://www.openalt.cz/2015/cs/home.html">OpenAlt</a>, Petr Krčmář demonstrated installing a distribution from another virtual server (from minute 20):</p>
+<p><iframe allowfullscreen="" frameborder="0" height="500" loading="lazy" referrerpolicy="strict-origin-when-cross-origin" src="https://www.superlectures.com/openalt2015/embed?id=33" title="Embedded video" width="100%"></iframe></p>

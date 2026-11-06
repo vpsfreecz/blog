@@ -1,0 +1,29 @@
++++
+title = "vpsAdmin news: SSH host keys, template changes and cgroups"
+date = "2023-04-24T07:36:48+00:00"
+lastmod = "2023-04-24T07:36:48+00:00"
+draft = true
+url = "/vpsadmin-news-ssh-host-keys-template-changes-and-cgroups/"
+translationKey = "wp-805"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-805"
+source_body_sha256 = "7dc1255e5d018213580256482b9a65232437f6c0bf56843f9dec9a31b4457df7"
+translation_status = "draft"
+translation_source_sha256 = "5f28b86bee5ef236578f9e86705ea2374b2532bbed167716c573344027abffc4"
++++
+
+<p>We have prepared several technical updates for vpsAdmin. You can view SSH host key fingerprints, control changes made to template settings, and we are beginning the move to new cgroups.<br>
+<!--more--><span id="more-805"></span></p>
+<h2>SSH key fingerprints</h2>
+<p>The VPS details in vpsAdmin now show SSH host key fingerprints. When connecting over SSH for the first time, you can <strong>check the server's identity</strong>. Fingerprints are read from the VPS's <code>/etc/ssh/ssh_host_*.pub</code> files after every VPS start and then once an hour.</p>
+<h2>VPS changes by vpsFree administrators</h2>
+<p>The distribution templates used to create new VPSes may contain settings specific to our environment. A bug or new feature in an application or our environment may require a system configuration change. This concerns almost exclusively the base system: settings included in the templates.</p>
+<p>You can choose in vpsAdmin whether you want these changes. They are <strong>enabled</strong> by default. If we change anything inside your VPS, we will notify you by email.</p>
+<p>For example, we recently removed the cglimit cgroup from the kernel. It was our own controller and turned out to be unnecessary. Distributions with systemd handled this themselves, but Alpine/Devuan/Void, for example, list cgroups in an init script, so we had to change that in existing VPSes.</p>
+<h2>cgroups v2</h2>
+<p>This year, we would like to begin the <strong>move to cgroups v2</strong>. Linux uses cgroups to account for and limit groups of processes. In our environment, they are a basic mechanism for isolating VPSes, used mainly to limit memory and CPU time. Naturally, all container solutions, including the popular Docker, build on cgroups.</p>
+<p>We currently use cgroups v1 in a hybrid hierarchy. Since our VPSes are containers, the cgroup version is determined by the host. In 2024, systemd will probably stop supporting cgroups v1, and we want to be ready. Current distributions already support v2; older ones such as CentOS 7 will continue to run on nodes with v1.</p>
+<p>In vpsAdmin, you can set which cgroup version a VPS requires. By default, this follows the distribution template. If applications in your VPS have special requirements, you can force cgroups v1 and prevent a future migration to v2. Our aim is to move everything we can to cgroups v2. More information and a <a href="https://kb.vpsfree.cz/navody/vps/cgroups">list of distributions supporting cgroups v2</a> are in the knowledge base.</p>
+<p>This <strong>requires no action</strong> from you. We will notify you individually about any move of your VPS to cgroups v2 in the coming months.</p>

@@ -1,0 +1,40 @@
++++
+title = "vpsAdmin v2.7.0: payments, emails and two playground VPSes"
+date = "2017-02-13T09:55:43+00:00"
+lastmod = "2017-02-13T09:55:43+00:00"
+draft = true
+url = "/vpsadmin-v2-7-0-payments-emails-and-two-playground-vpses/"
+translationKey = "wp-490"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-490"
+source_body_sha256 = "3f0b03f3921abcc0fd2b74ddd8ae24999e01cee61e92018feee3151ecb1f0a0c"
+translation_status = "draft"
+translation_source_sha256 = "220f1fc96bff854123a4b87c2657dca29f7809a0e3ce435a3274ddc8e077eb13"
++++
+
+<p>On Friday, I deployed a new version of vpsAdmin, v2.7.0. The main additions include automated membership payment processing, support for multiple email addresses, deleting NAS snapshots from the web UI and optional names for manually created snapshots.</p>
+<p><!--more--><span id="more-490"></span></p>
+<p>The default number of VPSes among which you can divide your allocated resources has also changed: five in production and two in playground. Playground also provides two IPv4 addresses.</p>
+<p>A lot has changed under the hood too. Membership applications and requests to change personal details have moved into the API. Along with plenty of refactoring, all functionality is now available through the API. For example, you can <a href="https://kb.vpsfree.cz/navody/vps/api#cli">submit a vpsFree application through vpsfreectl</a>.</p>
+<h2>Payments</h2>
+<p>Until now, incoming payments were copied manually from the bank account into vpsAdmin. vpsAdmin now has a <a href="https://github.com/vpsfreecz/vpsadmin-plugin-payments">plugin</a> supporting paying users. Payments are downloaded from the account several times a day <a href="https://www.fio.cz/bankovni-sluzby/api-bankovnictvi">through the Fio API</a>. vpsAdmin then sends an email confirming receipt.</p>
+<p>All payments with the correct variable symbol (VS, the member's ID) and amount (a multiple of the membership fee) are processed automatically. If someone forgets the VS, we process the payment manually. If we cannot match it by name either, you will need to contact support. Nothing changes in that respect; it will work as before.</p>
+<p>Additional payments for extra VPSes and similar things will use a different VS. Arrange that with Michal at support.</p>
+<h2>Multiple contact email addresses</h2>
+<p>Some members wanted to register more than one email address in vpsAdmin, particularly companies where several people manage the membership and VPSes.</p>
+<p>vpsAdmin defines two contact types (roles): VPS administrator and account (membership) administrator. Messages sent by vpsAdmin are divided between these roles, and you can choose who receives them.</p>
+<p>For example, the account (membership) administrator receives membership payment reminders and notices about membership suspension or renewal. The VPS administrator receives emails about VPS state changes, configuration changes, backup downloads and VPS migrations.</p>
+<p>You can set multiple email addresses for each role. If that division is not enough, there are more detailed settings where you can choose whether to receive each type of message and at which addresses.</p>
+<p>More <a href="https://kb.vpsfree.cz/navody/vps/uzivatele">information in the knowledge base</a>.</p>
+<p>If the existing single-address setting suits you, there is no need to change anything.</p>
+<h2>Snapshots</h2>
+<p>The web UI finally lets you delete NAS snapshots. Previously, you could create them there but had to use the API directly to delete them.</p>
+<p>When creating a VPS or NAS snapshot, you can give it any name to help identify it later.</p>
+<h2>Plugin system</h2>
+<p>To keep the vpsAdmin core as simple as possible, I decided to add functionality outside its main purpose <a href="https://projects.vpsfree.cz/vpsadmin-doc/plugins/">as plugins</a>. The vpsAdmin core should manage VPSes, storage and networking.<br>
+Other things, such as payments and user requests, are therefore implemented as plugins.</p>
+<h2>Other changes</h2>
+<p>This release finally completes the move of functionality from the original web interface into the API. The web UI has been completely disconnected from the database. Everything you see is loaded from the API.</p>
+<p>The full list of changes is in the <a href="http://https;//projects.vpsfree.cz/vpsadmin-doc/releases/v2.7.0/">release notes</a>.</p>

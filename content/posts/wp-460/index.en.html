@@ -1,0 +1,21 @@
++++
+title = "Outages and systemd services that fail to start"
+date = "2016-11-10T07:19:19+00:00"
+lastmod = "2016-11-10T07:19:34+00:00"
+draft = true
+url = "/outages-and-systemd-services-that-fail-to-start/"
+translationKey = "wp-460"
+categories = ["podpora"]
+tags = []
+[params]
+article_id = "wp-460"
+source_body_sha256 = "3a950ca97eac12b837011418ef299293f5005dcce138c5f029a70a5736a7cde8"
+translation_status = "draft"
+translation_source_sha256 = "e12432c5e66d13a607669a113b170660be4c8e57825811dc93925e632256d041"
++++
+
+<p>If some services fail to start after an outage and you use systemd, read on.<br>
+<!--more--><span id="more-460"></span></p>
+<p>When a node boots, all its VPSes start one after another, slowing the system down for a while. VPSes using systemd have trouble because services do not finish starting in time. The default timeout is <strong>90 seconds</strong>, which is often not enough. systemd considers such a slow-starting service to have failed and terminates it. This affects all sorts of services, including network configuration, databases and web servers.</p>
+<p>For this reason, we will add a longer timeout of about <strong>900 seconds</strong> to every distribution template using systemd. But that will only help newly created or reinstalled VPSes. Everyone else needs to change it themselves. The setting is <a href="https://www.freedesktop.org/software/systemd/man/systemd-system.conf.html">DefaultTimeoutStartSec</a> in <code>/etc/systemd/system.conf</code>.</p>
+<p>Since this is quite hard to test, please let us know if you still have problems with the longer timeout.</p>

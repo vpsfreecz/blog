@@ -1,0 +1,24 @@
++++
+title = "VPS rescue mode: boot a recovery operating system"
+date = "2021-02-18T15:36:21+00:00"
+lastmod = "2021-02-18T15:36:55+00:00"
+draft = true
+url = "/vps-rescue-mode-boot-a-recovery-operating-system/"
+translationKey = "wp-709"
+categories = ["server"]
+tags = ["vpsadminos"]
+[params]
+article_id = "wp-709"
+source_body_sha256 = "c7a9e723247ef58432ba84ae821458490c5393241ef7a46c7b794c9e24271353"
+translation_status = "draft"
+translation_source_sha256 = "ca4cb2b77d43e734cd47a4b7efec1d7b3316288e59ccb68d397ebb7d49d0c0ef"
++++
+
+<p>vpsAdmin now lets you boot a VPS from a clean template system, bypassing the system on its disk. It is something like booting a live CD.</p>
+<p><!--more--><span id="more-709"></span></p>
+<p>This lets you access the VPS disk from outside its installed system. It is useful if the VPS will not start and you need to fix a configuration file, the package system or anything else. It is also a way to install any system beyond the distribution templates available in vpsAdmin.</p>
+<p>A VPS started in rescue mode has exactly the same configuration: IP addresses, hostname, DNS resolvers, features and so on. If you have SSH keys configured in vpsAdmin, those are uploaded too.</p>
+<p>You can start a VPS in rescue mode from its details using the "Boot VPS from template" form, or directly from the remote VPS console page. By default, the original VPS disk is mounted at `/mnt/vps`. Restarting the VPS by any means leaves rescue mode and boots it from its own disk again. The system used for rescue mode is temporary and deleted after a restart.</p>
+<p>Rescue mode is only for <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos">VPSes on vpsAdminOS</a>. On <a href="https://kb.vpsfree.cz/informace/openvz">OpenVZ Legacy</a>, we support a different approach: one VPS's dataset can be mounted in another VPS, so a production VPS can be repaired from playground, for example. We lost that option on vpsAdminOS, and it is now returning in a different form. Personally, I like this approach much more.</p>
+<p>In the future, I would like to add an option to <a href="https://kb.vpsfree.cz/navody/vps/api#cli">vpsfreectl</a> to restore a VPS from a downloaded backup through rescue mode, including its vpsAdmin settings. You can already use rescue mode to restore a downloaded backup, though. Just copy the backed-up system into <code>/mnt/vps</code>.</p>
+<p>For more information on <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/oprava">repairing a broken VPS</a> and screenshots, see the knowledge base.</p>

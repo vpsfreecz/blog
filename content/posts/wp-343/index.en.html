@@ -1,0 +1,25 @@
++++
+title = "Why we do not enable swap on VPSes"
+date = "2016-05-16T09:42:58+00:00"
+lastmod = "2016-05-16T09:42:58+00:00"
+draft = true
+url = "/why-we-do-not-enable-swap-on-vpses/"
+translationKey = "wp-343"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-343"
+source_body_sha256 = "b6c6041038d4e5f6c8bd1393511d8ebb43727718a8db8d3657a0827981c114d0"
+translation_status = "draft"
+translation_source_sha256 = "59611c58bb44ad739f361fd09e1c08b1e886391ff6faa891fa21fd39c12480e9"
++++
+
+<p>We are used to swap space on our desktops. But we do not offer it on VPSes.<br>
+<!--more--><span id="more-343"></span></p>
+<p>Occasionally, someone asks whether they could have swap enabled in addition to their 4 GB of memory. We do not allocate any swap to users, because it makes no sense.</p>
+<p>Even our physical servers do not use it, since they have <a href="/jak-vyuzit-256-gb-ram-na-serveru/">256 GB of RAM</a>. If we enabled swap inside a VPS, its memory pages would simply be stored in the physical server's RAM again.</p>
+<p>Also, the OpenVZ container virtualization we use artificially slows access to RAM marked as swap (swapcache), to emulate the behavior of real swap from the container's (VPS's) perspective.</p>
+<p>In that situation, moving memory into artificially slowed memory makes no sense. It is more logical to give the VPS more RAM directly, which we can do in justified cases. But experience shows that only really poorly written applications require it. In the vast majority of cases, members manage with the allocated 4 GB of memory. Only a few ask for more.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram.png"><img alt="ram" class="aligncenter size-medium wp-image-246" height="196" src="https://blog.vpsfree.cz/wp-content/uploads/2016/01/ram-300x196.png" width="300"></a></p>
+<p>There is just one exception where we enable this emulated swap for a member. The Oracle database installer checks whether the server has swap. So we enable it during installation and can disable it afterwards. Oracle really does only check during installation; it does not care about swap at runtime.</p>
+<p><em>Further reading: the <a href="https://openvz.org/VSwap">VSwap</a> article on the OpenVZ website.</em></p>

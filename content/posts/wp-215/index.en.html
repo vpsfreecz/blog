@@ -1,0 +1,23 @@
++++
+title = "Launching support for KVM virtualization"
+date = "2015-11-30T09:30:30+00:00"
+lastmod = "2016-01-25T10:55:20+00:00"
+draft = true
+url = "/launching-support-for-kvm-virtualization/"
+translationKey = "wp-215"
+categories = ["server"]
+tags = ["kvm", "vpsadmin"]
+[params]
+article_id = "wp-215"
+source_body_sha256 = "0d306656f38a20ed9063ba6a23fbc262d0873ec1316bd2e71ee9e559b0f86527"
+translation_status = "draft"
+translation_source_sha256 = "cbcc0c3275bb842e5ad695cb94eddde43fcaf33acf37e9589107b557a6ce0d0e"
++++
+
+<p>We have been testing KVM inside our virtual servers for some time. Now we have enabled it for everyone.<br>
+<!--more--><span id="more-215"></span></p>
+<p>From the beginning, vpsFree.cz has used <a href="https://kb.vpsfree.cz/informace/openvz">OpenVZ</a> container virtualization. But users have long asked about running their own Linux kernel or another operating system. So some time ago, we started experimenting with KVM.</p>
+<p>All members can now enable KVM through <a href="https://vpsadmin.vpsfree.cz/">vpsAdmin</a>. KVM joins the other VPS features (such as iptables and TUN/TAP) configurable in the VPS details. Just enable the new feature. The system will restart, and the KVM kernel interface will become available inside it.</p>
+<p><a href="https://blog.vpsfree.cz/wp-content/uploads/2015/11/KVM.png"><img alt="KVM" class="aligncenter size-medium wp-image-218" height="293" src="https://blog.vpsfree.cz/wp-content/uploads/2015/11/KVM-300x293.png" width="300"></a></p>
+<p>This means you can create virtual machines with KVM inside your VPS (an OpenVZ container), using libvirt, for example, and run any kernel version or even another operating system.</p>
+<p>Exactly how to use KVM with libvirt is <a href="https://kb.vpsfree.cz/navody/vps/kvm">described in the knowledge base</a>. We would be glad to hear about your experience, especially what you are running in KVM.</p>

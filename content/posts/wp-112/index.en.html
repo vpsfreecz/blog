@@ -1,0 +1,22 @@
++++
+title = "How to repair a broken VPS"
+date = "2015-09-14T06:58:45+00:00"
+lastmod = "2016-01-25T10:55:27+00:00"
+draft = true
+url = "/how-to-repair-a-broken-vps/"
+translationKey = "wp-112"
+categories = ["server"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-112"
+source_body_sha256 = "113dbbe1875f011b004be6b23ee3ad04cbedd2944589adfa82a60704fe38360a"
+translation_status = "draft"
+translation_source_sha256 = "7a22c3c3bd8051517362cda0d745e7e3353b21661eca93f754c83e647d28e75d"
++++
+
+<p>Support often receives questions about repairing a VPS that no longer works. So we have written a detailed general guide.<br>
+<!--more--><span id="more-112"></span></p>
+<p>Since version 2.0, vpsAdmin lets members solve most problems with a damaged VPS themselves, such as a failure to start or a lack of network access. A VPS can break during a system update, after an ill-chosen command or configuration change, and so on.</p>
+<p>First, you need to work out why the VPS is not doing what it should. There can be several causes: a full disk, a broken init system or an incorrectly configured network, for example. Most problems can be fixed by mounting the rootfs in another VPS.</p>
+<p>vpsAdmin allows <strong>any</strong> dataset to be mounted in <strong>any</strong> VPS. So you can mount the dataset containing the broken VPS's rootfs in a working VPS. You can use either playground or another production VPS for this.</p>
+<p>The full procedure is in our <a href="https://kb.vpsfree.cz/">knowledge base</a>, on the <a href="https://kb.vpsfree.cz/navody/vps/oprava">Repairing a broken VPS</a> page.</p>

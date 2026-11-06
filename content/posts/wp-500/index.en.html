@@ -1,0 +1,31 @@
++++
+title = "vpsAdmin 2.8.0 improves outage reporting"
+date = "2017-03-29T10:03:53+00:00"
+lastmod = "2017-04-02T21:27:12+00:00"
+draft = true
+url = "/vpsadmin-2-8-0-improves-outage-reporting/"
+translationKey = "wp-500"
+categories = ["vpsfree-cz"]
+tags = ["vpsadmin"]
+[params]
+article_id = "wp-500"
+source_body_sha256 = "290505dcd0898acee833e7644d0890d7179f298c0f868c852cf42963dcaceea9"
+translation_status = "draft"
+translation_source_sha256 = "932d351c795ae00aa92b950ed8b7db02a321209f4cedc533c7394be7b19d8d73"
++++
+
+<p>vpsAdmin 2.8.0 integrates outage reporting, so it always knows who an outage affects and where to send notifications.</p>
+<p><!--more--><span id="more-500"></span></p>
+<p><a href="https://projects.vpsfree.cz/vpsadmin-doc/releases/v2.8.0/">vpsAdmin v2.8.0</a> integrates outage reporting. vpsAdmin now knows exactly who an outage affects and can notify the relevant members by email. You no longer need to remember which node hosts your VPS. If an outage affects you, you will be notified; otherwise, you will not.</p>
+<p>We will keep reporting outages to outage-list as before. To avoid receiving notifications about every relevant outage twice (directly and through outage-list), you can either unsubscribe from outage-list or disable <a href="https://kb.vpsfree.cz/navody/vps/uzivatele#detailni_nastaveni">outage emails in vpsAdmin</a>.</p>
+<p>I have <a href="https://vpsadmin.vpsfree.cz/?page=outage&amp;action=list">imported into vpsAdmin</a> all previously reported outages that could be parsed.</p>
+<p>Current and planned outages appear on the front page. For each one, you can see whether it affects you (if you are logged in).</p>
+<p>Outages now say how they affect VPSes. For now, that can be one of the following:</p>
+<p> - tbd: to be determined; we are still finding out what is happening<br>
+ - restart: a clean restart inside the VPS<br>
+ - reset: a reset inside the VPS<br>
+ - network: loss of connectivity, DDoS and so on<br>
+ - performance: temporarily reduced performance<br>
+ - maintenance: the VPS keeps running, but operations on it may be unavailable</p>
+<p>We can also post updates as we work on an outage, and affected members will receive emails. At a minimum, we will announce when it has been resolved.</p>
+<p>Of course, all outage information can be <a href="https://kb.vpsfree.cz/navody/vps/api">retrieved directly from the API</a>, so you can implement your own solution instead of using our emails.</p>

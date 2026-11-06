@@ -1,0 +1,26 @@
++++
+title = "Expanding meet.vpsfree.cz with two new servers"
+date = "2020-04-02T16:08:19+00:00"
+lastmod = "2020-04-02T18:57:48+00:00"
+draft = true
+url = "/expanding-meet-vpsfree-cz-with-two-new-servers/"
+translationKey = "wp-653"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-653"
+source_body_sha256 = "6ce6079b705de55c6881714c42e7ce87fa7dc6d01e94216e9505e4872eee3703"
+translation_status = "draft"
+translation_source_sha256 = "9e05d12445bc1320c1b7a81a636675db0c82db093db2d5343f06ebfbe7108c55"
++++
+
+<p>There is a lot of interest in meet.vpsfree.cz, which makes us very happy. But it also means plenty of work for us. Here is the latest from the front line.<br>
+<!--more--><span id="more-653"></span></p>
+<p>We have added two new physical servers to <a href="https://meet.vpsfree.cz">meet.vpsfree.cz</a>, giving us 24 more CPU cores. <a href="http://www.panoch.net/">Honza Panoch</a> lent them to us and brought them right to our datacenter. Thank you! If you need hardware in a hurry, Honza is the person to ask.</p>
+<p>We also split the server into two videobridge instances, because one large instance does not scale very well.</p>
+<p>We updated Prosody to version 0.11, so <code>mod_muc_allowners</code> now works: everyone can remove anyone from a room. That is especially useful for ghosts, meaning disconnected clients.</p>
+<p>Three videobridges run on TCP port 443, while one has TCP disabled entirely. I hope that works well. The reason is that nginx already occupies port 443 on meet.vpsfree.cz, and many people cannot reach the alternative port 4443. I hope this improves access from behind layers of firewalls and NATs. Please report problems to <a href="mailto:podpora@vpsfree.cz">podpora@vpsfree.cz</a>.</p>
+<p>We still have three more servers from Honza Panoch in reserve, totaling at least another 24 cores. The day before yesterday, we ordered another two 20-core servers, which should be in the datacenter on Monday.</p>
+<p>After that, Martin Milata and I plan to redeploy everything across all this hardware using NixOS. That will make management much more scalable, and I will be able to sleep peacefully, perhaps even at night...</p>
+<p>Our estimated capacity is now about 1000 people calling simultaneously. Next week, we will probably double that, finally reaching the <a href="https://blog.vpsfree.cz/prvni-den-s-video-horovy-na-meet-vpsfree-cz/">limit of our upgraded links</a>.</p>
+<p>If anything misbehaves for more than a few hours, please let us know. The <a href="https://grafana.prg.vpsfree.cz/d/t_Ej6KrZk/meet-vpsfree-cz-status?orgId=1&amp;from=now-6h&amp;to=now&amp;refresh=1m">operational graphs</a> are public. See if you can stare at them longer than I can.</p>

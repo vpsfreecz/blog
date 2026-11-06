@@ -1,0 +1,26 @@
++++
+title = "Migrating our infrastructure to 20 gigabits"
+date = "2020-02-28T10:16:35+00:00"
+lastmod = "2020-02-28T15:48:55+00:00"
+draft = true
+url = "/migrating-our-infrastructure-to-20-gigabits/"
+translationKey = "wp-625"
+categories = ["server"]
+tags = []
+[params]
+article_id = "wp-625"
+source_body_sha256 = "4de99bc23afd0e67b70d5fa4f6ebab75ed46662e113c5cde6fe2704ad72fbf2b"
+translation_status = "draft"
+translation_source_sha256 = "d5fadd503711629811889269706e664c5b7e96e1496310a458d006af6e225b2d"
++++
+
+<p>We spent several years working to increase the capacity of the links between our servers. Why did we need it, and how did we do it?<br>
+<!--more--><span id="more-625"></span></p>
+<p>Historically, our servers were connected through two bonded gigabit links. This gradually became a limit, not so much for user traffic as for migrating virtual servers between nodes. With at least 256 GB of RAM in our servers today, a move took tens of minutes, during which the server was unusable. In recent months, the NAS has also become a major network user, reaching 3 Gbps at peaks.</p>
+<p>So we began <a href="https://blog.vpsfree.cz/proc-chceme-mit-20gigabitovou-sit/">considering a substantial speed increase</a>, which naturally required new network cards and switches. For various reasons, we had to postpone the change several times and only managed it at the start of this year. Unfortunately, we are still a relatively small organization, and a project this demanding sometimes takes us quite a while.</p>
+<p>We chose Dell <a href="https://www.dell.com/cz/domacnosti/p/networking-s-series-10gbe/pd">S4048-ON</a> switches for their support for the <a href="http://onie.org/">ONIE operating system</a>. We wanted to use that and, as always, take the most open-source route possible. Unfortunately, as we later found, nothing is flawless.</p>
+<p>Of the original five units ordered for Prague (3×) and Brno (2×), two broke in strange ways during configuration and testing. The first failed during an attempt to update the system. The second lost its management card when connected to the network after a long period of inactivity. A closer look showed that part of the board had died, and repairing it meant replacing the unit. So we were back to the price of a whole switch, if not more.</p>
+<p>The problem is that upgrading from a very old firmware version requires installing every intermediate update released along the way. Skip one, and the switch stops working. In the end, someone who handles updates like this every day had to help us.</p>
+<p>It was a difficult road, but we finally started the migration on Sunday night into Monday, 20 January. We began at midnight with our NASbox, which needed reconfiguring to share ZFS datasets through sharenfs.</p>
+<p>Then we moved on to the nodes themselves. Each had to be shut down, have its network cards replaced, get a Linux kernel update while we were there, and start again. This happened in two phases. Network cards were installed in the servers last year, and we kept expecting to begin the migration at any moment. In the end, firmware problems pushed the migration itself back to January, although everything had been connected and ready since autumn.</p>
+<p>A lesson for next time: it is better to leave the money in the bank and buy the equipment for a change like this mostly at once, rather than gradually. The price of 10GE networking fell dramatically during the process. Today, we could at least have newer network cards. Lesson number two: never say that changes like this are easy and nearly done.</p>
