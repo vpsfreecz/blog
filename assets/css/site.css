@@ -114,7 +114,8 @@ p {
   margin-left:10px
 }
 .search input {
-  width:100%;
+  min-width:0;
+  flex:1;
   padding:8px 12px;
   border:1px solid #ccc;
   border-radius:4px;
@@ -498,8 +499,9 @@ blockquote {
   font:inherit;
   cursor:pointer
 }
-.search button {
-  margin-top:8px
+.search button,.search-controls button {
+  flex-shrink:0;
+  white-space:nowrap
 }
 .search-page {
   padding:80px 90px
@@ -508,8 +510,9 @@ blockquote {
   display:block;
   margin-bottom:8px
 }
-.search-controls {
+.search,.search-controls {
   display:flex;
+  flex-wrap:nowrap;
   gap:8px
 }
 .search-controls input {
@@ -544,8 +547,5 @@ blockquote {
 @media(max-width:1199px) {
   .search-page {
     padding:30px
-  }
-  .search-controls {
-    flex-wrap:wrap
   }
 }
