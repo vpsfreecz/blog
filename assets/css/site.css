@@ -407,20 +407,11 @@ blockquote {
     outline-offset:-3px
   }
   .sidebar-widgets {
-    position:absolute;
-    top:162px;
-    left:0;
-    width:300px;
-    max-height:calc(100vh - 162px);
-    overflow:auto;
-    background:#16273f;
-    transform:translateX(-100%);
-    visibility:hidden;
-    z-index:10
+    display:none;
+    background:#16273f
   }
   .sidebar-state:checked~.sidebar-widgets {
-    transform:none;
-    visibility:visible
+    display:block
   }
   .hentry {
     padding:60px
