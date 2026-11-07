@@ -18,6 +18,17 @@ Czech PNG remains unchanged; no separate media license is asserted for either.
 The logo and server photo retain their existing upload paths and bytes, with
 provenance recorded by the importer. System fonts are neither bundled nor copied.
 
+The repeating background `assets/images/rack-background.jpg` derives from the
+unchanged `static/wp-content/uploads/2014/11/foto5.jpg` (SHA-256
+`c12b042763402d09913308e7fb03933e0ec231f916291cbe2d404391fb1bff64`).
+It was cropped to `3000x1624+0+384`, then joined with a 384-row smoothstep overlap
+using Python's standard library and ImageMagick 7.1.2-23. The resulting 3000×1240
+JPEG keeps the remaining rack detail unscaled, without a global blur. It was
+encoded with `-strip -sampling-factor 4:4:4 -quality 92`; SHA-256:
+`f8e3a64a8be47585ee528889ff3ee185a6c69a2b54e95ebcd294406b08b3ff97`.
+This is a prepared asset, with no ImageMagick build dependency. No separate media
+license is asserted.
+
 Three existing public article images were copied unchanged from Discourse on
 2026-11-06 into `legacy-embeds/`. Only their exact HTML media URLs are remapped;
 article sources and translation source hashes remain unchanged. Each response was

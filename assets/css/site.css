@@ -5,7 +5,8 @@
 body {
   margin:0;
   color:#555;
-  background:#1f3959 url('{{ partial "legacy-asset.html" "2014/11/foto5.jpg" }}') no-repeat left top;
+  background:#1f3959 url('{{ (resources.Get "images/rack-background.jpg" | fingerprint).RelPermalink }}') repeat-y left top;
+  background-size:max(100%, 3000px) auto;
   font:16px/26px Arial,Verdana,sans-serif;
   overflow-x:hidden;
   -webkit-font-smoothing:antialiased
