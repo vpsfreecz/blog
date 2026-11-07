@@ -266,6 +266,33 @@ blockquote {
   padding:30px 90px;
   margin:0
 }
+.pagination .page-link {
+  display:block;
+  min-width:2em;
+  padding:2px 6px;
+  border-radius:3px;
+  text-align:center;
+  color:#2173a8
+}
+.pagination a[href] {
+  cursor:pointer
+}
+.pagination a[href]:hover,.pagination a[href]:focus-visible {
+  color:#15527a;
+  background:#eaf3f9;
+  text-decoration:underline
+}
+.pagination [aria-current="page"] {
+  color:#fff;
+  background:#1f3959;
+  font-weight:bold;
+  cursor:default
+}
+.pagination [aria-disabled="true"] {
+  color:#8a8a8a;
+  cursor:default;
+  pointer-events:none
+}
 .site-footer {
   padding:20px 90px;
   background:#f8f8f8;
@@ -354,20 +381,20 @@ blockquote {
   .sidebar-toggle {
     display:block;
     position:absolute;
-    right:0;
+    left:0;
     top:121px;
     width:40px;
     height:41px;
     text-align:center;
     padding:7px;
-    border-left:1px solid rgba(255,255,255,.1);
+    border-right:1px solid rgba(255,255,255,.1);
     color:#fff;
     cursor:pointer
   }
   .sidebar-state {
     display:block;
     position:absolute;
-    right:4px;
+    left:4px;
     top:128px;
     width:30px;
     height:25px;
