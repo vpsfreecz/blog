@@ -16,7 +16,7 @@ translation_source_sha256 = "d4ed07819f1717c13b3a739be6c03252e6874475191b8894367
 
 <p>Our VPSes run in containers, so they don't have a bootloader such as GRUB. We're preparing an alternative: the VPS start menu.</p>
 <p><!--more--><span id="more-738"></span></p>
-<p>We're preparing a new menu that <a href="https://kb.vpsfree.cz/navody/vps/konzole">appears in the console</a> when a VPS starts. As well as starting normally, it lets you launch a shell or change the init process's parameters. It's an alternative to something like the GRUB menu in our environment. Our VPSes are containers, so they don't have a conventional bootloader.</p>
+<p>The menu <a href="https://kb.vpsfree.cz/navody/vps/konzole">appears in the console</a> when a VPS starts. As well as starting normally, it lets you launch a shell or change the init process's parameters.</p>
 <p>NixOS users can also select an older system version. Each NixOS configuration change or update creates a new system generation; normally, the bootloader lets you choose which to use, for example if the new settings don't work. The start menu now makes this possible inside a VPS too.</p>
 <p><a href="https://blog.vpsfree.cz/wp-content/uploads/2022/02/vpsadminos_start_menu.jpg"><img alt="" class="aligncenter size-large wp-image-743" height="354" src="https://blog.vpsfree.cz/wp-content/uploads/2022/02/vpsadminos_start_menu-1024x503.jpg" width="720"></a></p>
 <p>Starting a shell can often replace <a href="https://kb.vpsfree.cz/navody/vps/vpsadminos/oprava#nouzovy_rezim">rescue mode</a> for a quick repair of a system that won't start. It uses <code>/bin/sh</code> from the VPS's disk, and returns to the start menu when the shell exits.</p>

@@ -14,9 +14,9 @@ translation_status = "draft"
 translation_source_sha256 = "6c27fb3395db6e4879e3d7150275ea4ce6a60c57752077485dd3f5cf04a7bd59"
 +++
 
-<p>We have our own Terraform module for creating and modifying VPSes on our infrastructure, uploading public SSH keys and running commands over SSH.</p>
+<p>We have our own Terraform module that currently creates and modifies VPSes on our infrastructure, uploads public SSH keys and runs commands over SSH.</p>
 <p><!--more--><span id="more-597"></span></p>
 <p><a href="https://www.terraform.io">Terraform</a> manages infrastructure using configuration files. It supports many hosting, cloud and similar providers. You can now use it to configure our VPSes too.</p>
-<p>Our Terraform plugin currently creates and modifies VPSes, uploads public SSH keys and runs commands over SSH. The plugin, installation instructions and an example are <a href="https://github.com/vpsfreecz/terraform-provider-vpsadmin">on GitHub</a>.</p>
+<p>The plugin, installation instructions and an example are <a href="https://github.com/vpsfreecz/terraform-provider-vpsadmin">on GitHub</a>.</p>
 <p>Please report bugs in the repository. You're also welcome to contribute: support for managing datasets and mounts still needs to be added, and there are bound to be other things.</p>
 <p>Terraform plugins are easiest to write in Go, so we also needed a Go client for our API. Since our API <a href="https://github.com/vpsfreecz/haveapi">can document itself neatly</a>, the Go client is generated entirely automatically. The result is a <a href="https://github.com/vpsfreecz/haveapi/tree/master/clients/go">HaveAPI Go client library generator</a> and the <a href="https://github.com/vpsfreecz/vpsadmin-go-client">client for our API</a>, which can be used independently of Terraform.</p>
