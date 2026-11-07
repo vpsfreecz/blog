@@ -63,10 +63,13 @@ Reuse a stable author ID from `data/authors.json`, or add an approved public
 byline with a stable archive slug, for example
 `"example-author": {"name": "Public author name", "slug": "public-author"}`.
 Both languages use the same author IDs and the same absolute Czech
-`discussion_url`. Never replace it with the English or preview URL. Article
-writing needs no forum credentials or manual topic-creation step. The optional
-[production Discourse embed](discussions.md) is disabled by default; its runtime
-forum setup and activation remain unverified.
+`discussion_url`. Never replace it with the English or preview URL. Give a new
+Czech article a lowercase root-slug path within the [discussion path rules](discussions.md#source-hosts-and-paths),
+and preserve the source URL after publication. Article writing needs no forum
+credentials or manual topic-creation step. After the [forum setup and pilot](discussions.md#pilot-and-enable)
+and production opt-in, the native embed can create a shared topic on the first
+article visit. The source defaults to disabled; drafts and previews always
+suppress the embed.
 
 For new articles, assign the per-language URNs shown above once and retain them
 through corrections. Imported Czech articles retain their exact original
