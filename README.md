@@ -3,7 +3,8 @@
 Hugo builds Czech and English sites for `blog.vpsfree.cz` and
 `blog.vpsfree.org`. Each site uses its own host root. The repository contains
 125 imported Czech articles, their public bylines, historical comments and
-media. English translations remain drafts until human review. The optional
+media. The 125 English translations have maintainer editorial approval and are
+eligible for production builds. The optional
 production Discourse embed is disabled by default; runtime forum setup remains
 unverified. The build-artifact workflow does not activate a live deployment.
 
@@ -54,9 +55,9 @@ filenames.
 
 The sidebar search opens the current language's search page. Pagefind indexes
 article titles and bodies, excluding navigation, bylines, historical comments
-and discussion controls. Production search excludes drafts; the current English
-production index is empty. Draft previews index both languages, with separate
-results for each language. Search runs locally in the browser and needs
+and discussion controls. Production search includes the 125 approved articles
+in each language and excludes drafts. Draft previews index both languages, with
+separate results for each language. Search runs locally in the browser and needs
 JavaScript. Czech search does not provide stemming or grammatical word matching.
 If search cannot load after an update, use its reload button and search again.
 
