@@ -35,12 +35,23 @@
           {{- with index hugo.Data "english-links" -}}
             {{- with index .aliases $path -}}{{- $id = . -}}{{- end -}}
             {{- with index .pages $id -}}
+              {{- $target := .target -}}
               {{- $fragment := "" -}}
               {{- $matched := not $url.Fragment -}}
               {{- with index .fragments $url.Fragment -}}{{- $fragment = . -}}{{- $matched = true -}}{{- end -}}
+              {{- $tail := "" -}}{{- if $fragment -}}{{- $tail = printf "#%s" $fragment -}}{{- else if strings.HasSuffix $raw "#" -}}{{- $tail = "#" -}}{{- end -}}
+              {{- with index .fragment_targets $url.Fragment -}}
+                {{- $full := . -}}{{- $matched = false -}}
+                {{- with try (urls.Parse $full) -}}{{- with .Value -}}
+                  {{- if and (eq .Scheme "https") (eq .Host "kb.vpsfree.org") (not .User) (not .RawQuery) (not .ForceQuery) (hasPrefix .Path "/") -}}
+                    {{- $target = replaceRE `#.*$` "" $full -}}
+                    {{- $tail = replaceRE `^[^#]*` "" $full -}}
+                    {{- $matched = true -}}
+                  {{- end -}}
+                {{- end -}}{{- end -}}
+              {{- end -}}
               {{- if $matched -}}
-                {{- $tail := "" -}}{{- if $fragment -}}{{- $tail = printf "#%s" $fragment -}}{{- else if strings.HasSuffix $raw "#" -}}{{- $tail = "#" -}}{{- end -}}
-                {{- $result = printf "%s%s%s" (htmlEscape .target) $query $tail -}}
+                {{- $result = printf "%s%s%s" (htmlEscape $target) $query (htmlEscape $tail) -}}
               {{- end -}}
             {{- end -}}
           {{- end -}}

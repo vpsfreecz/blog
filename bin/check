@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import re
+import shutil
 import subprocess
 import tempfile
 import tomllib
@@ -86,6 +87,7 @@ def check_real_english_links(destination, environment):
                                       .read_text().split('+++')[1])['url']
                     for lang in ('cs', 'en')} for aid in articles}
     counts = dict(article=0, kb_mapped=0, kb_fallback=0, media=0, other=0)
+    cli = []
     origin = 'http://localhost:1314' if environment == 'preview' else 'http://aitherdev.int.vpsfree.cz:4567'
     output = destination / 'en' if environment == 'preview' else destination
     for aid in articles:
@@ -110,20 +112,26 @@ def check_real_english_links(destination, environment):
             elif parsed.netloc == 'kb.vpsfree.cz':
                 page_id = mapping.get('aliases', {}).get(parsed.path, parsed.path.strip('/').replace('/', ':'))
                 entry = mapping['pages'].get(page_id)
-                if entry and (not parsed.fragment or parsed.fragment in entry['fragments']):
-                    expected = entry['target']
-                    if parsed.fragment:
-                        expected += '#' + entry['fragments'][parsed.fragment]
+                if entry and parsed.fragment in entry.get('fragment_targets', {}):
+                    expected = entry['fragment_targets'][parsed.fragment]
+                    counts['kb_mapped'] += 1
+                elif entry and (not parsed.fragment or parsed.fragment in entry['fragments']):
+                    expected = entry['target'] + ('#' + entry['fragments'][parsed.fragment] if parsed.fragment else '')
                     counts['kb_mapped'] += 1
                 else:
                     counts['kb_fallback'] += 1
+                if original == 'https://kb.vpsfree.cz/navody/vps/api#cli':
+                    assert rendered == 'https://kb.vpsfree.org/manuals/vps/api#using_cli', aid
+                    cli.append(aid)
             elif parsed.netloc == 'blog.vpsfree.cz' and parsed.path.startswith('/wp-content/uploads/'):
                 expected = parsed.path
                 counts['media'] += 1
             else:
                 counts['other'] += 1
             assert rendered == expected, (environment, aid, original, rendered, expected)
-    assert counts == dict(article=55, kb_mapped=52, kb_fallback=18, media=75, other=331), counts
+    assert sorted(cli) == sorted(['wp-253', 'wp-264', 'wp-284', 'wp-284', 'wp-455',
+                                  'wp-474', 'wp-490', 'wp-601', 'wp-709']), cli
+    assert counts == dict(article=55, kb_mapped=67, kb_fallback=3, media=75, other=331), counts
 
 
 def check_search_index(root, counts):
@@ -489,21 +497,58 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     suffix = '?source=preview&amp;literal=$value#comments'
     link_source = work / 'link-content'
     link_source.mkdir()
+    link_data = work / 'link-data'
+    shutil.copytree(ROOT / 'data', link_data)
+    link_map = json.loads((link_data / 'english-links.json').read_text())
+    fixture_page = {'target': 'https://kb.vpsfree.org/fixture/original',
+                    'fragments': {'old': 'same-page-must-lose'},
+                    'fragment_targets': {'old': 'https://kb.vpsfree.org/fixture/moved#new-section'}}
+    invalid_targets = {'scheme': 'http://kb.vpsfree.org/fixture/moved#new',
+                       'host': 'https://kb.vpsfree.org.invalid/fixture/moved#new',
+                       'port': 'https://kb.vpsfree.org:443/fixture/moved#new',
+                       'user': 'https://user@kb.vpsfree.org/fixture/moved#new',
+                       'query': 'https://kb.vpsfree.org/fixture/moved?do=edit#new',
+                       'empty-query': 'https://kb.vpsfree.org/fixture/moved?#new'}
+    fixture_page['fragment_targets'].update(invalid_targets)
+    link_map['pages']['fixture:source'] = fixture_page
+    (link_data / 'english-links.json').write_text(json.dumps(link_map))
+    link_config = work / 'link-config.json'
+    link_config.write_text(json.dumps({'dataDir': str(link_data)}))
     kb_cases = {
         'kb-page': ('https://kb.vpsfree.cz/navody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
         'kb-root': ('https://kb.vpsfree.cz/', 'https://kb.vpsfree.org/home'),
         'kb-section': ('https://kb.vpsfree.cz/navody/vps/uzivatele#detailni_nastaveni',
                        'https://kb.vpsfree.org/manuals/vps/users#advanced_settings'),
+        'kb-cli': ('https://kb.vpsfree.cz/navody/vps/api#cli',
+                   'https://kb.vpsfree.org/manuals/vps/api#using_cli'),
+        'kb-backup-download': ('https://kb.vpsfree.cz/navody/vps/datasety?first=a%26b&amp;second=$value#stahovani_zaloh',
+                               'https://kb.vpsfree.org/manuals/vps/backups?first=a%26b&amp;second=$value#downloading_backups'),
+        'kb-userns': ('https://kb.vpsfree.cz/navody/vps/vpsadminos#user_namespaces',
+                      'https://kb.vpsfree.org/manuals/vps/userns#user_namespace'),
+        'kb-backups': ('https://kb.vpsfree.cz/navody/vps/zalohovani',
+                       'https://kb.vpsfree.org/manuals/vps/backups'),
+        'kb-storage': ('https://kb.vpsfree.cz/navody/vps/vpsadminos/storage',
+                       'https://kb.vpsfree.org/manuals/vps/vpsadminos/storage'),
+        'kb-infrastructure': ('https://kb.vpsfree.cz/informace/infrastruktura',
+                              'https://kb.vpsfree.org/information/infrastructure'),
         'kb-encoded': ('https://kb.vpsfree.cz/%6eavody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
         'kb-colon': ('//kb.vpsfree.cz/navody:vps:api', 'https://kb.vpsfree.org/manuals/vps/api'),
         'kb-entity': ('https://kb&#46;vpsfree&#46;cz/navody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
         'kb-query': ('http://kb.vpsfree.cz/navody/vps/api?source=preview&amp;value=a%26b%3Dc#prace_s_api',
                      'https://kb.vpsfree.org/manuals/vps/api?source=preview&amp;value=a%26b%3Dc#working_with_the_api'),
+        'kb-cross': ('https://kb.vpsfree.cz/fixture/source?first=a%26b&amp;second=$value#old',
+                     'https://kb.vpsfree.org/fixture/moved?first=a%26b&amp;second=$value#new-section'),
+        'kb-cross-unknown': ('https://kb.vpsfree.cz/fixture/source#unknown',
+                             'https://kb.vpsfree.cz/fixture/source#unknown'),
+        'kb-cross-page': ('https://kb.vpsfree.cz/fixture/source',
+                          'https://kb.vpsfree.org/fixture/original'),
     }
+    for name in invalid_targets:
+        source = f'https://kb.vpsfree.cz/fixture/source#{name}'
+        kb_cases['kb-cross-invalid-' + name] = (source, source)
     for identifier, href in {
-        'kb-old-section': 'https://kb.vpsfree.cz/navody/vps/api#cli',
-        'kb-absent': 'https://kb.vpsfree.cz/navody/vps/zalohovani',
-        'kb-copy': 'https://kb.vpsfree.cz/informace/infrastruktura',
+        'kb-unresolved-bouncer': 'https://kb.vpsfree.cz/informace/chat#bouncer',
+        'kb-unresolved-openvz': 'https://kb.vpsfree.cz/informace/openvz',
         'kb-malformed': 'https://kb.vpsfree.cz/%ZZ/navody/vps/api',
         'kb-double-encoded': 'https://kb.vpsfree.cz/%256eavody/vps/api',
         'kb-port': 'https://kb.vpsfree.cz:443/navody/vps/api',
@@ -559,7 +604,7 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         destination = work / ('link-' + environment)
         flags = [] if environment == 'production' else ['--buildDrafts']
         run('hugo', '--environment', environment, *flags, '--contentDir', str(link_source),
-            '--destination', str(destination), '--panicOnWarning')
+            '--config', f'hugo.toml,{link_config}', '--destination', str(destination), '--panicOnWarning')
         for lang in ('cs', 'en'):
             root = destination if environment == 'vpn' else destination / lang
             page_path = root / f'link-contract-{lang}/index.html'

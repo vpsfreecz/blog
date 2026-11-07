@@ -38,7 +38,8 @@
     "navody:vps:api": {
       "target": "https://kb.vpsfree.org/manuals/vps/api",
       "fragments": {
-        "prace_s_api": "working_with_the_api"
+        "prace_s_api": "working_with_the_api",
+        "cli": "using_cli"
       }
     },
     "navody:vps:cgroups": {
@@ -47,7 +48,10 @@
     },
     "navody:vps:datasety": {
       "target": "https://kb.vpsfree.org/manuals/vps/datasets",
-      "fragments": {}
+      "fragments": {},
+      "fragment_targets": {
+        "stahovani_zaloh": "https://kb.vpsfree.org/manuals/vps/backups#downloading_backups"
+      }
     },
     "navody:vps:exporty": {
       "target": "https://kb.vpsfree.org/manuals/vps/exports",
@@ -100,7 +104,10 @@
     },
     "navody:vps:vpsadminos": {
       "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos",
-      "fragments": {}
+      "fragments": {},
+      "fragment_targets": {
+        "user_namespaces": "https://kb.vpsfree.org/manuals/vps/userns#user_namespace"
+      }
     },
     "navody:vps:vpsadminos:docker": {
       "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos/docker",
@@ -111,6 +118,18 @@
       "fragments": {
         "nouzovy_rezim": "rescue_mode"
       }
+    },
+    "informace:infrastruktura": {
+      "target": "https://kb.vpsfree.org/information/infrastructure",
+      "fragments": {}
+    },
+    "navody:vps:vpsadminos:storage": {
+      "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos/storage",
+      "fragments": {}
+    },
+    "navody:vps:zalohovani": {
+      "target": "https://kb.vpsfree.org/manuals/vps/backups",
+      "fragments": {}
     }
   }
 }
