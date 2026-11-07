@@ -1,0 +1,52 @@
+{{/* Return a raw href value. Preserve unmatched values and query spelling verbatim. */}}
+{{- $raw := .href -}}
+{{- $result := $raw -}}
+{{- $decoded := htmlUnescape $raw -}}
+{{- $eligible := or (and (hasPrefix $decoded "/") (not (hasPrefix $decoded "//"))) (findRE `(?i)^(?:https?:)?//(?:blog|kb)\.vpsfree\.cz(?:/|$)` $decoded) -}}
+{{- if $eligible -}}
+  {{- with try (urls.Parse $decoded) -}}{{- with .Value -}}
+    {{- $url := . -}}
+    {{- $query := "" -}}{{- with findRE `\?[^#]*` $raw 1 -}}{{- $query = index . 0 -}}{{- end -}}
+    {{- $suffix := replaceRE `^[^?#]*` "" $raw -}}
+    {{/* Legacy actions/revisions are not ordinary page navigation. Do not decode query values. */}}
+    {{- $action := findRE `(?i)(?:^|[&;])(?:id|rev|do|export|media|image|idx|ns)(?:=|[&;]|$)|(?:^|&)[^=&]*%[^=&]*=` $url.RawQuery -}}
+    {{- if and (not $url.User) (not $action) -}}
+      {{- if or (eq $url.Host "blog.vpsfree.cz") (eq $url.Host "") -}}
+        {{- with index $.originals $url.EscapedPath -}}
+          {{- $target := .source -}}
+          {{- $article := . -}}
+          {{- with index $.english .id -}}
+            {{- $anchor := in (slice "" "comments" "respond") $url.Fragment -}}
+            {{- if and (not $anchor) (eq $url.Fragment (printf "more-%v" $article.legacy_id)) -}}
+              {{- $anchor = or (strings.Contains .RawContent (printf `id="%s"` $url.Fragment)) (strings.Contains .RawContent (printf `id='%s'` $url.Fragment)) -}}
+            {{- end -}}
+            {{- with index hugo.Data "legacy-comments" -}}{{- with index . $article.id -}}
+              {{- range . -}}{{- if eq $url.Fragment (printf "comment-%v" .id) -}}{{- $anchor = true -}}{{- end -}}{{- end -}}
+            {{- end -}}{{- end -}}
+            {{- if $anchor -}}{{- $target = .Permalink -}}{{- end -}}
+          {{- end -}}
+          {{- $result = printf "%s%s" (htmlEscape $target) $suffix -}}
+        {{- end -}}
+      {{- else if eq $url.Host "kb.vpsfree.cz" -}}
+        {{- $path := $url.Path -}}
+        {{/* Parse the path once; reject ambiguous separators, escapes and dot segments. */}}
+        {{- if not (findRE `[%\\\s]|//|(?:^|/)\.{1,2}(?:/|$)` $path) -}}
+          {{- $id := replace (strings.Trim $path "/") "/" ":" -}}
+          {{- with index hugo.Data "english-links" -}}
+            {{- with index .aliases $path -}}{{- $id = . -}}{{- end -}}
+            {{- with index .pages $id -}}
+              {{- $fragment := "" -}}
+              {{- $matched := not $url.Fragment -}}
+              {{- with index .fragments $url.Fragment -}}{{- $fragment = . -}}{{- $matched = true -}}{{- end -}}
+              {{- if $matched -}}
+                {{- $tail := "" -}}{{- if $fragment -}}{{- $tail = printf "#%s" $fragment -}}{{- else if strings.HasSuffix $raw "#" -}}{{- $tail = "#" -}}{{- end -}}
+                {{- $result = printf "%s%s%s" (htmlEscape .target) $query $tail -}}
+              {{- end -}}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}{{- end -}}
+{{- end -}}
+{{- return $result -}}

@@ -87,6 +87,12 @@ explicit English `url`, such as `/network-update/`. Copy the original `date`,
 identity. A missing translation stays absent rather than showing Czech at an
 English URL.
 
+Imported English articles keep the original source URLs. During rendering, links
+to known blog articles use an English page available in that build, including
+drafts in preview; otherwise they lead to the Czech original. Knowledge-base
+links use only the verified page and section mappings in `data/english-links.json`.
+Unmatched links stay unchanged.
+
 Under the English file's `[params]`, record the editorial state:
 
 ```toml

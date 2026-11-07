@@ -12,7 +12,7 @@ import subprocess
 import tempfile
 import tomllib
 from urllib.request import build_opener, HTTPRedirectHandler
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit
 import xml.etree.ElementTree as ET
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -50,6 +50,80 @@ def check_search_script(page):
         attrs = scripts[0][1]
         assert attrs.get('type') == 'module' and re.fullmatch(r'/js/search\.[0-9a-f]+\.js', attrs.get('src', ''))
         assert attrs.get('integrity', '').startswith('sha256-')
+
+
+class ArticleLinks(HTMLParser):
+    """Read navigation in source HTML or the rendered article body, excluding examples."""
+    def __init__(self, text, rendered=False):
+        super().__init__()
+        self.links, self.protected = [], []
+        self.depth = 0 if rendered else None
+        self.feed(text)
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if self.depth is not None and tag == 'div':
+            if self.depth or 'data-pagefind-body' in attrs:
+                self.depth += 1
+        if tag in ('pre', 'code', 'script', 'style'):
+            self.protected.append(tag)
+        if tag == 'a' and 'href' in attrs and not self.protected and self.depth != 0:
+            self.links.append(attrs['href'])
+
+    def handle_endtag(self, tag):
+        if self.depth and tag == 'div':
+            self.depth -= 1
+        if tag in self.protected:
+            del self.protected[self.protected.index(tag):]
+
+
+def check_real_english_links(destination, environment):
+    """Account for every corpus href, including explicit unmapped KB destinations."""
+    articles = json.loads((ROOT / 'data/articles.json').read_text())
+    mapping = json.loads((ROOT / 'data/english-links.json').read_text())
+    originals = {urlparse(row['discussion_url']).path: aid for aid, row in articles.items()}
+    routes = {aid: {lang: tomllib.loads((ROOT / f'content/posts/{aid}/index.{lang}.html')
+                                      .read_text().split('+++')[1])['url']
+                    for lang in ('cs', 'en')} for aid in articles}
+    counts = dict(article=0, kb_mapped=0, kb_fallback=0, media=0, other=0)
+    origin = 'http://localhost:1314' if environment == 'preview' else 'http://aitherdev.int.vpsfree.cz:4567'
+    output = destination / 'en' if environment == 'preview' else destination
+    for aid in articles:
+        source = (ROOT / f'content/posts/{aid}/index.en.html').read_bytes()
+        cs = (ROOT / f'content/posts/{aid}/index.cs.html').read_bytes()
+        front = tomllib.loads(source.decode().split('+++')[1])
+        assert front['params']['translation_source_sha256'] == hashlib.sha256(cs).hexdigest()
+        source_links = ArticleLinks(source.decode().split('+++', 2)[2]).links
+        assert source_links == ArticleLinks(cs.decode().split('+++', 2)[2]).links
+        page = output / routes[aid]['en'].strip('/') / 'index.html'
+        rendered_links = ArticleLinks(page.read_text(), rendered=True).links
+        assert len(source_links) == len(rendered_links), aid
+        for original, rendered in zip(source_links, rendered_links):
+            parsed = urlsplit(original)
+            expected = original
+            if parsed.netloc in ('', 'blog.vpsfree.cz') and parsed.path in originals:
+                assert not parsed.query and not parsed.fragment
+                target = originals[parsed.path]
+                expected = origin + routes[target]['en']
+                assert (output / routes[target]['en'].strip('/') / 'index.html').is_file()
+                counts['article'] += 1
+            elif parsed.netloc == 'kb.vpsfree.cz':
+                page_id = mapping.get('aliases', {}).get(parsed.path, parsed.path.strip('/').replace('/', ':'))
+                entry = mapping['pages'].get(page_id)
+                if entry and (not parsed.fragment or parsed.fragment in entry['fragments']):
+                    expected = entry['target']
+                    if parsed.fragment:
+                        expected += '#' + entry['fragments'][parsed.fragment]
+                    counts['kb_mapped'] += 1
+                else:
+                    counts['kb_fallback'] += 1
+            elif parsed.netloc == 'blog.vpsfree.cz' and parsed.path.startswith('/wp-content/uploads/'):
+                expected = parsed.path
+                counts['media'] += 1
+            else:
+                counts['other'] += 1
+            assert rendered == expected, (environment, aid, original, rendered, expected)
+    assert counts == dict(article=55, kb_mapped=52, kb_fallback=18, media=75, other=331), counts
 
 
 def check_search_index(root, counts):
@@ -159,6 +233,7 @@ def check_preview_isolation(work):
 def check_taxonomy_labels(work):
     destination = work / 'taxonomy-preview'
     run('hugo', '--environment', 'preview', '--buildDrafts', '--destination', str(destination), '--panicOnWarning')
+    check_real_english_links(destination, 'preview')
     run('bin/index-search', str(destination))
     check_search_index(destination / 'cs', {'cs-cz': 125})
     check_search_index(destination / 'en', {'en': 125})
@@ -405,72 +480,140 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     assert '<code>https://blog.vpsfree.cz/wp-content/uploads/2014/11/foto5.jpg</code>' in (real_output / 'cs/temporary-check-draft/index.html').read_text()
     assert not (real_output / 'cs/synteticky-priklad_1').exists()
 
-    # EN legacy anchors keep their authoritative Czech destination in every mode.
+    # One renderer serves article bodies, teasers and full-content RSS in all topologies.
     originals = {urlparse(article['discussion_url']).path: article['discussion_url']
                  for article in json.loads((ROOT / 'data/articles.json').read_text()).values()}
     legacy_path = '/setrvacnost-konferencniho-efektu/'
     other_path = '/nominujte-vpsfree-cz-do-kristalove-lupy/'
+    absent_path = '/stale-rosteme-cisla-za-tri-roky/'
     suffix = '?source=preview&amp;literal=$value#comments'
     link_source = work / 'link-content'
     link_source.mkdir()
+    kb_cases = {
+        'kb-page': ('https://kb.vpsfree.cz/navody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
+        'kb-root': ('https://kb.vpsfree.cz/', 'https://kb.vpsfree.org/home'),
+        'kb-section': ('https://kb.vpsfree.cz/navody/vps/uzivatele#detailni_nastaveni',
+                       'https://kb.vpsfree.org/manuals/vps/users#advanced_settings'),
+        'kb-encoded': ('https://kb.vpsfree.cz/%6eavody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
+        'kb-colon': ('//kb.vpsfree.cz/navody:vps:api', 'https://kb.vpsfree.org/manuals/vps/api'),
+        'kb-entity': ('https://kb&#46;vpsfree&#46;cz/navody/vps/api', 'https://kb.vpsfree.org/manuals/vps/api'),
+        'kb-query': ('http://kb.vpsfree.cz/navody/vps/api?source=preview&amp;value=a%26b%3Dc#prace_s_api',
+                     'https://kb.vpsfree.org/manuals/vps/api?source=preview&amp;value=a%26b%3Dc#working_with_the_api'),
+    }
+    for identifier, href in {
+        'kb-old-section': 'https://kb.vpsfree.cz/navody/vps/api#cli',
+        'kb-absent': 'https://kb.vpsfree.cz/navody/vps/zalohovani',
+        'kb-copy': 'https://kb.vpsfree.cz/informace/infrastruktura',
+        'kb-malformed': 'https://kb.vpsfree.cz/%ZZ/navody/vps/api',
+        'kb-double-encoded': 'https://kb.vpsfree.cz/%256eavody/vps/api',
+        'kb-port': 'https://kb.vpsfree.cz:443/navody/vps/api',
+        'kb-userinfo': 'https://user@kb.vpsfree.cz/navody/vps/api',
+        'kb-lookalike': 'https://kb.vpsfree.cz.invalid/navody/vps/api',
+        'kb-english': 'https://kb.vpsfree.org/manuals/vps/api',
+        'kb-action': 'https://kb.vpsfree.cz/navody/vps/api?do=export_xhtml',
+        'kb-encoded-action': 'https://kb.vpsfree.cz/navody/vps/api?%64o=export_xhtml',
+        'kb-revision': 'https://kb.vpsfree.cz/navody/vps/api?rev=123',
+        'kb-legacy': 'https://kb.vpsfree.cz/doku.php?id=navody:vps:api',
+        'kb-root-query': 'https://kb.vpsfree.cz/?id=navody:vps:api',
+        'kb-media': 'https://kb.vpsfree.cz/navody/vps/api?media=file.pdf',
+    }.items():
+        kb_cases[identifier] = (href, href)
     body = (f'<p><a id="known" href="{legacy_path}{suffix}">known</a></p>\n'
             '<!--more-->\n'
             f"<a id='single' href='{other_path}#respond'>single quote</a>\n"
-            f'<a id="bare" href={other_path}>unquoted</a>\n'
+            f'<a id="bare" href={absent_path}>unquoted absent target</a>\n'
+            f'<a id="more" href="{legacy_path}#more-82">more</a>\n'
+            f'<a id="comment" href="{legacy_path}#comment-24">comment</a>\n'
+            f'<a id="unknown-section" href="{legacy_path}#unverified-heading">unknown section</a>\n'
             f'<pre><a id="pre" href="{legacy_path}">pre</a></pre>\n'
             f'<code><a id="code" href="{legacy_path}">code</a></code>\n'
             f'<!-- <a href="{legacy_path}">comment</a> -->\n'
+            f'<script>const example = \'<a href="{legacy_path}">\';</script>\n'
             f'<p>Literal {legacy_path}</p>\n'
             f'<a id="attribute" data-href="{legacy_path}" href="#comments">data</a>\n'
-            f'<a id="absolute" href="https://blog.vpsfree.cz{legacy_path}">absolute</a>\n'
+            f'<a id="attribute-string" title=\'example href="{legacy_path}"\' href="{legacy_path}">attribute string</a>\n'
+            f'<a id="absolute" href="http://blog.vpsfree.cz{legacy_path}">absolute</a>\n'
             f'<a id="protocol" href="//blog.vpsfree.cz{legacy_path}">protocol</a>\n'
             '<a id="unknown" href="/unknown-legacy-path/">unknown</a>\n'
             '<a id="media" href="/wp-content/uploads/file.pdf">media</a>\n'
             '<a id="query" href="?query=unchanged">query</a>\n'
-            f'<a id="exact" href="{legacy_path.rstrip("/")}">missing slash</a>\n')
+            f'<a id="exact" href="{legacy_path.rstrip("/")}">missing slash</a>\n'
+            f'<a id="legacy-id" href="https://blog.vpsfree.cz/?p=82">legacy query</a>\n'
+            f'<a id="blog-action" href="https://blog.vpsfree.cz{legacy_path}?do=edit">action</a>\n'
+            '<a id="external" href="https://vpsadmin.vpsfree.cz/?x=1&amp;y=2">external</a>\n'
+            '<a id="mail" href="mailto:podpora@vpsfree.cz">mail</a>\n'
+            '<a id="taxonomy" href="https://blog.vpsfree.cz/tag/vpsadminos/">taxonomy</a>\n')
+    body += ''.join(f'<a id="{name}" href="{href}">KB</a>\n' for name, (href, _) in kb_cases.items())
     for lang in ('cs', 'en'):
         (link_source / f'links.{lang}.html').write_text('+++\ntitle = "Link contract"\n'
             'date = "2026-01-01T12:00:00+01:00"\ndraft = false\ntype = "posts"\n'
             f'url = "/link-contract-{lang}/"\ntranslationKey = "link-contract"\n'
             '[params]\narticle_id = "wp-123"\n+++\n' + body)
+    for aid, route, draft in [('wp-82', '/actual-rendered-english-route/', False),
+                              ('wp-107', '/actual-draft-english-route/', True)]:
+        (link_source / f'{aid}.en.html').write_text('+++\ntitle = "Destination"\n'
+            'date = "2020-01-01T12:00:00+01:00"\ntype = "posts"\n'
+            f'draft = {str(draft).lower()}\nurl = "{route}"\ntranslationKey = "{aid}"\n'
+            f'[params]\narticle_id = "{aid}"\n+++\n<span id="more-{aid[3:]}"></span>Destination')
     for environment in ('production', 'preview', 'vpn'):
         destination = work / ('link-' + environment)
-        run('hugo', '--environment', environment, '--contentDir', str(link_source),
+        flags = [] if environment == 'production' else ['--buildDrafts']
+        run('hugo', '--environment', environment, *flags, '--contentDir', str(link_source),
             '--destination', str(destination), '--panicOnWarning')
         for lang in ('cs', 'en'):
             root = destination if environment == 'vpn' else destination / lang
             page_path = root / f'link-contract-{lang}/index.html'
             text = page_path.read_text()
             page = Page(page_path)
-            expected = originals[legacy_path] if lang == 'en' else legacy_path
-            other = originals[other_path] if lang == 'en' else other_path
-            assert f'href="{expected}{suffix}"' in text, (environment, lang,
-                [attrs for tag, attrs in page.elements if attrs.get('id') == 'known'])
-            assert page.has('a', id='single', href=other + '#respond')
-            assert page.has('a', id='bare', href=other)
+            origin = {'production': {'cs': 'https://blog.vpsfree.cz', 'en': 'https://blog.vpsfree.org'},
+                      'preview': {'cs': 'http://localhost:1313', 'en': 'http://localhost:1314'},
+                      'vpn': {'cs': base.rstrip('/'), 'en': base.rstrip('/')}}[environment][lang]
+            expected = origin + '/actual-rendered-english-route/' if lang == 'en' else legacy_path
+            other = (origin + '/actual-draft-english-route/' if environment != 'production'
+                     else originals[other_path]) if lang == 'en' else other_path
+            assert f'href="{expected}{suffix}"' in text
+            assert f"id='single' href='{other}#respond'" in text
+            absent = originals[absent_path] if lang == 'en' else absent_path
+            assert f'id="bare" href={absent}' in text
+            for fragment in ('more-82', 'comment-24'):
+                assert page.has('a', href=expected + '#' + fragment)
+            fallback = originals[legacy_path] if lang == 'en' else legacy_path
+            assert page.has('a', id='unknown-section', href=fallback + '#unverified-heading')
             for context in ('pre', 'code'):
                 assert f'<{context}><a id="{context}" href="{legacy_path}">' in text
             assert f'<!-- <a href="{legacy_path}">comment</a> -->' in text
+            assert f'<script>const example = \'<a href="{legacy_path}">\';</script>' in text
             assert f'<p>Literal {legacy_path}</p>' in text
+            assert f'data-href="{legacy_path}"' in text
+            assert f'title=\'example href="{legacy_path}"\' href="{expected}"' in text
             for identifier, href in (('attribute', '#comments'),
-                    ('absolute', 'https://blog.vpsfree.cz' + legacy_path),
-                    ('protocol', '//blog.vpsfree.cz' + legacy_path),
-                    ('unknown', '/unknown-legacy-path/'),
-                    ('media', '/wp-content/uploads/file.pdf'),
-                    ('query', '?query=unchanged'), ('exact', legacy_path.rstrip('/'))):
-                assert page.has('a', id=identifier, href=href)
+                    ('absolute', expected if lang == 'en' else 'http://blog.vpsfree.cz' + legacy_path),
+                    ('protocol', expected if lang == 'en' else '//blog.vpsfree.cz' + legacy_path),
+                    ('unknown', '/unknown-legacy-path/'), ('media', '/wp-content/uploads/file.pdf'),
+                    ('query', '?query=unchanged'), ('exact', legacy_path.rstrip('/')),
+                    ('legacy-id', 'https://blog.vpsfree.cz/?p=82'),
+                    ('blog-action', 'https://blog.vpsfree.cz' + legacy_path + '?do=edit'),
+                    ('external', 'https://vpsadmin.vpsfree.cz/?x=1&y=2'),
+                    ('mail', 'mailto:podpora@vpsfree.cz'), ('taxonomy', 'https://blog.vpsfree.cz/tag/vpsadminos/')):
+                assert page.has('a', id=identifier, href=href), (environment, lang, identifier, href)
+            for name, (original, translated) in kb_cases.items():
+                href = translated if lang == 'en' else original
+                assert f'id="{name}" href="{href}"' in text, (environment, lang, name)
+            assert '&amp;amp;' not in text
             home = root / ('en/index.html' if environment == 'vpn' and lang == 'en' else 'index.html')
             assert f'href="{expected}{suffix}"' in home.read_text()
             feed_root = root / ('en' if environment == 'vpn' and lang == 'en' else '')
             feed_body = ET.parse(feed_root / 'feed/index.xml').findtext(
                 'channel/item/{http://purl.org/rss/1.0/modules/content/}encoded')
-            # Hugo's existing RSS serializer makes remaining relative hrefs absolute.
-            origin = {'production': {'cs': 'https://blog.vpsfree.cz', 'en': 'https://blog.vpsfree.org'},
-                      'preview': {'cs': 'http://localhost:1313', 'en': 'http://localhost:1314'},
-                      'vpn': {'cs': base.rstrip('/'), 'en': base.rstrip('/')}}[environment][lang]
             feed_expected = expected if lang == 'en' else origin + legacy_path
             assert f'href="{feed_expected}{suffix}"' in feed_body
             assert f'<pre><a id="pre" href="{origin}{legacy_path}">' in feed_body
+            assert 'https://kb.vpsfree.org/manuals/vps/api' in feed_body if lang == 'en' else True
+
+    # All real draft destinations must exist in the single-port topology too.
+    real_vpn = work / 'real-link-vpn'
+    run('hugo', '--environment', 'vpn', '--buildDrafts', '--destination', str(real_vpn), '--panicOnWarning')
+    check_real_english_links(real_vpn, 'vpn')
 
     # Exercise production host metadata without publishing a fixture.
     prod_hosts = work / 'fixture-hosts'

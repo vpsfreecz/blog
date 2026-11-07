@@ -1,4 +1,4 @@
-{{/* Rewrite only media-bearing HTML tags, preserving literal URLs in prose/code and source hashes. */}}
+{{/* Render legacy media and English navigation without changing article sources. */}}
 {{- $prefix := "/wp-content/uploads/" -}}
 {{- $themePrefix := "/theme/legacy-embeds/" -}}
 {{- if .absolute -}}
@@ -18,39 +18,46 @@
   {{- range $source, $file := $images -}}{{- $tag = replace $tag $source (printf "%s%s" $themePrefix $file) -}}{{- end -}}
   {{- $html = replace $html . $tag -}}
 {{- end -}}
-{{/* Legacy root-relative article links identify Czech originals in every EN mode. */}}
+{{/* Resolve English navigation offline; source links and non-navigation content stay intact. */}}
 {{- if eq .page.Language.Lang "en" -}}
   {{- $originals := dict -}}
-  {{- range hugo.Data.articles -}}
-    {{- with .discussion_url -}}{{- $originals = merge $originals (dict (urls.Parse .).Path .) -}}{{- end -}}
+  {{- range $id, $article := hugo.Data.articles -}}
+    {{- with .discussion_url -}}{{- $originals = merge $originals (dict (urls.Parse .).Path (dict "id" $id "source" . "legacy_id" $article.legacy_post_id)) -}}{{- end -}}
   {{- end -}}
+  {{- $english := dict -}}
+  {{- range hugo.Sites -}}{{- if eq .Language.Lang "en" -}}
+    {{- range .RegularPages -}}{{- if and (eq .Type "posts") .Params.article_id -}}
+      {{- $english = merge $english (dict .Params.article_id .) -}}
+    {{- end -}}{{- end -}}
+  {{- end -}}{{- end -}}
   {{- $parts := slice -}}
   {{- $codeDepth := 0 -}}
   {{- range findRE `(?is)<!--.*?-->|<(?:[^>"']|"[^"]*"|'[^']*')*>|[^<]+|<` $html -}}
     {{- $token := . -}}
-    {{- if findRE `(?i)^<\s*/\s*(?:pre|code)\s*>` $token -}}
+    {{- if findRE `(?i)^<\s*/\s*(?:pre|code|script|style)\s*>` $token -}}
       {{- $codeDepth = math.Max 0 (sub $codeDepth 1) -}}
-    {{- else if findRE `(?i)^<\s*(?:pre|code)(?:\s|>)` $token -}}
+    {{- else if findRE `(?i)^<\s*(?:pre|code|script|style)(?:\s|>)` $token -}}
       {{- $codeDepth = add $codeDepth 1 -}}
     {{- else if and (eq $codeDepth 0) (findRE `(?i)^<a(?:\s|>)` $token) -}}
-      {{- range findRE `(?is)\s+href\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)` $token 1 -}}
+      {{- $attributes := slice -}}
+      {{- range findRE `(?is)^[^\s>]+|\s+[^\s=<>/]+(?:\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+))?|\s+|.` $token -}}
         {{- $attribute := . -}}
+        {{- if findRE `(?is)^\s+href\s*=` $attribute -}}
         {{- $value := replaceRE `(?is)^\s+href\s*=\s*` "" $attribute -}}
         {{- $quote := "" -}}
         {{- if or (hasPrefix $value `"`) (hasPrefix $value `'`) -}}
           {{- $quote = substr $value 0 1 -}}
           {{- $value = strings.TrimSuffix $quote (strings.TrimPrefix $quote $value) -}}
         {{- end -}}
-        {{- if and (hasPrefix $value "/") (not (hasPrefix $value "//")) -}}
-          {{- $path := index (findRE `^[^?#]+` $value 1) 0 -}}
-          {{- with index $originals $path -}}
-            {{- $target := printf "%s%s" . (strings.TrimPrefix $path $value) -}}
+        {{- $target := partial "english-link.html" (dict "href" $value "originals" $originals "english" $english) -}}
+        {{- if ne $target $value -}}
             {{- $lead := index (findRE `(?is)^\s+href\s*=\s*` $attribute 1) 0 -}}
-            {{- $replacement := printf "%s%s%s%s" $lead $quote $target $quote -}}
-            {{- $token = replace $token $attribute $replacement -}}
-          {{- end -}}
+            {{- $attribute = printf "%s%s%s%s" $lead $quote $target $quote -}}
         {{- end -}}
+        {{- end -}}
+        {{- $attributes = $attributes | append $attribute -}}
       {{- end -}}
+      {{- $token = delimit $attributes "" -}}
     {{- end -}}
     {{- $parts = $parts | append $token -}}
   {{- end -}}

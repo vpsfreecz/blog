@@ -1,0 +1,116 @@
+{
+  "schema": 1,
+  "aliases": {
+    "/": "domů"
+  },
+  "pages": {
+    "domů": {
+      "target": "https://kb.vpsfree.org/home",
+      "fragments": {}
+    },
+    "informace:chat": {
+      "target": "https://kb.vpsfree.org/information/chat",
+      "fragments": {
+        "bot": "bot",
+        "irc": "irc"
+      }
+    },
+    "informace:ip_adresy": {
+      "target": "https://kb.vpsfree.org/information/ip_addresses",
+      "fragments": {}
+    },
+    "informace:kam_psat": {
+      "target": "https://kb.vpsfree.org/information/where_to_write",
+      "fragments": {}
+    },
+    "informace:komunikace": {
+      "target": "https://kb.vpsfree.org/information/communication",
+      "fragments": {}
+    },
+    "informace:podpora": {
+      "target": "https://kb.vpsfree.org/information/support",
+      "fragments": {}
+    },
+    "navody:server:gre": {
+      "target": "https://kb.vpsfree.org/manuals/server/gre",
+      "fragments": {}
+    },
+    "navody:vps:api": {
+      "target": "https://kb.vpsfree.org/manuals/vps/api",
+      "fragments": {
+        "prace_s_api": "working_with_the_api"
+      }
+    },
+    "navody:vps:cgroups": {
+      "target": "https://kb.vpsfree.org/manuals/vps/cgroups",
+      "fragments": {}
+    },
+    "navody:vps:datasety": {
+      "target": "https://kb.vpsfree.org/manuals/vps/datasets",
+      "fragments": {}
+    },
+    "navody:vps:exporty": {
+      "target": "https://kb.vpsfree.org/manuals/vps/exports",
+      "fragments": {}
+    },
+    "navody:vps:konzole": {
+      "target": "https://kb.vpsfree.org/manuals/vps/console",
+      "fragments": {
+        "zajisteni_spravne_funkce": "ensuring_proper_functioning"
+      }
+    },
+    "navody:vps:kvm": {
+      "target": "https://kb.vpsfree.org/manuals/vps/kvm",
+      "fragments": {}
+    },
+    "navody:vps:oprava": {
+      "target": "https://kb.vpsfree.org/manuals/vps/repair",
+      "fragments": {}
+    },
+    "navody:vps:playgroundvps": {
+      "target": "https://kb.vpsfree.org/manuals/vps/playgroundvps",
+      "fragments": {}
+    },
+    "navody:vps:prenosy": {
+      "target": "https://kb.vpsfree.org/manuals/vps/traffic",
+      "fragments": {
+        "monitor_v_cli": "cli_monitor"
+      }
+    },
+    "navody:vps:rdns": {
+      "target": "https://kb.vpsfree.org/manuals/vps/rdns",
+      "fragments": {}
+    },
+    "navody:vps:sprava": {
+      "target": "https://kb.vpsfree.org/manuals/vps/management",
+      "fragments": {
+        "klonovani_vps": "cloning_vpss"
+      }
+    },
+    "navody:vps:start_menu": {
+      "target": "https://kb.vpsfree.org/manuals/vps/start_menu",
+      "fragments": {}
+    },
+    "navody:vps:uzivatele": {
+      "target": "https://kb.vpsfree.org/manuals/vps/users",
+      "fragments": {
+        "detailni_nastaveni": "advanced_settings",
+        "dvoufaktorove_prihlasovani_2fa": "two-factor_authentication_2fa"
+      }
+    },
+    "navody:vps:vpsadminos": {
+      "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos",
+      "fragments": {}
+    },
+    "navody:vps:vpsadminos:docker": {
+      "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos/docker",
+      "fragments": {}
+    },
+    "navody:vps:vpsadminos:oprava": {
+      "target": "https://kb.vpsfree.org/manuals/vps/vpsadminos/recovery",
+      "fragments": {
+        "nouzovy_rezim": "rescue_mode"
+      }
+    }
+  }
+}
