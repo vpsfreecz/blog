@@ -53,7 +53,8 @@ class Page(HTMLParser):
     def __init__(self, path=None, text=None):
         super().__init__()
         self.elements = []
-        self.feed(text if text is not None else path.read_text())
+        self.text = text if text is not None else path.read_text()
+        self.feed(self.text)
 
     def handle_starttag(self, tag, attrs):
         self.elements.append((tag, dict(attrs)))
@@ -63,8 +64,26 @@ class Page(HTMLParser):
                    for t, a in self.elements)
 
 
-def check_search_script(page):
+def check_search_script(page, piwik_id=None):
+    if page.has('meta', **{'http-equiv': 'refresh'}):
+        piwik_id = None  # Hugo's redirect documents do not use the base layout.
     scripts = [(tag, attrs) for tag, attrs in page.elements if tag == 'script']
+    tracking = [(tag, attrs) for tag, attrs in scripts if attrs.get('id') == 'piwik-tracking']
+    assert len(tracking) == (1 if piwik_id else 0)
+    pixels = [attrs for tag, attrs in page.elements
+              if tag == 'img' and urlparse(attrs.get('src', '')).hostname == 'piwik.vpsfree.cz']
+    assert len(pixels) == (1 if piwik_id else 0)
+    if piwik_id:
+        assert not tracking[0][1].get('src'), 'only the inline Piwik loader is allowed'
+        script = re.search(r'(?s)<script\b[^>]*id="piwik-tracking"[^>]*>(.*?)</script>', page.text)[1]
+        assert re.search(r"_paq\.push\(\['setSiteId',\s*" + str(piwik_id) + r"\s*\]\)", script)
+        assert "_paq.push(['trackPageView'])" in script and "_paq.push(['enableLinkTracking'])" in script
+        assert 'var u="//piwik.vpsfree.cz/"' in script
+        assert "u+'piwik.php'" in script and "g.src=u+'piwik.js'" in script
+        pixel = f'//piwik.vpsfree.cz/piwik.php?idsite={piwik_id}'
+        assert pixels[0].get('src') == pixel
+        assert re.search(r'<noscript>\s*<p>\s*<img\b[^>]*src="' + re.escape(pixel) + r'"', page.text)
+    scripts = [(tag, attrs) for tag, attrs in scripts if attrs.get('id') != 'piwik-tracking']
     if scripts:
         assert page.has('section', **{'data-search-page': None})
         assert len(scripts) == 1
@@ -187,8 +206,9 @@ def check_join_graphic():
                 assert value.startswith(('#', 'data:image/png;base64,')), 'CTA must be self-contained'
 
 
-def check_roots(destination, hosts):
+def check_roots(destination, hosts, piwik_ids=None):
     for lang, host in hosts.items():
+        piwik_id = (piwik_ids or {}).get(lang)
         root = destination / lang
         assert (root / 'index.html').is_file(), root
         assert (root / 'sitemap.xml').is_file(), root
@@ -205,11 +225,13 @@ def check_roots(destination, hosts):
         assert page.has('a', href='/'), 'logo must retain the current language home'
         for path in root.rglob('*.html'):
             text = path.read_text()
-            check_search_script(Page(path))
+            check_search_script(Page(path), piwik_id)
             assert 'DiscourseEmbed' not in text, path
             assert not any(t == 'iframe' and 'discourse.vpsfree.cz' in a.get('src', '') for t, a in Page(path).elements), path
             for tag, attrs in Page(path).elements:
                 if tag in ('img', 'source'):
+                    if piwik_id and tag == 'img' and attrs.get('src') == f'//piwik.vpsfree.cz/piwik.php?idsite={piwik_id}':
+                        continue  # The exact noscript pixel was checked above.
                     for key in ('src', 'srcset'):
                         for candidate in attrs.get(key, '').split(','):
                             if candidate.strip():
@@ -220,6 +242,31 @@ def check_roots(destination, hosts):
             for tag, attrs in Page(path).elements:
                 if tag == 'link' and attrs.get('rel') == 'canonical':
                     assert not urlparse(attrs['href']).path.startswith(('/en/', '/cs/')), path
+
+
+def check_piwik_guards(work):
+    """Inspect rendered HTML only; never execute a tracker or request its endpoints."""
+    content = work / 'piwik-content'
+    content.mkdir()
+    for language in ('cs', 'en'):
+        (content / f'published.{language}.md').write_text('+++\ntitle="Synthetic tracking check"\n'
+            'date="2026-01-01T12:00:00+01:00"\ntype="posts"\n'
+            f'url="/tracking-{language}/"\ntranslationKey="tracking-check"\n'
+            '[params]\narticle_id="tracking-check"\n+++\nSynthetic local render only.\n')
+    cases = (('production', 91), ('production', 0), ('production', -1),
+             ('preview', 91), ('vpn', 91))
+    for number, (environment, english_id) in enumerate(cases):
+        overlay = work / f'piwik-{number}.json'
+        overlay.write_text(json.dumps({'languages': {'en': {'params': {'piwikSiteId': english_id}}}}))
+        destination = work / f'piwik-{number}'
+        run('hugo', '--environment', environment, '--contentDir', str(content),
+            '--config', f'hugo.toml,{overlay}', '--destination', str(destination), '--panicOnWarning')
+        for path in destination.rglob('*.html'):
+            page = Page(path)
+            expected = None
+            if environment == 'production':
+                expected = 4 if page.has('html', lang='cs-CZ') else (english_id if english_id > 0 else None)
+            check_search_script(page, expected)
 
 
 def check_preview_isolation(work):
@@ -384,6 +431,7 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     else:
         raise AssertionError('Duplicate article identity accepted')
     check_join_graphic()
+    check_piwik_guards(work)
     check_preview_isolation(work)
     check_taxonomy_labels(work)
     check_discussions(work)
@@ -392,7 +440,9 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     run('bin/build', str(production))
     run('bin/build', str(repeat))
     assert digest_tree(production) == digest_tree(repeat), 'build is not deterministic'
-    check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'})
+    languages = tomllib.loads((ROOT / 'hugo.toml').read_text())['languages']
+    piwik_ids = {lang: values.get('params', {}).get('piwikSiteId') for lang, values in languages.items()}
+    check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'}, piwik_ids)
     check_search_index(production / 'cs', {'cs-cz': 125})
     check_search_index(production / 'en', {})
     for language in ('cs', 'en'):
@@ -448,6 +498,8 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         '--destination', str(fixture_production), '--panicOnWarning')
     assert not (fixture_production / 'cs/synteticky-priklad_1').exists()
     assert not (fixture_production / 'en/synthetic-example_1').exists()
+    for path in fixture_production.rglob('*.html'):
+        check_search_script(Page(path))
 
     run('hugo', '--environment', 'preview', '--buildDrafts', '--config',
         config + ',config/preview/hugo.toml', '--destination', str(drafts), '--panicOnWarning')

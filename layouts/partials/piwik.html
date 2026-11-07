@@ -1,0 +1,16 @@
+{{- $siteID := .Site.Params.piwikSiteId | default 0 -}}
+{{- if and (eq hugo.Environment "production") (not hugo.IsServer) (findRE `^[1-9][0-9]*$` (printf "%v" $siteID)) -}}
+<script id="piwik-tracking" type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var u="//piwik.vpsfree.cz/";
+    _paq.push(['setTrackerUrl', u+'piwik.php']);
+    _paq.push(['setSiteId', {{ int $siteID }}]);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript'; g.async=true; g.defer=true; g.src=u+'piwik.js'; s.parentNode.insertBefore(g,s);
+  })();
+</script>
+<noscript><p><img src="//piwik.vpsfree.cz/piwik.php?idsite={{ int $siteID }}" style="border:0;" alt="" /></p></noscript>
+{{- end -}}

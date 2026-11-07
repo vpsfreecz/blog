@@ -8,10 +8,16 @@ locale = 'cs-CZ'
 label = 'Česky'
 weight = 1
 
+[languages.cs.params]
+piwikSiteId = 4
+
 [languages.en]
 locale = 'en'
 label = 'English'
 weight = 2
+
+[languages.en.params]
+piwikSiteId = 10
 
 [outputFormats.RSS]
 baseName = 'index'

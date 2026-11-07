@@ -27,6 +27,10 @@ drafts. Preview pages retain approved historical media iframes and contain no
 production Discourse scripts or comment embeds. Agent-owned previews
 in the managed workspace use its registered temporary-service command.
 
+Production pages use Piwik at `piwik.vpsfree.cz` with a site ID configured for each
+language. Previews and synthetic fixtures omit the tracker, including its
+no-JavaScript image.
+
 Each preview is a snapshot of its pages and search index. After editing, stop
 that preview, run the same command again (including any flags), and reload the
 browser. Pages do not update automatically while the snapshot is running.

@@ -38,5 +38,6 @@
     <footer class="site-footer">vpsFree.cz · <a href="{{ if eq .Site.Language.Lang "en" }}https://vpsfree.org/{{ else }}https://vpsfree.cz/{{ end }}">{{ i18n "mainSite" }}</a>{{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}</footer>
   </main>
 </div>
+{{ partial "piwik.html" . }}
 </body>
 </html>

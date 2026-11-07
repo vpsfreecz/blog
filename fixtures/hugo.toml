@@ -1,6 +1,12 @@
 contentDir = 'fixtures/content'
 dataDir = 'fixtures/data'
 
+[languages.cs.params]
+piwikSiteId = 0
+
+[languages.en.params]
+piwikSiteId = 0
+
 [[module.mounts]]
 source = 'fixtures/content'
 target = 'content'
