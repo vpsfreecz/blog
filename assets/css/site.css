@@ -178,12 +178,22 @@ p {
   max-width:100%;
   height:auto
 }
+.entry-content img.aligncenter,
+.entry-content img.alignnone,
+.entry-content p > img:only-child:not([class]),
+.entry-content p > a:only-child > img:only-child:not([class]),
+.entry-content figure:not(.alignleft):not(.alignright) img:not(.emoji):not(.alignleft):not(.alignright) {
+  display:block;
+  margin-inline:auto
+}
 .entry-content iframe {
   max-width:100%
 }
 .entry-content table {
   display:block;
+  width:max-content;
   max-width:100%;
+  margin-inline:auto;
   overflow-x:auto;
   border-collapse:collapse
 }
@@ -249,6 +259,8 @@ blockquote {
 }
 .pagination {
   display:flex;
+  justify-content:center;
+  flex-wrap:wrap;
   gap:16px;
   list-style:none;
   padding:30px 90px;

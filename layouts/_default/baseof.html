@@ -22,7 +22,8 @@
     <input type="checkbox" id="sidebar-open" class="sidebar-state" aria-label="{{ i18n "toggleSidebar" }}">
     <label for="sidebar-open" class="sidebar-toggle" title="{{ i18n "toggleSidebar" }}">☰</label>
     <div class="sidebar-widgets">
-      <section class="widget join"><a href="https://vpsfree.cz/registrace/"><img src="/theme/branding/pridej-se.png" width="150" height="147" alt="{{ i18n "join" }}"></a></section>
+      {{ $english := eq .Site.Language.Lang "en" }}
+      <section class="widget join"><a href="{{ if $english }}https://vpsfree.org/registration/{{ else }}https://vpsfree.cz/registrace/{{ end }}"><img src="/theme/branding/{{ if $english }}join-us.svg{{ else }}pridej-se.png{{ end }}" width="150" height="147" alt="{{ i18n "join" }}"></a></section>
       <nav class="widget site-navigation" aria-label="{{ i18n "navigation" }}">
         <a href="{{ .Site.Home.RelPermalink }}">{{ i18n "home" }}</a> · <a href="{{ .Site.Home.Permalink }}feed/">RSS</a>
         {{ if .Translations }}<div class="languages">{{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}</div>
@@ -34,7 +35,7 @@
   </aside>
   <main id="main" class="content-area">
     {{ block "main" . }}{{ end }}
-    <footer class="site-footer">vpsFree.cz · <a href="https://vpsfree.cz/">{{ i18n "mainSite" }}</a>{{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}</footer>
+    <footer class="site-footer">vpsFree.cz · <a href="{{ if eq .Site.Language.Lang "en" }}https://vpsfree.org/{{ else }}https://vpsfree.cz/{{ end }}">{{ i18n "mainSite" }}</a>{{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}</footer>
   </main>
 </div>
 </body>

@@ -10,6 +10,11 @@ The Tux registration image was copied unchanged from
 https://blog.vpsfree.cz/wp-content/themes/flat/Pridej_se.png on 2026-11-06.
 SHA-256: `8b73dbbdbc5dfa666196bde128afb12652c0638ede5f9a905e3da7042343f5da`.
 Its source does not supply a separate media license; none is asserted here.
+The English `branding/join-us.svg` is a local derivative made on 2026-11-07 with
+Python's standard library. It embeds that original PNG unchanged, extends a clean
+strip of the green button over the Czech lettering, and adds “Join us” as SVG text
+using system fonts. Tux, the arrow and the 150×147 geometry are retained. The
+Czech PNG remains unchanged; no separate media license is asserted for either.
 The logo and server photo retain their existing upload paths and bytes, with
 provenance recorded by the importer. System fonts are neither bundled nor copied.
 
