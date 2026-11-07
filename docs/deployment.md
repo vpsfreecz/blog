@@ -19,6 +19,9 @@ workflow are prerequisites for target-side artifact eligibility.
 and matching Nix build metadata. Dirty or null identities remain valid for local
 authoring/preview, but cannot become release artifacts. The Nix build records its
 source and pinned build inputs plus SHA-256 hashes for every served file.
+Pagefind runs after Hugo and before hashing; its local module, WASM and index
+shards are part of the same complete release. Build inputs record Pagefind's
+version alongside Hugo's. An empty article root deliberately has no index bundle.
 
 The packager emits deterministic `payload.tar.gz` and `receipt.json` files. The
 archive contains separate `cs/` and `en/` document roots, `metadata.json` and a
@@ -83,6 +86,15 @@ recheck the authorized head and prior receipt immediately before atomically
 switching `current`, reconcile interruptions, retain immutable cached assets and
 record rollback separately. Source commits, successful CI or a Git push do not
 authorize a production transition.
+
+Rollback restores the complete previous site and search index together. Keep
+Pagefind's stable entry filenames under ordinary HTTP cache behavior; do not
+mark them immutable. Its hashed shards may disappear for an older open tab after
+a release. The search page reports load failures separately from no matches and
+offers a reload action: its adapter imports a fresh module URL and the pinned
+Pagefind loader fetches its entry data with a fresh cache key. This is a recoverable
+old-tab limit, not a promise to retain every old index indefinitely. No target
+configuration or asset-retention protocol is added for search.
 
 The [discussion guide](discussions.md) covers the separate default-off embed
 source and its runtime setup gates. Neither workflow preparation nor forum

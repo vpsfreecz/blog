@@ -9,7 +9,7 @@
     in {
       devShells = eachSystem (system:
         let pkgs = import nixpkgs { inherit system; };
-        in { default = pkgs.mkShell { packages = [ pkgs.hugo pkgs.python3 ]; }; });
+        in { default = pkgs.mkShell { packages = [ pkgs.hugo pkgs.python3 pkgs.pagefind ]; }; });
       packages = eachSystem (system:
         let
           pkgs = import nixpkgs { inherit system; };
@@ -20,12 +20,13 @@
             nixpkgsRevision = nixpkgs.rev;
             nixpkgsNarHash = nixpkgs.narHash;
             hugoVersion = pkgs.hugo.version;
+            pagefindVersion = pkgs.pagefind.version;
           });
           site = pkgs.stdenvNoCC.mkDerivation {
             pname = "vpsfree-blog";
             version = "0";
             src = self;
-            nativeBuildInputs = [ pkgs.hugo pkgs.python3 ];
+            nativeBuildInputs = [ pkgs.hugo pkgs.python3 pkgs.pagefind ];
             postPatch = "patchShebangs bin";
             dontConfigure = true;
             buildPhase = ''

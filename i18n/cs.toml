@@ -17,7 +17,7 @@ other = "Jazyky"
 other = "Překlad zatím není k dispozici."
 
 [preview]
-other = "Lokální náhled. Diskuse jsou vypnuté."
+other = "Místní náhled zahrnuje i koncepty. Po úpravách ho znovu spusť a obnov stránku. Diskuze jsou vypnuté."
 
 [draft]
 other = "Koncept"
@@ -45,9 +45,6 @@ other = "Přidej se"
 
 [search]
 other = "Hledat"
-
-[searchUnavailable]
-other = "Vyhledávání zatím není dostupné."
 
 [recent]
 other = "Nejnovější příspěvky"
@@ -80,3 +77,33 @@ other = "Komentáře z původního blogu jsou bez překladu."
 one = "{{ .Count }} komentář"
 few = "{{ .Count }} komentáře"
 other = "{{ .Count }} komentářů"
+
+[searchArticles]
+other = "Hledat v článcích"
+
+[searchPrompt]
+other = "Zadej hledaný výraz."
+
+[searchLoading]
+other = "Hledání…"
+
+[searchCount]
+other = "Výsledky: {count}"
+
+[searchNoMatches]
+other = "Žádný článek neodpovídá hledanému výrazu."
+
+[searchEmpty]
+other = "Zatím tu nejsou žádné zveřejněné články."
+
+[searchError]
+other = "Vyhledávání se nepodařilo načíst. Obnov stránku a zkus to znovu."
+
+[searchReload]
+other = "Obnovit stránku"
+
+[searchMore]
+other = "Další výsledky"
+
+[searchNoJS]
+other = "Vyhledávání vyžaduje JavaScript."

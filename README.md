@@ -27,12 +27,16 @@ drafts. Preview pages retain approved historical media iframes and contain no
 production Discourse scripts or comment embeds. Agent-owned previews
 in the managed workspace use its registered temporary-service command.
 
+Each preview is a snapshot of its pages and search index. After editing, stop
+that preview, run the same command again (including any flags), and reload the
+browser. Pages do not update automatically while the snapshot is running.
+
 `nix develop -c bin/preview --vpn --fixtures` serves the synthetic demo on the
 VPN address `172.16.106.40:4567`: Czech at
 <http://aitherdev.int.vpsfree.cz:4567/> and English at
 <http://aitherdev.int.vpsfree.cz:4567/en/>. English fixture articles keep their
-explicit root paths, such as `/synthetic-example_1/`; only the English homepage
-and feed use `/en/`. This single-origin preview is separate from production's
+explicit root paths, such as `/synthetic-example_1/`; only the English homepage,
+feed and search page use `/en/`. This single-origin preview is separate from production's
 two host roots. `--vpn` without `--fixtures` shows real repository drafts on
 that VPN listener. Only share drafts intended for everyone with VPN access.
 `bin/preview --help` lists these options; both flags can be combined in either
@@ -40,8 +44,17 @@ order. No proxy or firewall changes are part of the preview command.
 
 `result/cs/` and `result/en/` are separate document roots. Both include `/feed/`
 and a sitemap. `result/metadata.json` records source/build inputs and SHA-256
-hashes outside those served roots. The locked Nixpkgs input fixes Hugo and Python
-versions. CSS has a content hash in its filename.
+hashes outside those served roots. The locked Nixpkgs input fixes Hugo, Python
+and Pagefind versions. CSS and the search adapter have content hashes in their
+filenames.
+
+The sidebar search opens the current language's search page. Pagefind indexes
+article titles and bodies, excluding navigation, bylines, historical comments
+and discussion controls. Production search excludes drafts; the current English
+production index is empty. Draft previews index both languages, with separate
+results for each language. Search runs locally in the browser and needs
+JavaScript. Czech search does not provide stemming or grammatical word matching.
+If search cannot load after an update, use its reload button and search again.
 
 With the preview running, `nix develop -c bin/check --preview` also checks both
 local `/feed/` endpoints. Hugo's preview configuration rewrites that URL to

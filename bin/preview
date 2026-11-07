@@ -32,8 +32,17 @@ fi
 if [[ "$fixtures" == true ]]; then
   echo 'Synthetic fixtures: /synteticky-priklad_1/ and /synthetic-example_1/'
 fi
+printf 'Snapshot preview: restart this command after edits, then reload the page.\n'
+printf 'Run again: nix develop -c bin/preview'
+printf ' %q' "$@"
+printf '\n'
 # Concurrent singlehost and multihost servers must never share public/en files.
 preview_destination=$(mktemp --directory "${TMPDIR:-/tmp}/vpsfree-blog-${environment}.XXXXXXXX")
+hugo --environment "$environment" --buildDrafts --config "$config" \
+  --destination "$preview_destination" --panicOnWarning "${server_options[@]}"
+index_options=()
+if [[ "$environment" == vpn ]]; then index_options=(--single-root); fi
+bin/index-search "$preview_destination" "${index_options[@]}"
 exec hugo server --environment "$environment" --buildDrafts --bind "$bind_address" \
   --port "$port" --config "$config" --destination "$preview_destination" \
-  --disableFastRender --disableLiveReload "${server_options[@]}"
+  --watch=false --disableFastRender --disableLiveReload "${server_options[@]}"

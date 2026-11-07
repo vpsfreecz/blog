@@ -1,9 +1,9 @@
 {{ define "main" }}
-<article class="hentry" data-article-id="{{ .Params.article_id }}">
-  <header class="entry-header"><h1 class="entry-title">{{ .Title }}</h1>{{ partial "byline.html" . }}</header>
-  {{ if .Draft }}<p class="draft">{{ if and (eq .Language.Lang "en") (ne .Params.translation_status "reviewed") }}{{ i18n "unreviewedTranslation" }}{{ else }}{{ i18n "draft" }}{{ end }}</p>{{ end }}
-  <div class="entry-content">{{ partial "article-html.html" (dict "page" . "html" .Content) }}</div>
-  <footer class="entry-taxonomies">{{ range $kind := slice "categories" "tags" }}{{ with $.GetTerms $kind }}<span>{{ i18n $kind }}: {{ range $i, $term := . }}{{ if $i }}, {{ end }}<a href="{{ .RelPermalink }}">{{ partial "term-name.html" (dict "kind" $kind "slug" .Data.Term) }}</a>{{ end }}</span>{{ end }}{{ end }}</footer>
+<article class="hentry" data-article-id="{{ .Params.article_id }}"{{ if .Params.article_id }} data-search-article{{ end }}>
+  <header class="entry-header"><h1 class="entry-title" data-pagefind-body data-pagefind-meta="title">{{ .Title }}</h1><div data-pagefind-ignore>{{ partial "byline.html" . }}</div></header>
+  {{ if .Draft }}<p class="draft" data-pagefind-ignore>{{ if and (eq .Language.Lang "en") (ne .Params.translation_status "reviewed") }}{{ i18n "unreviewedTranslation" }}{{ else }}{{ i18n "draft" }}{{ end }}</p>{{ end }}
+  <div class="entry-content" data-pagefind-body>{{ partial "article-html.html" (dict "page" . "html" .Content) }}</div>
+  <footer class="entry-taxonomies" data-pagefind-ignore>{{ range $kind := slice "categories" "tags" }}{{ with $.GetTerms $kind }}<span>{{ i18n $kind }}: {{ range $i, $term := . }}{{ if $i }}, {{ end }}<a href="{{ .RelPermalink }}">{{ partial "term-name.html" (dict "kind" $kind "slug" .Data.Term) }}</a>{{ end }}</span>{{ end }}{{ end }}</footer>
 </article>
 {{ partial "discussion.html" . }}
 {{ end }}

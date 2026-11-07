@@ -29,7 +29,7 @@
         {{ if .Translations }}<div class="languages">{{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}</div>
         {{ else if .IsPage }}<p>{{ i18n "missingTranslation" }}</p>{{ end }}
       </nav>
-      <section class="widget search"><label class="sr-only" for="site-search">{{ i18n "searchUnavailable" }}</label><input id="site-search" type="search" disabled placeholder="{{ i18n "search" }}" aria-describedby="search-note"><small id="search-note">{{ i18n "searchUnavailable" }}</small></section>
+      {{ with .Site.GetPage "/search" }}<form class="widget search" action="{{ .RelPermalink }}" method="get" role="search"><label class="sr-only" for="site-search">{{ i18n "searchArticles" }}</label><input id="site-search" name="q" type="search" placeholder="{{ i18n "searchArticles" }}"><button type="submit">{{ i18n "search" }}</button></form>{{ end }}
       {{ partial "sidebar.html" . }}
     </div>
   </aside>

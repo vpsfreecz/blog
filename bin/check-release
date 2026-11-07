@@ -30,7 +30,10 @@ class Package(unittest.TestCase):
             sha = subprocess.check_output(['git', '-C', str(source), 'rev-parse', 'HEAD'], text=True).strip()
             files = {}
             for language in ('cs', 'en'):
-                for name, content in [('index.html', b'<p>Public fixture</p>'), ('feed/index.xml', b'<rss/>')]:
+                for name, content in [('index.html', b'<p>Public fixture</p>'), ('feed/index.xml', b'<rss/>'),
+                                      ('pagefind/pagefind.js', b'export const search = () => {};'),
+                                      ('pagefind/wasm.unknown.pagefind', b'Fixture WASM'),
+                                      ('pagefind/pagefind-entry.json', b'{"version":"1.5.2"}')]:
                     path = site / language / name
                     path.parent.mkdir(parents=True, exist_ok=True)
                     path.write_bytes(content)
@@ -41,6 +44,12 @@ class Package(unittest.TestCase):
             release.package(site, root / 'repeat', sha, 7, 1, source)
             for name in ('payload.tar.gz', 'receipt.json'):
                 self.assertEqual((root / 'first' / name).read_bytes(), (root / 'repeat' / name).read_bytes())
+            module = site / 'cs/pagefind/pagefind.js'
+            original = module.read_bytes()
+            module.write_bytes(b'Tampered module')
+            with self.assertRaisesRegex(ValueError, 'hash mismatch'):
+                release.package(site, root / 'tampered', sha, 7, 1, source)
+            module.write_bytes(original)
             (source / 'source.txt').write_text('Dirty fixture')
             with self.assertRaisesRegex(ValueError, 'clean checkout'):
                 release.package(site, root / 'dirty', sha, 7, 1, source)

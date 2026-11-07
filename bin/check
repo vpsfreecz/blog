@@ -29,10 +29,10 @@ def run(*args):
 
 
 class Page(HTMLParser):
-    def __init__(self, path):
+    def __init__(self, path=None, text=None):
         super().__init__()
         self.elements = []
-        self.feed(path.read_text())
+        self.feed(text if text is not None else path.read_text())
 
     def handle_starttag(self, tag, attrs):
         self.elements.append((tag, dict(attrs)))
@@ -40,6 +40,27 @@ class Page(HTMLParser):
     def has(self, tag, **attrs):
         return any(t == tag and all(a.get(k) == v for k, v in attrs.items())
                    for t, a in self.elements)
+
+
+def check_search_script(page):
+    scripts = [(tag, attrs) for tag, attrs in page.elements if tag == 'script']
+    if scripts:
+        assert page.has('section', **{'data-search-page': None})
+        assert len(scripts) == 1
+        attrs = scripts[0][1]
+        assert attrs.get('type') == 'module' and re.fullmatch(r'/js/search\.[0-9a-f]+\.js', attrs.get('src', ''))
+        assert attrs.get('integrity', '').startswith('sha256-')
+
+
+def check_search_index(root, counts):
+    if not sum(counts.values()):
+        assert not (root / 'pagefind').exists(), 'zero articles must not trigger whole-site fallback'
+        return
+    entry = json.loads((root / 'pagefind/pagefind-entry.json').read_text())
+    assert {lang: data['page_count'] for lang, data in entry['languages'].items()} == counts
+    assert (root / 'pagefind/pagefind.js').is_file()
+    script = (root / 'pagefind/pagefind.js').read_text()
+    assert 'pagefind-entry.json' in script and 'Date.now()' in script
 
 
 def digest_tree(path):
@@ -82,7 +103,8 @@ def check_roots(destination, hosts):
         assert page.has('a', href='/'), 'logo must retain the current language home'
         for path in root.rglob('*.html'):
             text = path.read_text()
-            assert '<script' not in text and 'DiscourseEmbed' not in text, path
+            check_search_script(Page(path))
+            assert 'DiscourseEmbed' not in text, path
             assert not any(t == 'iframe' and 'discourse.vpsfree.cz' in a.get('src', '') for t, a in Page(path).elements), path
             for tag, attrs in Page(path).elements:
                 if tag in ('img', 'source'):
@@ -107,9 +129,19 @@ def check_preview_isolation(work):
         'args = sys.argv[1:]\n'
         'destination = pathlib.Path(args[args.index("--destination") + 1])\n'
         'mode = args[args.index("--environment") + 1]\n'
-        '(destination / "en").mkdir()\n'
+        '(destination / "en").mkdir(exist_ok=True)\n'
         '(destination / "en/index.html").write_text(mode)\n'
-        'print(json.dumps({"destination": str(destination), "mode": mode}))\n')
+        'if args[0] == "server":\n'
+        '    assert "--watch=false" in args and "--cleanDestinationDir" not in args\n'
+        '    bundle = destination / ("pagefind" if mode == "vpn" else "cs/pagefind") / "pagefind.js"\n'
+        '    assert bundle.is_file(), "server must preserve pre-generated search bundle"\n'
+        '    print(json.dumps({"destination": str(destination), "mode": mode}))\n')
+    # The actual shared helper runs the pinned CLI against this marked prebuild.
+    with hugo.open('a') as target:
+        target.write('else:\n'
+            '    article = destination / ("example" if mode == "vpn" else "cs/example") / "index.html"\n'
+            '    article.parent.mkdir(parents=True)\n'
+            '    article.write_text(\'<html lang="cs-CZ"><article data-search-article><h1 data-pagefind-body>Fixture</h1></article></html>\')\n')
     hugo.chmod(0o755)
     results = []
     for flags in (('--fixtures',), ('--vpn',), ('--vpn', '--fixtures')):
@@ -127,6 +159,9 @@ def check_preview_isolation(work):
 def check_taxonomy_labels(work):
     destination = work / 'taxonomy-preview'
     run('hugo', '--environment', 'preview', '--buildDrafts', '--destination', str(destination), '--panicOnWarning')
+    run('bin/index-search', str(destination))
+    check_search_index(destination / 'cs', {'cs-cz': 125})
+    check_search_index(destination / 'en', {'en': 125})
     translations = {'categories': {'akce': 'Events', 'bezpecnost': 'Security',
                     'distribuce': 'Distributions', 'nezarazene': 'Uncategorized',
                     'podpora': 'Support', 'skoly': 'Schools', 'technologie': 'Technology'},
@@ -241,6 +276,12 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     run('bin/build', str(repeat))
     assert digest_tree(production) == digest_tree(repeat), 'build is not deterministic'
     check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'})
+    check_search_index(production / 'cs', {'cs-cz': 125})
+    check_search_index(production / 'en', {})
+    for language in ('cs', 'en'):
+        page = Page(production / language / 'search/index.html')
+        assert page.has('section', **{'data-search-page': None, 'data-has-articles': str(language == 'cs').lower()})
+        assert page.has('form', action='/search/', method='get', role='search')
     assert not any('synthetic' in p or 'synteticky' in p for p in digest_tree(production))
     metadata = json.loads((production / 'metadata.json').read_text())
     for name, expected in metadata['files'].items():
@@ -293,6 +334,9 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
 
     run('hugo', '--environment', 'preview', '--buildDrafts', '--config',
         config + ',config/preview/hugo.toml', '--destination', str(drafts), '--panicOnWarning')
+    run('bin/index-search', str(drafts))
+    check_search_index(drafts / 'cs', {'cs-cz': 2})
+    check_search_index(drafts / 'en', {'en': 1})
     check_roots(drafts, {'cs': 'http://localhost:1313/', 'en': 'http://localhost:1314/'})
     for lang, path, other_path, other_locale, other_port in [
         ('cs', 'synteticky-priklad_1', 'synthetic-example_1', 'en', 1314),
@@ -313,6 +357,11 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     vpn = work / 'vpn'
     run('hugo', '--environment', 'vpn', '--buildDrafts', '--config', config,
         '--destination', str(vpn), '--panicOnWarning')
+    run('bin/index-search', str(vpn), '--single-root')
+    check_search_index(vpn, {'cs-cz': 2, 'en': 1})
+    for home in ('', 'en/'):
+        assert (vpn / home / 'search/index.html').is_file()
+        assert Page(vpn / home / 'search/index.html').has('form', action='/' + home + 'search/', method='get', role='search')
     base = 'http://aitherdev.int.vpsfree.cz:4567/'
     fixture_urls = []
     for source in (ROOT / 'fixtures/content').rglob('*.md'):
@@ -333,7 +382,8 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
         assert page.has('a', href=base + other + '/')
     for source in vpn.rglob('*.html'):
         text = source.read_text()
-        assert '<script' not in text and '<iframe' not in text
+        check_search_script(Page(source))
+        assert '<iframe' not in text
         assert 'localhost:' not in text
 
     # Test default real-content selection without touching the repository corpus.
@@ -459,7 +509,8 @@ if options.preview or options.vpn or options.real_vpn:
                 text = response.read().decode()
                 assert f'href="{advertised}{path}"' in text, path
                 assert 'localhost:' not in text, path
-                assert '<script' not in text and '<iframe' not in text, path
+                check_search_script(Page(text=text))
+                assert '<iframe' not in text, path
                 assert 'noindex, nofollow' in text, path
                 if path.startswith(('synteticky-', 'synthetic-')):
                     assert advertised + 'synteticky-priklad_1/' in text

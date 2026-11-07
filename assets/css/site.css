@@ -496,3 +496,65 @@ blockquote {
 @media(max-width:767px){
   .comment-metadata {position:static;}
 }
+
+/* Search uses the existing Flat sidebar and article canvas. */
+.search button,.search-page button {
+  padding:8px 14px;
+  border:1px solid #3699dc;
+  border-radius:4px;
+  background:#3699dc;
+  color:#fff;
+  font:inherit;
+  cursor:pointer
+}
+.search button {
+  margin-top:8px
+}
+.search-page {
+  padding:80px 90px
+}
+.search-form label {
+  display:block;
+  margin-bottom:8px
+}
+.search-controls {
+  display:flex;
+  gap:8px
+}
+.search-controls input {
+  min-width:0;
+  flex:1;
+  padding:8px 12px;
+  font:inherit;
+  border:1px solid #ccc;
+  border-radius:4px
+}
+.search-results {
+  margin:25px 0;
+  padding-left:24px
+}
+.search-results li {
+  margin-bottom:25px
+}
+.search-results h2 {
+  font-size:22px;
+  line-height:1.4
+}
+.search-results p {
+  overflow-wrap:anywhere
+}
+.search input:focus-visible,.search button:focus-visible,.search-page input:focus-visible,.search-page button:focus-visible {
+  outline:3px solid #e9a64d;
+  outline-offset:2px
+}
+.search-page [hidden] {
+  display:none
+}
+@media(max-width:1199px) {
+  .search-page {
+    padding:30px
+  }
+  .search-controls {
+    flex-wrap:wrap
+  }
+}

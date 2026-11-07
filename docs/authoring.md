@@ -147,6 +147,19 @@ In a managed environment, follow that host's temporary-service registration
 rules. Ordinary clones can run the command directly. Keep drafts on loopback
 unless sharing them was explicitly requested.
 
+The preview renders a coherent snapshot of articles and their Pagefind index;
+it does not watch edits. Stop it after editing, rerun the same command with the
+same flags, and reload the browser. This rebuilds the pages and search together,
+including added or removed drafts. In a managed environment, use that host's
+authorized preview-replacement procedure.
+
+Search from the sidebar or `/search/` on each language's loopback origin. The
+VPN English search page is `/en/search/`; its article results retain their
+explicit root paths. Search indexes titles and article bodies, including drafts
+in previews, while excluding navigation and historical comments. Production
+builds exclude drafts from both pages and search. Use the reload action if an
+old tab can no longer load its search files after an update.
+
 Inspect the body, byline, dates, images, code and language switch. Then run:
 
 ```sh

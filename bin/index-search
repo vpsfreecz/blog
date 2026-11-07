@@ -1,0 +1,46 @@
+#!/usr/bin/env python3
+"""Index only marked rendered articles, separately for each served document root."""
+import argparse
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import shutil
+import subprocess
+
+
+class Article(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.marked = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag == 'article' and 'data-search-article' in dict(attrs):
+            self.marked = True
+
+
+def index(root):
+    articles = []
+    for path in sorted(root.rglob('*.html')):
+        page = Article()
+        page.feed(path.read_text())
+        if page.marked:
+            articles.append(path.relative_to(root).as_posix())
+    output = root / 'pagefind'
+    if output.exists():
+        shutil.rmtree(output)
+    if articles:
+        # A positive file list also excludes list/search pages if Pagefind's
+        # unmarked-page fallback behavior changes. No zero-article invocation.
+        glob = '{' + ','.join(articles) + '}' if len(articles) > 1 else articles[0]
+        subprocess.run(['pagefind', '--site', str(root), '--glob', glob,
+                        '--output-subdir', 'pagefind', '--quiet'], check=True)
+    print(json.dumps({'root': str(root), 'indexed_articles': len(articles)}, sort_keys=True))
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('destination', type=Path)
+    parser.add_argument('--single-root', action='store_true')
+    args = parser.parse_args()
+    for root in ([args.destination] if args.single_root else [args.destination / 'cs', args.destination / 'en']):
+        index(root)

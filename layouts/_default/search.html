@@ -1,0 +1,20 @@
+{{ define "main" }}
+{{ $articles := where (where .Site.RegularPages "Type" "posts") "Params.article_id" "ne" nil }}
+<section class="hentry search-page" data-search-page data-has-articles="{{ if $articles }}true{{ else }}false{{ end }}"
+  data-prompt="{{ i18n "searchPrompt" }}" data-loading="{{ i18n "searchLoading" }}"
+  data-count="{{ i18n "searchCount" }}" data-no-matches="{{ i18n "searchNoMatches" }}"
+  data-empty="{{ i18n "searchEmpty" }}" data-error="{{ i18n "searchError" }}">
+  <header class="entry-header"><h1 class="entry-title">{{ .Title }}</h1></header>
+  <form class="search-form" action="{{ .RelPermalink }}" method="get" role="search">
+    <label for="search-query">{{ i18n "searchArticles" }}</label>
+    <div class="search-controls"><input id="search-query" name="q" type="search"><button type="submit">{{ i18n "search" }}</button></div>
+  </form>
+  <p data-search-status role="status" aria-live="polite">{{ if $articles }}{{ i18n "searchPrompt" }}{{ else }}{{ i18n "searchEmpty" }}{{ end }}</p>
+  <noscript><p>{{ i18n "searchNoJS" }}</p></noscript>
+  <ol class="search-results" data-search-results></ol>
+  <button type="button" data-search-more hidden>{{ i18n "searchMore" }}</button>
+  <button type="button" data-search-reload hidden>{{ i18n "searchReload" }}</button>
+</section>
+{{ $script := resources.Get "js/search.js" | fingerprint }}
+<script type="module" src="{{ $script.RelPermalink }}" integrity="{{ $script.Data.Integrity }}"></script>
+{{ end }}

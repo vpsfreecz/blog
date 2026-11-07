@@ -1,2 +1,10 @@
 contentDir = 'fixtures/content'
 dataDir = 'fixtures/data'
+
+[[module.mounts]]
+source = 'fixtures/content'
+target = 'content'
+
+[[module.mounts]]
+source = 'content/search'
+target = 'content/search'

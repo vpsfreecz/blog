@@ -17,7 +17,7 @@ other = "Languages"
 other = "A translation is not available yet."
 
 [preview]
-other = "Local preview. Discussions are disabled."
+other = "Local preview includes drafts. To show edits, restart the preview and reload the page. Discussions are disabled."
 
 [draft]
 other = "Draft"
@@ -45,9 +45,6 @@ other = "Join us"
 
 [search]
 other = "Search"
-
-[searchUnavailable]
-other = "Search is not available yet."
 
 [recent]
 other = "Recent posts"
@@ -106,3 +103,33 @@ other = "energy"
 
 [taxonomy_tags_sit]
 other = "network"
+
+[searchArticles]
+other = "Search articles"
+
+[searchPrompt]
+other = "Enter a search term."
+
+[searchLoading]
+other = "Searching…"
+
+[searchCount]
+other = "Results: {count}"
+
+[searchNoMatches]
+other = "No matching articles."
+
+[searchEmpty]
+other = "No published articles to search yet."
+
+[searchError]
+other = "Search could not load. Reload the page and try again."
+
+[searchReload]
+other = "Reload page"
+
+[searchMore]
+other = "Show more results"
+
+[searchNoJS]
+other = "Search requires JavaScript."
