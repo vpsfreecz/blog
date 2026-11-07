@@ -64,8 +64,10 @@ generic directory indexing is insufficient.
 
 ## Content contract
 
-New articles use `content/posts/<article_id>/index.cs.md` and `index.en.md`.
-Imported articles use native `index.cs.html` and `index.en.html` bundles. Each
+Article bundles use `content/posts/YYYY-MM-DD-english-title/`, with `index.cs.md`
+and `index.en.md` for new articles, or native `.html` files for imports. The
+immutable article ID is independent of the folder; explicit `url` values control
+public routes. Keep an assigned folder stable when editing a title. Each
 variant declares `title`, original `date`, `lastmod`, `draft`, an explicit
 root-relative `url`, and matching `translationKey` and `params.article_id`.
 Imported IDs use `wp-<post_id>`; new IDs must use another namespace. Keep a

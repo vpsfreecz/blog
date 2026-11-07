@@ -12,6 +12,7 @@ from pathlib import Path, PurePosixPath
 import re
 import subprocess
 import tarfile
+import tomllib
 from urllib.parse import urlsplit, urlunsplit, unquote
 from zoneinfo import ZoneInfo
 
@@ -254,8 +255,40 @@ def query(client, socket, user=None):
     return rows
 
 
-def project(rows, archive, formatting, php='php', selected=None):
+def article_paths(manifest):
+    """The existing public manifest assigns imported IDs to stable source locations."""
+    manifest = json.loads(manifest.read_bytes()) if isinstance(manifest, Path) else manifest
+    locations = {}
+    used = set()
+    for row in manifest['articles']:
+        ident, name = row['article_id'], row['cs_file']
+        if not isinstance(ident, str) or not isinstance(name, str):
+            raise ValueError('Invalid article ID/path assignment')
+        path = PurePosixPath(name)
+        if (not re.fullmatch(r'wp-[1-9][0-9]*', ident)
+                or row['legacy_post_id'] != int(ident[3:])
+                or path.as_posix() != name or len(path.parts) != 4
+                or path.parts[:2] != ('content', 'posts') or path.name != 'index.cs.html'
+                or not re.fullmatch(r'\d{4}-\d{2}-\d{2}-[a-z0-9]+(?:-[a-z0-9]+)*', path.parent.name)):
+            raise ValueError('Invalid article ID/path assignment')
+        try:
+            datetime.strptime(path.parent.name[:10], '%Y-%m-%d')
+        except ValueError:
+            raise ValueError('Invalid article folder date') from None
+        if ident in locations or name in used:
+            raise ValueError('Duplicate article ID/path assignment')
+        locations[ident] = name
+        used.add(name)
+    return locations
+
+
+def project(rows, archive, formatting, php='php', selected=None, source_manifest=None):
+    locations = article_paths(source_manifest if source_manifest is not None
+                              else HERE.parent / 'data/migration/source-manifest.json')
     posts = rows['post']
+    for post in posts:
+        if 'wp-' + str(post['id']) not in locations:
+            raise ValueError('Unknown article ID requires an explicit path assignment')
     assert len(posts) == 125 and len(rows['comment']) == 107 and len(rows['author']) == 6
     assert len({p['slug'] for p in posts}) == 125
     for p in posts:
@@ -342,7 +375,7 @@ def project(rows, archive, formatting, php='php', selected=None):
             toml.append(key + ' = ' + json.dumps(value, ensure_ascii=False))
         toml.append('+++\n')
         content = ('\n'.join(toml) + '\n' + body + '\n').encode()
-        path = 'content/posts/' + ident + '/index.cs.html'
+        path = locations[ident]
         output[path] = content
         articles[ident] = {'discussion_url': 'https://blog.vpsfree.cz/' + p['slug'] + '/',
                            'author_ids': ['wp-user-' + str(p['author_id'])],
@@ -445,6 +478,19 @@ def write_output(output, root):
                 continue
             if name not in tracked or digest(p.read_bytes()) != tracked[name]:
                 raise ValueError('Refusing to overwrite untracked/manual edit at ' + name)
+    if 'data/migration/source-manifest.json' in output:
+        locations = article_paths(json.loads(output['data/migration/source-manifest.json']))
+        for ident, name in locations.items():
+            bundle = (root / name).parent
+            existing = list(bundle.glob('index.*.*'))
+            if bundle.exists() and any(bundle.iterdir()) and not existing:
+                raise ValueError('Refusing an unrelated existing article directory')
+            for path in existing:
+                if path.is_symlink():
+                    raise ValueError('Symlink output refused')
+                front = tomllib.loads(path.read_bytes().decode().split('+++', 2)[1])
+                if front.get('params', {}).get('article_id') != ident or front.get('translationKey') != ident:
+                    raise ValueError('Refusing to overwrite another article bundle')
     for name, value in output.items():
         p = root / name
         p.parent.mkdir(parents=True, exist_ok=True)
@@ -461,11 +507,13 @@ def main():
     parser.add_argument('--php', default='php')
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--ids', help='Representative comma-separated original IDs; omit for the full corpus')
+    parser.add_argument('--source-manifest', type=Path, default=HERE.parent / 'data/migration/source-manifest.json',
+                        help='Existing reviewed ID-to-path manifest; use a fixture map for offline tests')
     args = parser.parse_args()
     assert digest(args.formatting.read_bytes()) == FORMATTING_SHA256
     rows = query(args.client, args.socket, args.db_user)
     selected = set(map(int, args.ids.split(','))) if args.ids else None
-    output, manifest = project(rows, args.uploads_archive, args.formatting, args.php, selected)
+    output, manifest = project(rows, args.uploads_archive, args.formatting, args.php, selected, args.source_manifest)
     write_output(output, args.output.resolve())
     print(json.dumps({'counts': manifest['counts'], 'missing_upload_references': len(manifest['missing_upload_references']),
                       'generated_files': len(output)}, sort_keys=True))

@@ -12,8 +12,10 @@ ordinary clone; it requires no skill registry or external development workspace.
 1. Establish the requested article, factual sources, actual author and languages.
    Preserve technical meaning, commands, links and chronology. Use direct prose;
    never invent facts, first-person experiences or an author's attribution.
-2. Prepare `content/posts/<article_id>/index.cs.md` as a draft. New IDs must stay
-   outside `wp-`. Use explicit stable paths, original dates, and identical
+2. Prepare `content/posts/YYYY-MM-DD-english-title/index.cs.md` as a draft.
+   Choose the folder using the author guide; retain it through title edits and
+   assign the immutable ID independently. New IDs must stay outside `wp-`.
+   Use explicit stable paths, original dates, and identical
    `translationKey`/`params.article_id` in both language variants. Add shared
    public authors, the original absolute Czech `discussion_url` and immutable
    per-language `feed_guids` as described in the guide.

@@ -53,8 +53,13 @@ comments with 43 replies, 144 attachment records and 569 upload files totaling
 output, never a custom SQL parser. Account credentials, email/address fields,
 spam, revisions and unrestricted options/metadata are not selected.
 
-The output contains native `content/posts/wp-<id>/index.cs.html` files with TOML
-frontmatter. Original raw body hashes and complete generated file hashes are
+The output contains native Czech HTML bundles at the paths recorded for each
+immutable article ID in `data/migration/source-manifest.json`. The importer uses
+this existing map for fresh output and in-place reruns; `--source-manifest`
+selects a reviewed fixture map. Unknown IDs or invalid/duplicate paths refuse
+before writing. Assign a path explicitly before importing a new ID; titles never
+relocate an existing bundle. Original raw body hashes and complete generated
+file hashes are
 different inputs: `params.source_body_sha256` identifies private raw source;
 `data/migration/source-manifest.json` also records `cs_file_sha256`, which English
 drafts use for source freshness. The manifest includes source word counts,

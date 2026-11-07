@@ -14,7 +14,7 @@ If the remote is empty, a maintainer must direct its initial default branch.
 
 Choose an immutable article ID outside the reserved imported `wp-` namespace,
 such as `post-2026-11-network-update`. Create
-`content/posts/post-2026-11-network-update/index.cs.md` with a text editor.
+`content/posts/2026-11-06-network-update/index.cs.md` with a text editor.
 The following is a metadata example, not a real article:
 
 ```toml
@@ -29,6 +29,14 @@ url = "/sitova-novinka/"
 article_id = "post-2026-11-network-update"
 +++
 ```
+
+Use the calendar date stored in the Czech article, without converting its
+timezone, followed by the English title slug. Remove apostrophes, normalize with
+Unicode NFKD to ASCII, lowercase, and replace runs of non-alphanumeric characters
+with a hyphen. If the title yields no slug, use `article-<article_id>`. For a
+date/title collision, append `-<article_id>` to every colliding folder. Keep the
+assigned folder stable through later title edits; article IDs and public URLs
+remain independent.
 
 Write the Markdown body after the closing `+++`. Use the intended original
 publication time with an explicit timezone, and update `lastmod` for a material
@@ -103,7 +111,7 @@ translation_source_sha256 = "<SHA-256 of the complete current Czech file bytes>"
 Calculate that hash after finalizing the Czech source:
 
 ```sh
-nix develop -c python3 -c 'import hashlib,pathlib; print(hashlib.sha256(pathlib.Path("content/posts/post-2026-11-network-update/index.cs.md").read_bytes()).hexdigest())'
+nix develop -c python3 -c 'import hashlib,pathlib; print(hashlib.sha256(pathlib.Path("content/posts/2026-11-06-network-update/index.cs.md").read_bytes()).hexdigest())'
 ```
 
 For an imported article, use its actual `index.cs.html` path instead. Hash the

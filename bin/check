@@ -29,6 +29,26 @@ def run(*args):
     subprocess.run(args, cwd=ROOT, check=True, stdout=subprocess.DEVNULL)
 
 
+def discover_articles(directory):
+    sources = {}
+    for source in sorted(directory.glob('*/index.*.*')):
+        _, language, extension = source.name.split('.')
+        if language not in ('cs', 'en') or extension not in ('md', 'html'):
+            continue
+        front = tomllib.loads(source.read_bytes().decode().split('+++', 2)[1])
+        ident = front['params']['article_id']
+        if not ident or front['translationKey'] != ident:
+            raise ValueError('Article identity mismatch')
+        variants = sources.setdefault(ident, {})
+        if language in variants or any(p.parent != source.parent for p in variants.values()):
+            raise ValueError('Duplicate article identity or split translation bundle')
+        variants[language] = source
+    return sources
+
+
+ARTICLE_SOURCES = discover_articles(ROOT / 'content/posts')
+
+
 class Page(HTMLParser):
     def __init__(self, path=None, text=None):
         super().__init__()
@@ -83,16 +103,16 @@ def check_real_english_links(destination, environment):
     articles = json.loads((ROOT / 'data/articles.json').read_text())
     mapping = json.loads((ROOT / 'data/english-links.json').read_text())
     originals = {urlparse(row['discussion_url']).path: aid for aid, row in articles.items()}
-    routes = {aid: {lang: tomllib.loads((ROOT / f'content/posts/{aid}/index.{lang}.html')
-                                      .read_text().split('+++')[1])['url']
+    routes = {aid: {lang: tomllib.loads(ARTICLE_SOURCES[aid][lang]
+                                      .read_bytes().decode().split('+++')[1])['url']
                     for lang in ('cs', 'en')} for aid in articles}
     counts = dict(article=0, kb_mapped=0, kb_fallback=0, media=0, other=0)
     cli = []
     origin = 'http://localhost:1314' if environment == 'preview' else 'http://aitherdev.int.vpsfree.cz:4567'
     output = destination / 'en' if environment == 'preview' else destination
     for aid in articles:
-        source = (ROOT / f'content/posts/{aid}/index.en.html').read_bytes()
-        cs = (ROOT / f'content/posts/{aid}/index.cs.html').read_bytes()
+        source = ARTICLE_SOURCES[aid]['en'].read_bytes()
+        cs = ARTICLE_SOURCES[aid]['cs'].read_bytes()
         front = tomllib.loads(source.decode().split('+++')[1])
         assert front['params']['translation_source_sha256'] == hashlib.sha256(cs).hexdigest()
         source_links = ArticleLinks(source.decode().split('+++', 2)[2]).links
@@ -349,6 +369,20 @@ def check_discussions(work):
 
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
+    discovery = work / 'identity-discovery'
+    first = discovery / '2026-01-01-unrelated-to-id' / 'index.cs.md'
+    first.parent.mkdir(parents=True)
+    first.write_text('+++\ntranslationKey="stable-id"\n[params]\narticle_id="stable-id"\n+++\n')
+    assert discover_articles(discovery) == {'stable-id': {'cs': first}}
+    duplicate = discovery / '2026-01-02-another-folder' / 'index.cs.md'
+    duplicate.parent.mkdir()
+    duplicate.write_bytes(first.read_bytes())
+    try:
+        discover_articles(discovery)
+    except ValueError as error:
+        assert 'Duplicate article identity' in str(error)
+    else:
+        raise AssertionError('Duplicate article identity accepted')
     check_join_graphic()
     check_preview_isolation(work)
     check_taxonomy_labels(work)
@@ -705,7 +739,7 @@ if options.preview or options.vpn or options.real_vpn:
                     assert advertised + 'synthetic-example_1/' in text
     if options.real_vpn:
         advertised = 'http://aitherdev.int.vpsfree.cz:4567/'
-        pair = {lang: tomllib.loads((ROOT / f'content/posts/wp-615/index.{lang}.html').read_text().split('+++')[1])['url']
+        pair = {lang: tomllib.loads(ARTICLE_SOURCES['wp-615'][lang].read_bytes().decode().split('+++')[1])['url']
                 for lang in ('cs', 'en')}
         for path in ('/', '/en/', pair['cs'], pair['en']):
             with opener.open('http://172.16.106.40:4567' + path, timeout=5) as response:

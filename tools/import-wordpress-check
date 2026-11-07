@@ -43,16 +43,88 @@ class Safety(unittest.TestCase):
     def test_manual_and_english_preservation(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
-            english = root / 'content/posts/wp-1/index.en.html'
+            english = root / 'content/posts/2026-01-01-example/index.en.html'
             english.parent.mkdir(parents=True)
             english.write_text('Reviewed English stays untouched')
-            files = {'content/posts/wp-1/index.cs.html': b'Generated Czech'}
+            files = {'content/posts/2026-01-01-example/index.cs.html': b'Generated Czech'}
             wp.write_output(files, root)
             self.assertEqual(english.read_text(), 'Reviewed English stays untouched')
             wp.write_output(files, root)
-            (root / 'content/posts/wp-1/index.cs.html').write_text('Manual correction')
+            (root / 'content/posts/2026-01-01-example/index.cs.html').write_text('Manual correction')
             with self.assertRaisesRegex(ValueError, 'manual edit'):
                 wp.write_output(files, root)
+
+    def assignment(self):
+        return {'articles': [{'article_id': 'wp-1', 'legacy_post_id': 1,
+                              'cs_file': 'content/posts/2026-01-01-original-title/index.cs.html'}]}
+
+    def article(self, ident, text):
+        return ('+++\ntranslationKey="' + ident + '"\n[params]\narticle_id="'
+                + ident + '"\n+++\n' + text + '\n').encode()
+
+    def projection(self):
+        manifest = self.assignment()
+        name = wp.article_paths(manifest)['wp-1']
+        content = self.article('wp-1', 'Generated Czech')
+        manifest['generated_files'] = {name: wp.digest(content)}
+        return {name: content, 'data/migration/source-manifest.json': wp.encoded(manifest)}
+
+    def test_mapped_location_fresh_repeat_and_english_ownership(self):
+        files = self.projection()
+        name = wp.article_paths(self.assignment())['wp-1']
+        with tempfile.TemporaryDirectory() as directory:
+            root, fresh = Path(directory) / 'in-place', Path(directory) / 'fresh'
+            wp.write_output(files, root)
+            english = (root / name).with_name('index.en.html')
+            english.write_bytes(self.article('wp-1', 'English remains unchanged\r\n'))
+            english_bytes = english.read_bytes()
+            wp.write_output(files, root)
+            wp.write_output(files, fresh)
+            self.assertEqual((root / name).read_bytes(), (fresh / name).read_bytes())
+            self.assertFalse((root / 'content/posts/wp-1').exists())
+            self.assertEqual(english.read_bytes(), english_bytes)
+            (root / name).write_bytes(files[name] + b'Manual Czech change')
+            with self.assertRaisesRegex(ValueError, 'manual edit'):
+                wp.write_output(files, root)
+            self.assertEqual(english.read_bytes(), english_bytes)
+
+    def test_invalid_duplicate_and_unknown_assignments(self):
+        for path in ('/tmp/index.cs.html', '../index.cs.html',
+                     'content/posts/../2026-01-01-example/index.cs.html',
+                     'content/posts/2026-02-30-example/index.cs.html',
+                     'content/posts/2026-01-01-example/index.en.html',
+                     'content/posts/wp-1/index.cs.html'):
+            manifest = self.assignment()
+            manifest['articles'][0]['cs_file'] = path
+            with self.subTest(path=path), self.assertRaisesRegex(ValueError, 'Invalid'):
+                wp.article_paths(manifest)
+        for same_id in (True, False):
+            manifest = self.assignment()
+            duplicate = dict(manifest['articles'][0])
+            if not same_id:
+                duplicate.update(article_id='wp-2', legacy_post_id=2)
+            manifest['articles'].append(duplicate)
+            with self.assertRaisesRegex(ValueError, 'Duplicate'):
+                wp.article_paths(manifest)
+        manifest = self.assignment()
+        manifest['articles'][0]['legacy_post_id'] = 2
+        with self.assertRaisesRegex(ValueError, 'Invalid'):
+            wp.article_paths(manifest)
+        with self.assertRaisesRegex(ValueError, 'Unknown article ID'):
+            wp.project({'post': [{'id': 9999}]}, None, None, source_manifest=self.assignment())
+
+    def test_existing_bundle_identity_refusal_before_writes(self):
+        files = self.projection()
+        name = wp.article_paths(self.assignment())['wp-1']
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            english = (root / name).with_name('index.en.html')
+            english.parent.mkdir(parents=True)
+            english.write_bytes(self.article('wp-2', 'Another article'))
+            with self.assertRaisesRegex(ValueError, 'another article bundle'):
+                wp.write_output(files, root)
+            self.assertFalse((root / name).exists())
+            self.assertEqual(english.read_bytes(), self.article('wp-2', 'Another article'))
 
     def test_private_query_field_exclusions(self):
         for field in ('user_pass', 'user_email', 'user_login', 'comment_author_email',
@@ -62,6 +134,7 @@ class Safety(unittest.TestCase):
 
 def check_corpus(root, private_posts=None):
     manifest = json.loads((root / 'data/migration/source-manifest.json').read_text())
+    wp.article_paths(manifest)
     assert manifest['counts'] == {'articles': 125, 'authors': 6, 'comments': 107,
                                   'comment_replies': 43, 'uploads': 569,
                                   'upload_bytes': 50375369, 'attachments': 144}

@@ -7,8 +7,10 @@ it needs no installation or external workspace.
 
 - Use the pinned environment: `nix develop -c bin/check` and `nix build .#site`.
   Use the repository's Git hooks if a framework is introduced; none is declared.
-- Start articles as drafts in `content/posts/<article_id>/index.cs.md`; add
-  `index.en.md` for a translation. Use a new immutable ID outside `wp-`.
+- Start drafts in `content/posts/YYYY-MM-DD-english-title/index.cs.md`; add
+  `index.en.md` in the same bundle. Choose an independent immutable article ID
+  outside `wp-`; the folder name does not identify the article. Follow the
+  dated-folder rules in `docs/authoring.md`.
   Imported articles use `index.cs.html` and `index.en.html`; preserve their HTML
   structure and code. Keep `translationKey` and `params.article_id` identical.
 - Keep Czech and English at their separate production host roots. Preserve

@@ -307,7 +307,7 @@
   "articles": [
     {
       "article_id": "wp-8",
-      "cs_file": "content/posts/wp-8/index.cs.html",
+      "cs_file": "content/posts/2014-11-10-we-have-marked-the-centos-7-template-as-stable/index.cs.html",
       "cs_file_sha256": "1d5ecd7fe86c6717e8d066bcac1e9277dd1dbf7b587590bd5b4537042d4b8f24",
       "cs_path": "/centos-7-template-jsme-prohlasili-za-stable/",
       "exceptions": {
@@ -319,7 +319,7 @@
     },
     {
       "article_id": "wp-15",
-      "cs_file": "content/posts/wp-15/index.cs.html",
+      "cs_file": "content/posts/2014-11-10-how-we-build-operating-system-templates-for-vpses/index.cs.html",
       "cs_file_sha256": "ff72eb6e111b571449de136773f39307cab80ecd83890e93c27431168277876b",
       "cs_path": "/jak-vytvarime-sablony-systemu-pro-vps/",
       "exceptions": {
@@ -331,7 +331,7 @@
     },
     {
       "article_id": "wp-24",
-      "cs_file": "content/posts/wp-24/index.cs.html",
+      "cs_file": "content/posts/2014-11-13-backups-at-vpsfree-from-rsync-to-zfs-snapshots/index.cs.html",
       "cs_file_sha256": "28f13f8c000621cfb8d427bb3ee5607d336ccbe4adb89cbac92c1499c7d20c8a",
       "cs_path": "/zalohy-ve-vpsfree-aneb-na-ceste-od-rsync-k-zfs-snapshotum/",
       "exceptions": {
@@ -343,7 +343,7 @@
     },
     {
       "article_id": "wp-37",
-      "cs_file": "content/posts/wp-37/index.cs.html",
+      "cs_file": "content/posts/2015-03-09-we-attended-installfest-2015/index.cs.html",
       "cs_file_sha256": "d0028746b622b979fa71870591904cffa6bc1d17ea9013215c3a3fe7f00b3c83",
       "cs_path": "/byli-jsme-na-konferenci-installfest-2015/",
       "exceptions": {
@@ -355,7 +355,7 @@
     },
     {
       "article_id": "wp-51",
-      "cs_file": "content/posts/wp-51/index.cs.html",
+      "cs_file": "content/posts/2015-04-07-we-supported-ctu-students/index.cs.html",
       "cs_file_sha256": "4419981cfb9ddb14206a86e1728d636b1cd41ce69614b89d67fe87b0a4f77084",
       "cs_path": "/podporili-jsme-studenty-cvut/",
       "exceptions": {
@@ -367,7 +367,7 @@
     },
     {
       "article_id": "wp-61",
-      "cs_file": "content/posts/wp-61/index.cs.html",
+      "cs_file": "content/posts/2015-05-06-distributions-running-at-vpsfree-cz/index.cs.html",
       "cs_file_sha256": "190c8dd76cfb16c2b53b0ca79da05911c1efa710889d7c058725b5ebcd93d034",
       "cs_path": "/distribuce-provozovane-na-vpsfree-cz/",
       "exceptions": {
@@ -379,7 +379,7 @@
     },
     {
       "article_id": "wp-69",
-      "cs_file": "content/posts/wp-69/index.cs.html",
+      "cs_file": "content/posts/2015-11-16-where-are-we-from-far-beyond-prague/index.cs.html",
       "cs_file_sha256": "0cd0303d6dc3299fc04b31476c404df32c4c03d6d5495314db8507c0cf6a935e",
       "cs_path": "/odkud-vlastne-jsme-zdaleka-nejen-z-prahy/",
       "exceptions": {
@@ -391,7 +391,7 @@
     },
     {
       "article_id": "wp-74",
-      "cs_file": "content/posts/wp-74/index.cs.html",
+      "cs_file": "content/posts/2015-05-27-talks-for-docker-fans/index.cs.html",
       "cs_file_sha256": "493981e9d0f785fb6ff5ff1cbd9137a886efcd1a9d3160688a6d4b2cb3b66fb7",
       "cs_path": "/prednasky-pro-fanousky-dockeru/",
       "exceptions": {
@@ -403,7 +403,7 @@
     },
     {
       "article_id": "wp-82",
-      "cs_file": "content/posts/wp-82/index.cs.html",
+      "cs_file": "content/posts/2015-05-29-the-lasting-effect-of-conferences/index.cs.html",
       "cs_file_sha256": "5a058807db0efcccb408052a491e1e72e3796b88d650fb20c2cd548fbdbece8a",
       "cs_path": "/setrvacnost-konferencniho-efektu/",
       "exceptions": {
@@ -415,7 +415,7 @@
     },
     {
       "article_id": "wp-84",
-      "cs_file": "content/posts/wp-84/index.cs.html",
+      "cs_file": "content/posts/2015-06-02-we-supported-volunteer-firefighters-by-hosting-the-dh-cz-portal/index.cs.html",
       "cs_file_sha256": "11bba07716364e4a946537a3be7c777c1aa3000ce0ba5372dfb40c3439696c8b",
       "cs_path": "/podporili-jsme-dobrovolne-hasice-hostujeme-portal-dh-cz/",
       "exceptions": {
@@ -427,7 +427,7 @@
     },
     {
       "article_id": "wp-94",
-      "cs_file": "content/posts/wp-94/index.cs.html",
+      "cs_file": "content/posts/2015-06-09-we-have-three-new-servers-in-our-prague-rack/index.cs.html",
       "cs_file_sha256": "a86e72313c6525be2dd1263a6ec939a59db72efbee32a448f79b4c924ebf29b5",
       "cs_path": "/mame-tri-nove-servery-v-prazskem-racku/",
       "exceptions": {
@@ -439,7 +439,7 @@
     },
     {
       "article_id": "wp-100",
-      "cs_file": "content/posts/wp-100/index.cs.html",
+      "cs_file": "content/posts/2015-06-08-we-spoke-at-cryptofest-video/index.cs.html",
       "cs_file_sha256": "e34be0af9c59f0f47886b460f9150560de71d128e837df7165550f58201827b7",
       "cs_path": "/prednaseli-jsme-na-konferenci-cryptofest-video/",
       "exceptions": {
@@ -451,7 +451,7 @@
     },
     {
       "article_id": "wp-107",
-      "cs_file": "content/posts/wp-107/index.cs.html",
+      "cs_file": "content/posts/2015-08-12-nominate-vpsfree-cz-for-kristalova-lupa/index.cs.html",
       "cs_file_sha256": "1620b3801fb52c6efd4542459644b2cfc8c93dda7e9ceb4759c856769d969647",
       "cs_path": "/nominujte-vpsfree-cz-do-kristalove-lupy/",
       "exceptions": {
@@ -463,7 +463,7 @@
     },
     {
       "article_id": "wp-112",
-      "cs_file": "content/posts/wp-112/index.cs.html",
+      "cs_file": "content/posts/2015-09-14-how-to-repair-a-broken-vps/index.cs.html",
       "cs_file_sha256": "7a22c3c3bd8051517362cda0d745e7e3353b21661eca93f754c83e647d28e75d",
       "cs_path": "/jak-si-opravit-rozbity-vps/",
       "exceptions": {
@@ -475,7 +475,7 @@
     },
     {
       "article_id": "wp-114",
-      "cs_file": "content/posts/wp-114/index.cs.html",
+      "cs_file": "content/posts/2015-09-16-we-are-in-the-kristalova-lupa-awards-vote-for-us/index.cs.html",
       "cs_file_sha256": "9ca432dcfb8ef818bb9a83a7d903357beb62ad81e88c195ced98ea01cae33190",
       "cs_path": "/jsme-v-ankete-kristalova-lupa-hlasujte-pro-nas/",
       "exceptions": {
@@ -487,7 +487,7 @@
     },
     {
       "article_id": "wp-119",
-      "cs_file": "content/posts/wp-119/index.cs.html",
+      "cs_file": "content/posts/2015-09-21-we-are-going-to-linuxdays-2015-come-and-see-us/index.cs.html",
       "cs_file_sha256": "9857ad117086b1f8b8c9c9181954f53d247517f121f7bc333a389b774be53fdc",
       "cs_path": "/jedeme-na-linuxdays-2015-prijdte-se-podivat/",
       "exceptions": {
@@ -499,7 +499,7 @@
     },
     {
       "article_id": "wp-123",
-      "cs_file": "content/posts/wp-123/index.cs.html",
+      "cs_file": "content/posts/2015-10-14-we-were-at-linuxdays-2015-photos-and-video/index.cs.html",
       "cs_file_sha256": "1f1c3d910b2b75a58ea3092a4d7e3d6d499fe1c9213b9235695df88d554408bb",
       "cs_path": "/byli-jsme-na-linuxdays-2015-foto-a-video/",
       "exceptions": {
@@ -511,7 +511,7 @@
     },
     {
       "article_id": "wp-133",
-      "cs_file": "content/posts/wp-133/index.cs.html",
+      "cs_file": "content/posts/2015-10-20-we-keep-growing-three-years-in-numbers/index.cs.html",
       "cs_file_sha256": "2f9a0e14343301d6279f26f8adc5eaaba0e28fbc788658a75aabb2a16e08aab8",
       "cs_path": "/stale-rosteme-cisla-za-tri-roky/",
       "exceptions": {
@@ -523,7 +523,7 @@
     },
     {
       "article_id": "wp-137",
-      "cs_file": "content/posts/wp-137/index.cs.html",
+      "cs_file": "content/posts/2015-11-03-99-986-availability/index.cs.html",
       "cs_file_sha256": "4e288a84c21c7ce53d233f91996387024a1eaab7515229e018219d81fe8c3813",
       "cs_path": "/dostupnost-99-986-procent/",
       "exceptions": {
@@ -535,7 +535,7 @@
     },
     {
       "article_id": "wp-139",
-      "cs_file": "content/posts/wp-139/index.cs.html",
+      "cs_file": "content/posts/2015-10-26-vpsadmin-mount-changes-and-the-remote-console/index.cs.html",
       "cs_file_sha256": "74012f8de806242d10fd4447d7b7854eccd517ed3c21532747c52a551232dc6b",
       "cs_path": "/vpsadmin-zmeny-v-mountech-vzdalena-konzole/",
       "exceptions": {
@@ -547,7 +547,7 @@
     },
     {
       "article_id": "wp-151",
-      "cs_file": "content/posts/wp-151/index.cs.html",
+      "cs_file": "content/posts/2015-10-29-we-are-going-to-openalt-come-for-a-coffee/index.cs.html",
       "cs_file_sha256": "33a759f078668645318d01266e657b52312e55cc6e8874fc65af317a9087b6b6",
       "cs_path": "/jedeme-na-openalt-prijdte-na-kavu/",
       "exceptions": {
@@ -559,7 +559,7 @@
     },
     {
       "article_id": "wp-156",
-      "cs_file": "content/posts/wp-156/index.cs.html",
+      "cs_file": "content/posts/2015-10-27-replacing-a-servers-motherboard/index.cs.html",
       "cs_file_sha256": "e6e8b5d8c2651daf5a71da17161a6961146d1232084f8494cbdb053571e0f5ea",
       "cs_path": "/menime-zakladni-desku-v-serveru/",
       "exceptions": {
@@ -571,7 +571,7 @@
     },
     {
       "article_id": "wp-174",
-      "cs_file": "content/posts/wp-174/index.cs.html",
+      "cs_file": "content/posts/2015-11-04-connect-your-servers-with-a-gre-tunnel/index.cs.html",
       "cs_file_sha256": "d45d8780c74b74066aa7d81678f4fcc9c3cf554f308198b89bdb9c4d46bce686",
       "cs_path": "/propojte-si-servery-pomoci-gre-tunelu/",
       "exceptions": {
@@ -583,7 +583,7 @@
     },
     {
       "article_id": "wp-191",
-      "cs_file": "content/posts/wp-191/index.cs.html",
+      "cs_file": "content/posts/2015-11-11-we-brought-coffee-and-logo-stickers-to-openalt/index.cs.html",
       "cs_file_sha256": "6357ff6a659887354c9afc1f33823a7777fd802a35c7d2b3180b77430482f6ee",
       "cs_path": "/openalt-jsme-provoneli-kavou-a-polepili-logy/",
       "exceptions": {
@@ -595,7 +595,7 @@
     },
     {
       "article_id": "wp-205",
-      "cs_file": "content/posts/wp-205/index.cs.html",
+      "cs_file": "content/posts/2015-11-20-we-didnt-win-kristalova-lupa-yet/index.cs.html",
       "cs_file_sha256": "1bf31365bcff91cb32c6cd3c7c0c831ee14bb1bc1f83c103f3d52dbb7db19d90",
       "cs_path": "/kristalovou-lupu-jsme-nevyhrali-zatim/",
       "exceptions": {
@@ -607,7 +607,7 @@
     },
     {
       "article_id": "wp-210",
-      "cs_file": "content/posts/wp-210/index.cs.html",
+      "cs_file": "content/posts/2015-11-24-we-have-about-a-thousand-ipv4-addresses-left/index.cs.html",
       "cs_file_sha256": "e5aca42da38d7a42ec6ce27c1477258ab9bccfe00f9881c3fefba29c982b3dda",
       "cs_path": "/zbyva-nam-asi-tisic-volnych-ipv4-adres/",
       "exceptions": {
@@ -619,7 +619,7 @@
     },
     {
       "article_id": "wp-215",
-      "cs_file": "content/posts/wp-215/index.cs.html",
+      "cs_file": "content/posts/2015-11-30-launching-support-for-kvm-virtualization/index.cs.html",
       "cs_file_sha256": "cbcc0c3275bb842e5ad695cb94eddde43fcaf33acf37e9589107b557a6ce0d0e",
       "cs_path": "/spoustime-podporu-virtualizace-s-kvm/",
       "exceptions": {
@@ -631,7 +631,7 @@
     },
     {
       "article_id": "wp-229",
-      "cs_file": "content/posts/wp-229/index.cs.html",
+      "cs_file": "content/posts/2015-12-14-a-christmas-present-weve-doubled-disk-space-to-120-gb/index.cs.html",
       "cs_file_sha256": "97ed9de9bf31f995cd533f4b4ec8bc57ac8dbc240440f45618805ba1ee39b172",
       "cs_path": "/vanocni-darek-zdvojnasobili-jsme-kapacitu-disku-na-120-gb/",
       "exceptions": {
@@ -643,7 +643,7 @@
     },
     {
       "article_id": "wp-244",
-      "cs_file": "content/posts/wp-244/index.cs.html",
+      "cs_file": "content/posts/2016-01-28-how-to-use-256-gb-of-ram-in-a-server/index.cs.html",
       "cs_file_sha256": "a674ddc68292d33205034d9e7c6a9941cf7cbc02a1bdaa912d9304a743dc206c",
       "cs_path": "/jak-vyuzit-256-gb-ram-na-serveru/",
       "exceptions": {
@@ -655,7 +655,7 @@
     },
     {
       "article_id": "wp-249",
-      "cs_file": "content/posts/wp-249/index.cs.html",
+      "cs_file": "content/posts/2016-01-19-lupa-cz-wrote-about-us-and-says-we-are-unique/index.cs.html",
       "cs_file_sha256": "2ad704aababfa4b9e65a1d6095cbe0815f18cd1543781600e2ec6b098eab7cc4",
       "cs_path": "/napsala-o-nas-lupa-cz-jsme-pry-unikat/",
       "exceptions": {
@@ -667,7 +667,7 @@
     },
     {
       "article_id": "wp-253",
-      "cs_file": "content/posts/wp-253/index.cs.html",
+      "cs_file": "content/posts/2016-01-25-vpsadmin-2-1-0-the-vps-console-in-your-terminal/index.cs.html",
       "cs_file_sha256": "111274a283350285a00f1b3698279105d86b8fe390853ea40250b88f8b56058c",
       "cs_path": "/vpsadmin-2-1-0-konzole-vps-v-terminalu/",
       "exceptions": {
@@ -679,7 +679,7 @@
     },
     {
       "article_id": "wp-264",
-      "cs_file": "content/posts/wp-264/index.cs.html",
+      "cs_file": "content/posts/2016-02-10-vpsadmin-v2-2-0-setting-maintenance-windows-for-vpses/index.cs.html",
       "cs_file_sha256": "ca5e888bf77a7631d640764a477c6e24f162b9cdc745bb0d28dc7ebfc3dbac6f",
       "cs_path": "/vpsadmin-v2-2-0-nastaveni-casu-pro-planovane-vypadky-vps/",
       "exceptions": {
@@ -691,7 +691,7 @@
     },
     {
       "article_id": "wp-269",
-      "cs_file": "content/posts/wp-269/index.cs.html",
+      "cs_file": "content/posts/2016-02-15-come-and-see-us-at-installfest-5-and-6-march/index.cs.html",
       "cs_file_sha256": "102092c128f858b69b8e5b8bf05130fa6bc1d874eec656a10a5dd25fcad2cdc0",
       "cs_path": "/prijdte-za-nami-na-installfest-5-a-6-brezna/",
       "exceptions": {
@@ -703,7 +703,7 @@
     },
     {
       "article_id": "wp-275",
-      "cs_file": "content/posts/wp-275/index.cs.html",
+      "cs_file": "content/posts/2016-02-22-most-members-join-through-a-personal-recommendation/index.cs.html",
       "cs_file_sha256": "72434fc26fc1791b1896646d7a3e9030b6caa8c78e6e0d184b322c19d8c55320",
       "cs_path": "/nejvic-clenu-prichazi-na-osobni-doporuceni/",
       "exceptions": {
@@ -715,7 +715,7 @@
     },
     {
       "article_id": "wp-279",
-      "cs_file": "content/posts/wp-279/index.cs.html",
+      "cs_file": "content/posts/2016-03-08-installfest-went-very-well-take-a-look/index.cs.html",
       "cs_file_sha256": "e4e909bc0dc02fcbd7bc0e8819c257348ba9637d085e8327c7bde06b8211dd06",
       "cs_path": "/installfest-se-rozhodne-vydaril-podivejte-se/",
       "exceptions": {
@@ -727,7 +727,7 @@
     },
     {
       "article_id": "wp-284",
-      "cs_file": "content/posts/wp-284/index.cs.html",
+      "cs_file": "content/posts/2016-03-21-download-backups-from-the-command-line/index.cs.html",
       "cs_file_sha256": "4ee301d0ecbe21a66a59cb90fbe73c4450dcd0a7da094b2a5983d4c30ac41ddc",
       "cs_path": "/stahnete-si-zalohy-v-prikazove-radce/",
       "exceptions": {
@@ -739,7 +739,7 @@
     },
     {
       "article_id": "wp-291",
-      "cs_file": "content/posts/wp-291/index.cs.html",
+      "cs_file": "content/posts/2016-03-23-the-latest-docker-1-10-now-runs-everywhere-here/index.cs.html",
       "cs_file_sha256": "9b1424f378bc694c2d3100cd7f8a05869376c7def34b6004d1f7dc824a7a7dfd",
       "cs_path": "/nejnovejsi-docker-1-10-uz-nam-bezi-vsude/",
       "exceptions": {
@@ -751,7 +751,7 @@
     },
     {
       "article_id": "wp-299",
-      "cs_file": "content/posts/wp-299/index.cs.html",
+      "cs_file": "content/posts/2016-04-18-the-beginnings-of-vpsfree-cz-how-i-gave-a-server-to-a-stranger/index.cs.html",
       "cs_file_sha256": "14296f79c9be2fb8038d352ff6a7256e899aab5f08aa6604c53ec2e1e1c1844d",
       "cs_path": "/zacatky-vpsfree-cz-jak-jsem-dal-server-neznamemu-cloveku/",
       "exceptions": {
@@ -763,7 +763,7 @@
     },
     {
       "article_id": "wp-308",
-      "cs_file": "content/posts/wp-308/index.cs.html",
+      "cs_file": "content/posts/2016-04-19-haveapi-fs-mount-your-api-as-a-filesystem/index.cs.html",
       "cs_file_sha256": "55a2e45f414324afd823cea76729a906261287f2d4f9a4852105fc48a124849e",
       "cs_path": "/haveapi-fs-pripojte-si-api-jako-souborovy-system/",
       "exceptions": {
@@ -775,7 +775,7 @@
     },
     {
       "article_id": "wp-316",
-      "cs_file": "content/posts/wp-316/index.cs.html",
+      "cs_file": "content/posts/2016-04-25-ddos-attacks-most-often-target-teamspeak/index.cs.html",
       "cs_file_sha256": "c5f0fc4d596ade41896f652a3a3ce19e507cdcd03b30a7b03b90d7400797c6b5",
       "cs_path": "/ddos-utoky-jdou-nejcasteji-na-teamspeak/",
       "exceptions": {
@@ -787,7 +787,7 @@
     },
     {
       "article_id": "wp-326",
-      "cs_file": "content/posts/wp-326/index.cs.html",
+      "cs_file": "content/posts/2016-05-02-migrating-a-vps-between-providers/index.cs.html",
       "cs_file_sha256": "2f0b9f21590d5608eb430bc5e89deee1afce7d1ea9432c5561242012650e7a58",
       "cs_path": "/migrace-vps-mezi-poskytovateli/",
       "exceptions": {
@@ -799,7 +799,7 @@
     },
     {
       "article_id": "wp-333",
-      "cs_file": "content/posts/wp-333/index.cs.html",
+      "cs_file": "content/posts/2016-05-05-new-distributions-devuan-fedora-23-and-opensuse-13-2/index.cs.html",
       "cs_file_sha256": "24c3873804abfccfc4d61d7443e01592e37dc8f212748baedaa485443deda8c1",
       "cs_path": "/mame-nove-distribuce-devuan-fedora-23-a-opensuse-13-2/",
       "exceptions": {
@@ -811,7 +811,7 @@
     },
     {
       "article_id": "wp-343",
-      "cs_file": "content/posts/wp-343/index.cs.html",
+      "cs_file": "content/posts/2016-05-16-why-we-do-not-enable-swap-on-vpses/index.cs.html",
       "cs_file_sha256": "59611c58bb44ad739f361fd09e1c08b1e886391ff6faa891fa21fd39c12480e9",
       "cs_path": "/proc-nemame-na-vps-zapnuty-swap/",
       "exceptions": {
@@ -823,7 +823,7 @@
     },
     {
       "article_id": "wp-347",
-      "cs_file": "content/posts/wp-347/index.cs.html",
+      "cs_file": "content/posts/2016-05-17-we-support-an-internet-without-bureaucratic-censorship/index.cs.html",
       "cs_file_sha256": "af6e0af2e0aa3431857b9c3bd67342147396f33fb600f2c12e11b8ca4821cdc1",
       "cs_path": "/podporujeme-internet-bez-urednicke-cenzury/",
       "exceptions": {
@@ -835,7 +835,7 @@
     },
     {
       "article_id": "wp-358",
-      "cs_file": "content/posts/wp-358/index.cs.html",
+      "cs_file": "content/posts/2016-05-31-weve-added-alpine-linux-3-3-and-slackware-14-1/index.cs.html",
       "cs_file_sha256": "9031bc4da10fa0d8107559a573e2867b20b374cc1049e03a1218a9564089aa86",
       "cs_path": "/pridali-jsme-alpine-linux-3-3-a-slackware-14-1/",
       "exceptions": {
@@ -847,7 +847,7 @@
     },
     {
       "article_id": "wp-362",
-      "cs_file": "content/posts/wp-362/index.cs.html",
+      "cs_file": "content/posts/2016-06-07-arch-linux-update-and-void-linux/index.cs.html",
       "cs_file_sha256": "81229d8d6b1504b78073a01dfdabadf901a1577b3cd2763e4113251143b2327c",
       "cs_path": "/aktualizace-arch-linux-a-void-linux/",
       "exceptions": {
@@ -859,7 +859,7 @@
     },
     {
       "article_id": "wp-367",
-      "cs_file": "content/posts/wp-367/index.cs.html",
+      "cs_file": "content/posts/2016-06-13-distributions-a-year-on-debian-ubuntu-and-centos-lead/index.cs.html",
       "cs_file_sha256": "7167763ac8c942ab2586954b2ec1cc699f340315865cf526d61e6fcf2fc2c9b8",
       "cs_path": "/distribuce-po-roce-vedou-debian-ubuntu-a-centos/",
       "exceptions": {
@@ -871,7 +871,7 @@
     },
     {
       "article_id": "wp-378",
-      "cs_file": "content/posts/wp-378/index.cs.html",
+      "cs_file": "content/posts/2016-06-22-vpsadmin-has-learned-english/index.cs.html",
       "cs_file_sha256": "13889fe4d1fd3816fbfcb2619dbc615cc9dbc3604dd9442e590db089dfcab39f",
       "cs_path": "/vpsadmin-se-naucil-anglicky/",
       "exceptions": {
@@ -883,7 +883,7 @@
     },
     {
       "article_id": "wp-381",
-      "cs_file": "content/posts/wp-381/index.cs.html",
+      "cs_file": "content/posts/2016-06-23-1000/index.cs.html",
       "cs_file_sha256": "5a8d561c75bf286901b5011e53f91bbe50531f845dfd67dce5fb6061601075e7",
       "cs_path": "/1000-clenu/",
       "exceptions": {
@@ -895,7 +895,7 @@
     },
     {
       "article_id": "wp-387",
-      "cs_file": "content/posts/wp-387/index.cs.html",
+      "cs_file": "content/posts/2016-06-27-1000-members-means-we-have-not-messed-anything-up/index.cs.html",
       "cs_file_sha256": "f5adf56e45aebc62a1d448efc2e098993d6e5cafd41814bcd015949da226f2f3",
       "cs_path": "/1000-clenu-znamena-ze-jsme-nic-nepokazili/",
       "exceptions": {
@@ -907,7 +907,7 @@
     },
     {
       "article_id": "wp-390",
-      "cs_file": "content/posts/wp-390/index.cs.html",
+      "cs_file": "content/posts/2016-08-04-join-us-on-irc-at-freenode-net-vpsfree/index.cs.html",
       "cs_file_sha256": "f5caa6edaa37ebb40afa3243dd3a6d8615cdaabd2c7f51ed05bba16ab8add0a7",
       "cs_path": "/prijdte-za-nami-na-irc-freenode-net-vpsfree/",
       "exceptions": {
@@ -919,7 +919,7 @@
     },
     {
       "article_id": "wp-397",
-      "cs_file": "content/posts/wp-397/index.cs.html",
+      "cs_file": "content/posts/2016-08-16-share-code-snippets-at-paste-vpsfree-cz/index.cs.html",
       "cs_file_sha256": "a9a1071a97e5c7750de68729edc0756f7fb21391b5985b1db17cac655004aede",
       "cs_path": "/sluzba-pro-sdileni-uryvku-kodu-paste-vpsfree-cz/",
       "exceptions": {
@@ -931,7 +931,7 @@
     },
     {
       "article_id": "wp-403",
-      "cs_file": "content/posts/wp-403/index.cs.html",
+      "cs_file": "content/posts/2016-09-05-when-disks-fail-our-nas-gave-us-trouble/index.cs.html",
       "cs_file_sha256": "d2e140caeb2717524cb1a928acad66f2f74a6199e63f9b8f56756270d25b5dc0",
       "cs_path": "/kdyz-se-rozbiji-disky-aneb-jak-nas-pozlobil-nas/",
       "exceptions": {
@@ -943,7 +943,7 @@
     },
     {
       "article_id": "wp-406",
-      "cs_file": "content/posts/wp-406/index.cs.html",
+      "cs_file": "content/posts/2016-09-12-our-first-server-with-ssds-and-512-gb-of-ram/index.cs.html",
       "cs_file_sha256": "a4f4958c7dfe8b57282c1829f1137018382f043934ac84a612904548a969ff30",
       "cs_path": "/mame-prvni-server-s-ssd-a-512-gb-ram/",
       "exceptions": {
@@ -955,7 +955,7 @@
     },
     {
       "article_id": "wp-408",
-      "cs_file": "content/posts/wp-408/index.cs.html",
+      "cs_file": "content/posts/2016-09-21-why-we-want-a-20-gigabit-network/index.cs.html",
       "cs_file_sha256": "efccee7eafa7e1f92c0e92e78cb1fa1245e20081da7914cc02dae0e9252a3dc7",
       "cs_path": "/proc-chceme-mit-20gigabitovou-sit/",
       "exceptions": {
@@ -967,7 +967,7 @@
     },
     {
       "article_id": "wp-433",
-      "cs_file": "content/posts/wp-433/index.cs.html",
+      "cs_file": "content/posts/2016-09-26-20-gigabits-is-coming-this-year/index.cs.html",
       "cs_file_sha256": "b0b06408005491a3a0129a2d8a4738e17816939c6d88809d79338a497e4807b0",
       "cs_path": "/20-gigabitu-bude-uz-letos/",
       "exceptions": {
@@ -979,7 +979,7 @@
     },
     {
       "article_id": "wp-443",
-      "cs_file": "content/posts/wp-443/index.cs.html",
+      "cs_file": "content/posts/2016-10-03-we-are-going-to-linuxdays-come-and-see-us-there/index.cs.html",
       "cs_file_sha256": "ebe8cc7ff66fb78aff63b8ba3ca2dfe4677c4a58e52ea59da32a8a8b4337a496",
       "cs_path": "/jedeme-na-linuxdays-prijdte-tam-za-nami/",
       "exceptions": {
@@ -991,7 +991,7 @@
     },
     {
       "article_id": "wp-448",
-      "cs_file": "content/posts/wp-448/index.cs.html",
+      "cs_file": "content/posts/2016-10-18-haveapi-has-a-new-web-interface/index.cs.html",
       "cs_file_sha256": "a6aa504d6f851b88477c310745ab86ac553bda114328ab7dafa29230b155c2fd",
       "cs_path": "/haveapi-ma-nove-webove-rozhrani/",
       "exceptions": {
@@ -1003,7 +1003,7 @@
     },
     {
       "article_id": "wp-450",
-      "cs_file": "content/posts/wp-450/index.cs.html",
+      "cs_file": "content/posts/2016-10-24-the-dirty-cow-bug-under-openvz/index.cs.html",
       "cs_file_sha256": "3d22bf7bb1b4189617f007e5934decc90d437c93b3dec1e7b2b0e02a969989e7",
       "cs_path": "/chyba-dirty-cow-pod-openvz/",
       "exceptions": {
@@ -1015,7 +1015,7 @@
     },
     {
       "article_id": "wp-455",
-      "cs_file": "content/posts/wp-455/index.cs.html",
+      "cs_file": "content/posts/2016-10-25-vpsadmin-v2-5-0-private-ip-addresses-and-an-improved-traffic-overview/index.cs.html",
       "cs_file_sha256": "6d482521f8227020ed503ca4568c07dfea93504e17857332c1919616e4a16769",
       "cs_path": "/vpsadmin-v2-5-0-podpora-pro-privatni-ip-adresy-vylepseny-prehled-datovych-prenosu/",
       "exceptions": {
@@ -1027,7 +1027,7 @@
     },
     {
       "article_id": "wp-460",
-      "cs_file": "content/posts/wp-460/index.cs.html",
+      "cs_file": "content/posts/2016-11-10-outages-and-systemd-services-that-fail-to-start/index.cs.html",
       "cs_file_sha256": "e12432c5e66d13a607669a113b170660be4c8e57825811dc93925e632256d041",
       "cs_path": "/vypadky-a-nestartujici-sluzby-v-systemd/",
       "exceptions": {
@@ -1039,7 +1039,7 @@
     },
     {
       "article_id": "wp-465",
-      "cs_file": "content/posts/wp-465/index.cs.html",
+      "cs_file": "content/posts/2016-11-22-the-first-vpsfree-hackathon-come-and-work-on-networking/index.cs.html",
       "cs_file_sha256": "8eb7e7b10a4ff7bc7765f3e45cd4a00dbe8d7a327dad8d355808368f51bb3bbc",
       "cs_path": "/prvni-vpsfree-hackaton-pojdte-s-nami-sitovat/",
       "exceptions": {
@@ -1051,7 +1051,7 @@
     },
     {
       "article_id": "wp-470",
-      "cs_file": "content/posts/wp-470/index.cs.html",
+      "cs_file": "content/posts/2016-11-24-haveapi-v0-7-blocking-actions/index.cs.html",
       "cs_file_sha256": "0382da692f4be127c32ad4488a3f7e2fc146fec6b14845b6b1cadef29a1cac3c",
       "cs_path": "/haveapi-v0-7-blokujici-akce/",
       "exceptions": {
@@ -1063,7 +1063,7 @@
     },
     {
       "article_id": "wp-474",
-      "cs_file": "content/posts/wp-474/index.cs.html",
+      "cs_file": "content/posts/2016-11-28-vpsadmin-can-upload-ssh-keys-to-vpses/index.cs.html",
       "cs_file_sha256": "3ac1252d728259fb154294492c8a4295dbb723392f9635ccf49ff052524596f0",
       "cs_path": "/vpsadmin-umi-nahravani-ssh-klicu-do-vps/",
       "exceptions": {
@@ -1075,7 +1075,7 @@
     },
     {
       "article_id": "wp-481",
-      "cs_file": "content/posts/wp-481/index.cs.html",
+      "cs_file": "content/posts/2016-12-07-how-did-our-first-vpsfree-hackathon-go/index.cs.html",
       "cs_file_sha256": "2b186ed9e5cdb0fededf0c9db19c36dd5d40511f49a8d14a80f2db2a141ea566",
       "cs_path": "/jak-probehl-nas-prvni-vpsfree-hackaton/",
       "exceptions": {
@@ -1087,7 +1087,7 @@
     },
     {
       "article_id": "wp-490",
-      "cs_file": "content/posts/wp-490/index.cs.html",
+      "cs_file": "content/posts/2017-02-13-vpsadmin-v2-7-0-payments-emails-and-two-playground-vpses/index.cs.html",
       "cs_file_sha256": "220f1fc96bff854123a4b87c2657dca29f7809a0e3ce435a3274ddc8e077eb13",
       "cs_path": "/vpsadmin-v2-7-0-zpracovani-plateb-e-maily-dve-pgnd-vps/",
       "exceptions": {
@@ -1099,7 +1099,7 @@
     },
     {
       "article_id": "wp-493",
-      "cs_file": "content/posts/wp-493/index.cs.html",
+      "cs_file": "content/posts/2017-03-13-our-first-trip-abroad-linux-tage-in-chemnitz/index.cs.html",
       "cs_file_sha256": "54e244199f9fa0184a4362b0875305ef3c5356330d559b359d87b4f57b6ad22c",
       "cs_path": "/poprve-v-cizine-aneb-jak-jsme-byli-na-linux-tage-v-saske-kamenici/",
       "exceptions": {
@@ -1111,7 +1111,7 @@
     },
     {
       "article_id": "wp-500",
-      "cs_file": "content/posts/wp-500/index.cs.html",
+      "cs_file": "content/posts/2017-03-29-vpsadmin-2-8-0-improves-outage-reporting/index.cs.html",
       "cs_file_sha256": "932d351c795ae00aa92b950ed8b7db02a321209f4cedc533c7394be7b19d8d73",
       "cs_path": "/vpsadmin-2-8-0-vylepsuje-hlaseni-vypadku/",
       "exceptions": {
@@ -1123,7 +1123,7 @@
     },
     {
       "article_id": "wp-506",
-      "cs_file": "content/posts/wp-506/index.cs.html",
+      "cs_file": "content/posts/2017-05-03-we-support-alpine-linux-and-host-its-main-mirror/index.cs.html",
       "cs_file_sha256": "5cc8f17e33050e6a2c1dc0033a4caa41e11a82b69ac4bc5d46d3a02bfa3fc941",
       "cs_path": "/podporujeme-alpine-linux-ma-u-nas-hlavni-mirror/",
       "exceptions": {
@@ -1135,7 +1135,7 @@
     },
     {
       "article_id": "wp-516",
-      "cs_file": "content/posts/wp-516/index.cs.html",
+      "cs_file": "content/posts/2017-05-29-linux-distributions-debian-and-ubuntu-lead-alpine-is-climbing/index.cs.html",
       "cs_file_sha256": "7b2bf62081cac8a254ff0885245f2c8becddb24b6857b6b038188a5428bdc677",
       "cs_path": "/linuxove-distribuce-vede-debian-a-ubuntu-nahoru-se-dere-alpine/",
       "exceptions": {
@@ -1147,7 +1147,7 @@
     },
     {
       "article_id": "wp-521",
-      "cs_file": "content/posts/wp-521/index.cs.html",
+      "cs_file": "content/posts/2017-06-26-what-is-a-reverse-dns-record-ptr-and-how-do-you-set-it/index.cs.html",
       "cs_file_sha256": "e1a7a5cef3d5167a1a93df5c3927688444266382ce2f6e2a2ce7a5293edf0278",
       "cs_path": "/co-je-to-reverzni-zaznam-ptr-a-jak-ho-nastavit/",
       "exceptions": {
@@ -1159,7 +1159,7 @@
     },
     {
       "article_id": "wp-529",
-      "cs_file": "content/posts/wp-529/index.cs.html",
+      "cs_file": "content/posts/2017-09-05-vote-for-our-linuxdays-talks/index.cs.html",
       "cs_file_sha256": "262ccecb5d079503507a2aec6d936721f052673824f2819f7a619b67edfb4f87",
       "cs_path": "/hlasujte-pro-nase-prednasky-na-linuxdays/",
       "exceptions": {
@@ -1171,7 +1171,7 @@
     },
     {
       "article_id": "wp-536",
-      "cs_file": "content/posts/wp-536/index.cs.html",
+      "cs_file": "content/posts/2017-09-11-vpsadmin-v2-9-brings-simple-vps-monitoring/index.cs.html",
       "cs_file_sha256": "b3103b4a35377d5e709024a5fb53e1bbaa04d27299ab9cedfa6f92f2072d4fe4",
       "cs_path": "/vpsadmin-v2-9-prinasi-jednoduchy-monitoring-vps/",
       "exceptions": {
@@ -1183,7 +1183,7 @@
     },
     {
       "article_id": "wp-539",
-      "cs_file": "content/posts/wp-539/index.cs.html",
+      "cs_file": "content/posts/2018-03-06-we-introduced-vpsadminos-a-system-for-running-containers/index.cs.html",
       "cs_file_sha256": "a74a63da71d6ae7459af74856f423ff0d0578f0ce708d8e53a7723cec208918f",
       "cs_path": "/predstavili-jsme-vpsadminos-system-pro-provoz-kontejneru/",
       "exceptions": {
@@ -1195,7 +1195,7 @@
     },
     {
       "article_id": "wp-547",
-      "cs_file": "content/posts/wp-547/index.cs.html",
+      "cs_file": "content/posts/2018-05-21-were-moving-from-openvz-to-vpsadminos-and-launching-a-test-environment/index.cs.html",
       "cs_file_sha256": "75215a11edba0d692ed5fc6a9983eb0f11065c5c8ecae33264e4124b7c3b72a8",
       "cs_path": "/prechazime-z-openvz-na-vpsadminos-spoustime-testovaci-prostredi/",
       "exceptions": {
@@ -1207,7 +1207,7 @@
     },
     {
       "article_id": "wp-552",
-      "cs_file": "content/posts/wp-552/index.cs.html",
+      "cs_file": "content/posts/2018-07-09-vpsadminos-status-report-what-we-are-working-on/index.cs.html",
       "cs_file_sha256": "90a0dd880357df80f97f0c10e4f6c893d7de9aeaed05181293910fdf7a860672",
       "cs_path": "/vpsadminos-status-report-na-cem-pracujeme/",
       "exceptions": {
@@ -1219,7 +1219,7 @@
     },
     {
       "article_id": "wp-557",
-      "cs_file": "content/posts/wp-557/index.cs.html",
+      "cs_file": "content/posts/2018-09-03-vpsadminos-installation-updates-deployment-and-networking/index.cs.html",
       "cs_file_sha256": "f8573d4fc04c86e3919c702bca3cf6c67dfcd560897da68aaaf6da604dd7d190",
       "cs_path": "/vpsadminos-instalace-aktualizace-nasazeni-a-sitovani/",
       "exceptions": {
@@ -1231,7 +1231,7 @@
     },
     {
       "article_id": "wp-560",
-      "cs_file": "content/posts/wp-560/index.cs.html",
+      "cs_file": "content/posts/2018-10-01-come-to-linuxdays-this-weekend-well-be-there/index.cs.html",
       "cs_file_sha256": "f676d9fe0b750630e91cfa8d034f4bf0efdc7bce75df12e87285b72562f92177",
       "cs_path": "/prijdte-o-vikendu-na-linuxdays-my-tam-budeme/",
       "exceptions": {
@@ -1243,7 +1243,7 @@
     },
     {
       "article_id": "wp-564",
-      "cs_file": "content/posts/wp-564/index.cs.html",
+      "cs_file": "content/posts/2018-10-15-our-new-servers-are-fully-patched-against-known-cpu-bugs/index.cs.html",
       "cs_file_sha256": "ad5a52784c2afcf08fb188965ec69180e29b3a621cfd244dbe7b44fe74ca46ee",
       "cs_path": "/mame-nove-servery-jsou-plne-zaplatovane-proti-znamym-chybam-cpu/",
       "exceptions": {
@@ -1255,7 +1255,7 @@
     },
     {
       "article_id": "wp-573",
-      "cs_file": "content/posts/wp-573/index.cs.html",
+      "cs_file": "content/posts/2018-10-23-vpsadminos-networking-changes-downloadable-iso-backups-and-cgroups/index.cs.html",
       "cs_file_sha256": "c86f49427c56720cdfe2bd25ece2e59db5878bb5e7d61f644f98a693aa745bc4",
       "cs_path": "/vpsadminos-zmeny-v-sitovani-iso-ke-stazeni-zalohovani-a-cgroupy/",
       "exceptions": {
@@ -1267,7 +1267,7 @@
     },
     {
       "article_id": "wp-576",
-      "cs_file": "content/posts/wp-576/index.cs.html",
+      "cs_file": "content/posts/2018-11-01-try-cloning-production-vpses-to-the-vpsadminos-test-environment/index.cs.html",
       "cs_file_sha256": "e98edc658078fd626bc2817a798b0350acd9542b2c6e9e24f46e794d33d48c49",
       "cs_path": "/vyzkousejte-si-klonovani-produkcnich-vps-na-testovaci-prostredi-s-vpsadminos/",
       "exceptions": {
@@ -1279,7 +1279,7 @@
     },
     {
       "article_id": "wp-580",
-      "cs_file": "content/posts/wp-580/index.cs.html",
+      "cs_file": "content/posts/2019-01-28-our-first-10-years-are-behind-us-with-plenty-more-to-come/index.cs.html",
       "cs_file_sha256": "43868d537ba61cb282c4d3f9f05dbba9dfbdefdedc199be284cd5c40f81dfe49",
       "cs_path": "/prvnich-10-let-je-za-nami-chystame-spoustu-novinek/",
       "exceptions": {
@@ -1291,7 +1291,7 @@
     },
     {
       "article_id": "wp-588",
-      "cs_file": "content/posts/wp-588/index.cs.html",
+      "cs_file": "content/posts/2019-02-28-a-summary-of-saturdays-annual-meeting-todo/index.cs.html",
       "cs_file_sha256": "06936960f920ac3d1d80eae578956a4b926a9a00566fd453dc3c0f30379f9a60",
       "cs_path": "/shrnuti-ze-sobotni-vyrocni-schuze-todo/",
       "exceptions": {
@@ -1303,7 +1303,7 @@
     },
     {
       "article_id": "wp-592",
-      "cs_file": "content/posts/wp-592/index.cs.html",
+      "cs_file": "content/posts/2019-03-01-were-heading-to-installfest-come-for-coffee-and-a-new-switch/index.cs.html",
       "cs_file_sha256": "d08eb987dcbed21b4c054c05ba880e79de6ff3b069bdcfb52708c5d0f5f35f74",
       "cs_path": "/vyrazime-na-installfest-prijdte-na-kafe-a-novy-switch/",
       "exceptions": {
@@ -1315,7 +1315,7 @@
     },
     {
       "article_id": "wp-597",
-      "cs_file": "content/posts/wp-597/index.cs.html",
+      "cs_file": "content/posts/2019-05-02-terraform-provider-for-vpsadmin-automate-infrastructure-management/index.cs.html",
       "cs_file_sha256": "6c27fb3395db6e4879e3d7150275ea4ce6a60c57752077485dd3f5cf04a7bd59",
       "cs_path": "/terraform-provider-pro-vpsadmin-spravujte-infrastrukturu-automatizovane/",
       "exceptions": {
@@ -1327,7 +1327,7 @@
     },
     {
       "article_id": "wp-601",
-      "cs_file": "content/posts/wp-601/index.cs.html",
+      "cs_file": "content/posts/2019-05-22-two-factor-login-to-vpsadmin-for-better-security/index.cs.html",
       "cs_file_sha256": "54e098c71610d369c5a8510f6bc1f89b04d5ef188e54d89fe51ccb2870ad3354",
       "cs_path": "/mame-dvoufaktorove-prihlasovani-do-vpsadmin-kvuli-vyssi-bezpecnosti/",
       "exceptions": {
@@ -1339,7 +1339,7 @@
     },
     {
       "article_id": "wp-606",
-      "cs_file": "content/posts/wp-606/index.cs.html",
+      "cs_file": "content/posts/2019-06-04-six-months-of-vpsadminos-development-closer-to-launching-a-production-server/index.cs.html",
       "cs_file_sha256": "41d91572cd6bcd45514deb89c54ee2ce2c48bf389405cb4e5a0284bad42dd4dd",
       "cs_path": "/pul-roku-vyvoje-vpsadminos-blizime-se-spusteni-produkcniho-serveru/",
       "exceptions": {
@@ -1351,7 +1351,7 @@
     },
     {
       "article_id": "wp-610",
-      "cs_file": "content/posts/wp-610/index.cs.html",
+      "cs_file": "content/posts/2019-06-11-revising-distribution-templates-opensuse-slackware-and-void-linux-on-staging/index.cs.html",
       "cs_file_sha256": "60008671d429a3ac36b7a1b6c4ce0d0ef0a9c08c67cbdbb92dfcf01dae60cc87",
       "cs_path": "/revize-sablon-distribuci-na-stagingu-nove-opensuse-slackware-a-void-linux/",
       "exceptions": {
@@ -1363,7 +1363,7 @@
     },
     {
       "article_id": "wp-615",
-      "cs_file": "content/posts/wp-615/index.cs.html",
+      "cs_file": "content/posts/2019-10-29-vpsadminos-development-nfs-on-staging-the-overlay2-driver-for-docker-and-more/index.cs.html",
       "cs_file_sha256": "6d77f5ccb749cba267b4bb0a87e612bb0a3c4f9c65d9f9ab7e19bbe2ebaa2915",
       "cs_path": "/vyvoj-vpsadminos-nfs-na-stagingu-overlay2-driver-pro-docker-a-dalsi/",
       "exceptions": {
@@ -1375,7 +1375,7 @@
     },
     {
       "article_id": "wp-621",
-      "cs_file": "content/posts/wp-621/index.cs.html",
+      "cs_file": "content/posts/2020-01-13-vpsadminos-in-production-in-prague/index.cs.html",
       "cs_file_sha256": "c969c0f8719d9852fcccded37a20def41f702d49589fc675e1ac97d6bbeaea10",
       "cs_path": "/vpsadminos-v-produkci-v-praze/",
       "exceptions": {
@@ -1387,7 +1387,7 @@
     },
     {
       "article_id": "wp-625",
-      "cs_file": "content/posts/wp-625/index.cs.html",
+      "cs_file": "content/posts/2020-02-28-migrating-our-infrastructure-to-20-gigabits/index.cs.html",
       "cs_file_sha256": "d5fadd503711629811889269706e664c5b7e96e1496310a458d006af6e225b2d",
       "cs_path": "/migrace-nasi-infrastruktury-na-20-gigabitu/",
       "exceptions": {
@@ -1399,7 +1399,7 @@
     },
     {
       "article_id": "wp-629",
-      "cs_file": "content/posts/wp-629/index.cs.html",
+      "cs_file": "content/posts/2020-03-03-lets-encrypt-is-revoking-three-million-certificates-check-yours/index.cs.html",
       "cs_file_sha256": "e6561237ca3fff4b2834a8dc19b1b3586d2776c3d1712affdb9c890889aedbe0",
       "cs_path": "/lets-encrypt-revokuje-tri-miliony-certifikatu-zkontrolujte-ty-sve/",
       "exceptions": {
@@ -1411,7 +1411,7 @@
     },
     {
       "article_id": "wp-636",
-      "cs_file": "content/posts/wp-636/index.cs.html",
+      "cs_file": "content/posts/2020-03-16-it-problems-because-of-coronavirus-we-can-help-get-in-touch/index.cs.html",
       "cs_file_sha256": "1e627d92098e90c31d46220b4e86b9d6fd9d68c228a63bec07b56276fa8f3e13",
       "cs_path": "/mate-kvuli-koronaviru-problem-s-it-nabizime-pomoc-ozvete-se/",
       "exceptions": {
@@ -1423,7 +1423,7 @@
     },
     {
       "article_id": "wp-639",
-      "cs_file": "content/posts/wp-639/index.cs.html",
+      "cs_file": "content/posts/2020-03-17-were-launching-video-calls-at-meet-vpsfree-cz-free-and-without-registration/index.cs.html",
       "cs_file_sha256": "46ca979f894b9f81d06904de4a22999b9c2f7726a14e3056fdc6c5093804ad2e",
       "cs_path": "/spoustime-video-hovory-na-meet-vpsfree-cz-zdarma-a-bez-registrace/",
       "exceptions": {
@@ -1435,7 +1435,7 @@
     },
     {
       "article_id": "wp-646",
-      "cs_file": "content/posts/wp-646/index.cs.html",
+      "cs_file": "content/posts/2020-03-18-the-first-day-of-video-calls-at-meet-vpsfree-cz/index.cs.html",
       "cs_file_sha256": "ad207854ad1e3072efe776343b06425b6f9ab889356e9958723eadcf2a1af9aa",
       "cs_path": "/prvni-den-s-video-horovy-na-meet-vpsfree-cz/",
       "exceptions": {
@@ -1447,7 +1447,7 @@
     },
     {
       "article_id": "wp-651",
-      "cs_file": "content/posts/wp-651/index.cs.html",
+      "cs_file": "content/posts/2020-03-30-what-next-for-meet-vpsfree-cz-new-software-and-hardware/index.cs.html",
       "cs_file_sha256": "35892234d15ba7bc5afeb0947bd22ece751c92027c17a302ecf38f53db8e1f87",
       "cs_path": "/kam-dal-s-meet-vpsfree-cz-aneb-novy-software-i-hardware/",
       "exceptions": {
@@ -1459,7 +1459,7 @@
     },
     {
       "article_id": "wp-653",
-      "cs_file": "content/posts/wp-653/index.cs.html",
+      "cs_file": "content/posts/2020-04-02-expanding-meet-vpsfree-cz-with-two-new-servers/index.cs.html",
       "cs_file_sha256": "9e05d12445bc1320c1b7a81a636675db0c82db093db2d5343f06ebfbe7108c55",
       "cs_path": "/posilujeme-meet-vpsfree-cz-mame-dva-nove-servery/",
       "exceptions": {
@@ -1471,7 +1471,7 @@
     },
     {
       "article_id": "wp-662",
-      "cs_file": "content/posts/wp-662/index.cs.html",
+      "cs_file": "content/posts/2020-06-04-lets-move-to-ipv6-together-we-need-it/index.cs.html",
       "cs_file_sha256": "25abb46638006f6fee2b55560c9ff62bcd18b48cced2b1888ad3d26db545f360",
       "cs_path": "/prejdeme-na-ipv6-spolecne-potrebujeme-to/",
       "exceptions": {
@@ -1483,7 +1483,7 @@
     },
     {
       "article_id": "wp-667",
-      "cs_file": "content/posts/wp-667/index.cs.html",
+      "cs_file": "content/posts/2020-06-26-datacentre-news-what-were-doing-now-and-planning-next/index.cs.html",
       "cs_file_sha256": "65b0626d0129aed3e8dd5d210ee241ecf6a66127a8396a47745dc9e077f61f5e",
       "cs_path": "/aktuality-ze-serverovny-co-delame-ted-a-co-chystame-dal/",
       "exceptions": {
@@ -1495,7 +1495,7 @@
     },
     {
       "article_id": "wp-678",
-      "cs_file": "content/posts/wp-678/index.cs.html",
+      "cs_file": "content/posts/2020-08-17-memory-management-on-vpsadminos/index.cs.html",
       "cs_file_sha256": "54b42b8b9a42be7d7ad1c7496289d0390f35c38e007dc9c98f8ac474edbfcb1b",
       "cs_path": "/sprava-pameti-na-vpsadminos/",
       "exceptions": {
@@ -1507,7 +1507,7 @@
     },
     {
       "article_id": "wp-681",
-      "cs_file": "content/posts/wp-681/index.cs.html",
+      "cs_file": "content/posts/2020-09-10-choose-your-datacenter-carefully-it-could-be-a-partner-for-life/index.cs.html",
       "cs_file_sha256": "aa1be16514f3da216803b6ab9e7f976cda187c36d54da756c12e04f5f61b9d79",
       "cs_path": "/datacentrum-vybirejte-dobre-muze-z-nej-byt-partner-na-cely-zivot/",
       "exceptions": {
@@ -1519,7 +1519,7 @@
     },
     {
       "article_id": "wp-692",
-      "cs_file": "content/posts/wp-692/index.cs.html",
+      "cs_file": "content/posts/2020-10-12-vpsadmin-updates-default-vps-features-and-oom-reports/index.cs.html",
       "cs_file_sha256": "b024ae3a8882f8dfa52699b38fa482450addf1e572a4fa7ff76804e29d22637c",
       "cs_path": "/novinky-ve-vpsadminu-vychozi-vlastnosti-vps-a-oom-reporty/",
       "exceptions": {
@@ -1531,7 +1531,7 @@
     },
     {
       "article_id": "wp-695",
-      "cs_file": "content/posts/wp-695/index.cs.html",
+      "cs_file": "content/posts/2020-11-24-test-support-for-new-lets-encrypt-certificates-at-test-vpsfree-cz/index.cs.html",
       "cs_file_sha256": "20a7ffa11247bf1a0971f00a3adbe56fe0a2b792375c6a7d8ed2a6f26e9bea1e",
       "cs_path": "/vyzkousejte-si-podporu-novych-certifikatu-od-lets-encrypt-na-test-vpsfree-cz/",
       "exceptions": {
@@ -1543,7 +1543,7 @@
     },
     {
       "article_id": "wp-702",
-      "cs_file": "content/posts/wp-702/index.cs.html",
+      "cs_file": "content/posts/2020-12-09-linux-distributions-ubuntu-grows-faster-than-debian-nixos-gains-popularity/index.cs.html",
       "cs_file_sha256": "48763bd6b55405b793134ba67d26c1aeec42d0a4b723da52f651cb8f5a84c929",
       "cs_path": "/linuxove-distribuce-ubuntu-roste-rychleji-nez-debian-stoupa-popularita-nixos/",
       "exceptions": {
@@ -1555,7 +1555,7 @@
     },
     {
       "article_id": "wp-709",
-      "cs_file": "content/posts/wp-709/index.cs.html",
+      "cs_file": "content/posts/2021-02-18-vps-rescue-mode-boot-a-recovery-operating-system/index.cs.html",
       "cs_file_sha256": "ca4cb2b77d43e734cd47a4b7efec1d7b3316288e59ccb68d397ebb7d49d0c0ef",
       "cs_path": "/nouzovy-rezim-vps-nastartujte-si-zachranny-operacni-system/",
       "exceptions": {
@@ -1567,7 +1567,7 @@
     },
     {
       "article_id": "wp-713",
-      "cs_file": "content/posts/wp-713/index.cs.html",
+      "cs_file": "content/posts/2021-03-08-were-halfway-through-the-vpsadminos-migration-brno-is-next/index.cs.html",
       "cs_file_sha256": "06d20ec3e2753b805b62865105cf1ee09187645c0130804719639a1a7286946f",
       "cs_path": "/jsme-v-pulce-migrace-na-vpsadminos-ted-prijde-na-radu-brno/",
       "exceptions": {
@@ -1579,7 +1579,7 @@
     },
     {
       "article_id": "wp-717",
-      "cs_file": "content/posts/wp-717/index.cs.html",
+      "cs_file": "content/posts/2021-03-18-we-can-allocate-a-dedicated-64-ipv6-block-to-each-server/index.cs.html",
       "cs_file_sha256": "eff43a200e5423267408affa90c8579ea563ff6d36ee457c0879d4cb8eff62b7",
       "cs_path": "/umime-pridelit-kazdemu-serveru-vlastni-blok-64-adres-z-ipv6/",
       "exceptions": {
@@ -1591,7 +1591,7 @@
     },
     {
       "article_id": "wp-722",
-      "cs_file": "content/posts/wp-722/index.cs.html",
+      "cs_file": "content/posts/2021-09-20-the-first-vpsadminos-server-in-brno/index.cs.html",
       "cs_file_sha256": "a2fbc72218678c691befce9ae46eb3de0e801e8666a60632b7acc47dd1ec100a",
       "cs_path": "/prvni-server-s-vpsadminos-v-brne/",
       "exceptions": {
@@ -1603,7 +1603,7 @@
     },
     {
       "article_id": "wp-730",
-      "cs_file": "content/posts/wp-730/index.cs.html",
+      "cs_file": "content/posts/2021-12-13-migrate-to-vpsadminos-time-for-current-virtualization-and-a-new-kernel/index.cs.html",
       "cs_file_sha256": "c96586abf09768e010bd4df8b4d7fbec8871df25056cacf710c44c3e11243cbe",
       "cs_path": "/migrujte-na-vpsadminos-uz-je-cas-na-aktualni-virtualizaci-s-novym-jadrem/",
       "exceptions": {
@@ -1615,7 +1615,7 @@
     },
     {
       "article_id": "wp-738",
-      "cs_file": "content/posts/wp-738/index.cs.html",
+      "cs_file": "content/posts/2022-02-15-vps-start-menu-an-alternative-to-the-grub-bootloader/index.cs.html",
       "cs_file_sha256": "d4ed07819f1717c13b3a739be6c03252e6874475191b8894367d55d2a1afc7f1",
       "cs_path": "/vps-start-menu-nahrada-za-zavadec-grub/",
       "exceptions": {
@@ -1627,7 +1627,7 @@
     },
     {
       "article_id": "wp-746",
-      "cs_file": "content/posts/wp-746/index.cs.html",
+      "cs_file": "content/posts/2022-06-03-post-mortem-a-few-words-about-the-outage/index.cs.html",
       "cs_file_sha256": "6b2a71652de462f6b61863ae48bdc44372a63ed4c96daa1940ffb08f464ffca2",
       "cs_path": "/post-mortem-par-slov-k-vypadku/",
       "exceptions": {
@@ -1639,7 +1639,7 @@
     },
     {
       "article_id": "wp-759",
-      "cs_file": "content/posts/wp-759/index.cs.html",
+      "cs_file": "content/posts/2022-06-08-infrastructure-status-at-status-vpsf-cz/index.cs.html",
       "cs_file_sha256": "c01a200b7061d68ae56dbee9a0296d4832e05d612dba47f7bec1a4dc2c8fd703",
       "cs_path": "/stav-nasi-infrastruktury-na-status-vpsf-cz/",
       "exceptions": {
@@ -1651,7 +1651,7 @@
     },
     {
       "article_id": "wp-762",
-      "cs_file": "content/posts/wp-762/index.cs.html",
+      "cs_file": "content/posts/2022-07-13-more-powerful-servers-to-counter-rising-energy-prices/index.cs.html",
       "cs_file_sha256": "98cf6a570cbf43760df201f1e6a7ce81eeb5ce7c2c7ba7046aae24ed079560fa",
       "cs_path": "/vykonnejsi-servery-jako-lek-na-zvysovani-cen-energii/",
       "exceptions": {
@@ -1663,7 +1663,7 @@
     },
     {
       "article_id": "wp-773",
-      "cs_file": "content/posts/wp-773/index.cs.html",
+      "cs_file": "content/posts/2022-10-07-were-upgrading-almost-all-our-hardware-to-save-energy/index.cs.html",
       "cs_file_sha256": "4c5ecd51bc4ee1f411597508cc874e1517660100e191aa430f03c341f22fd34c",
       "cs_path": "/inovujeme-skoro-vsechen-hardware-chceme-byt-energeticky-uspornejsi/",
       "exceptions": {
@@ -1675,7 +1675,7 @@
     },
     {
       "article_id": "wp-792",
-      "cs_file": "content/posts/wp-792/index.cs.html",
+      "cs_file": "content/posts/2023-01-05-linux-distributions-rocky-linux-grows-quickly-slackware-disappears/index.cs.html",
       "cs_file_sha256": "8e8b642a49498d01e67f5fcabfe167c1d46882f4b63aeec8ff91a20085c52410",
       "cs_path": "/linuxove-distribuce-rocky-linux-rychle-roste-slackware-uplne-zmizel/",
       "exceptions": {
@@ -1687,7 +1687,7 @@
     },
     {
       "article_id": "wp-805",
-      "cs_file": "content/posts/wp-805/index.cs.html",
+      "cs_file": "content/posts/2023-04-24-vpsadmin-news-ssh-host-keys-template-changes-and-cgroups/index.cs.html",
       "cs_file_sha256": "5f28b86bee5ef236578f9e86705ea2374b2532bbed167716c573344027abffc4",
       "cs_path": "/novinky-ve-vpsadminu-hostitelske-klice-ssh-upravy-v-sablonach-a-cgroups/",
       "exceptions": {
@@ -1699,7 +1699,7 @@
     },
     {
       "article_id": "wp-807",
-      "cs_file": "content/posts/wp-807/index.cs.html",
+      "cs_file": "content/posts/2023-04-27-devcgprog-a-utility-for-configuring-the-cgroupv2-devices-controller/index.cs.html",
       "cs_file_sha256": "17f2a24b109917792aca912a2aae9caaf5bbb6afc11d4163f2f6ca60a5367497",
       "cs_path": "/devcgprog-utilita-pro-nastaveni-devices-cgroupv2-controlleru/",
       "exceptions": {
@@ -1711,7 +1711,7 @@
     },
     {
       "article_id": "wp-811",
-      "cs_file": "content/posts/wp-811/index.cs.html",
+      "cs_file": "content/posts/2023-07-10-automatic-vps-disk-expansion/index.cs.html",
       "cs_file_sha256": "b0163f6673dacdb614162dec6ecfc3820c7769ebc8689ef040967203ba8d8341",
       "cs_path": "/automaticke-rozsirovani-disku-vps/",
       "exceptions": {
@@ -1723,7 +1723,7 @@
     },
     {
       "article_id": "wp-815",
-      "cs_file": "content/posts/wp-815/index.cs.html",
+      "cs_file": "content/posts/2023-12-19-we-have-discourse-come-and-talk-mailing-lists-have-had-their-day/index.cs.html",
       "cs_file_sha256": "a61bb7c1ba603f9224eed59da196a95dc81064ca0d228d832266187948fb2d21",
       "cs_path": "/mame-discourse-pojdte-si-tam-povidat-mailing-listy-jsou-prezite/",
       "exceptions": {
@@ -1735,7 +1735,7 @@
     },
     {
       "article_id": "wp-821",
-      "cs_file": "content/posts/wp-821/index.cs.html",
+      "cs_file": "content/posts/2023-12-30-single-sign-on-in-vpsadmin/index.cs.html",
       "cs_file_sha256": "80ccba07b041c5217b72cf1e7d0eb3869a10236a8ef71d474b86eb6aba4ee3c9",
       "cs_path": "/single-sign-on-ve-vpsadminu/",
       "exceptions": {
@@ -1747,7 +1747,7 @@
     },
     {
       "article_id": "wp-824",
-      "cs_file": "content/posts/wp-824/index.cs.html",
+      "cs_file": "content/posts/2024-01-15-weve-replaced-lxcfs-with-kernel-virtualization/index.cs.html",
       "cs_file_sha256": "b8ef25a41f81e15d767f50c17b5b3d7a95f691b574c47c1ec89aa335e7d8b5b5",
       "cs_path": "/nahradili-jsme-lxcfs-virtualizaci-v-kernelu/",
       "exceptions": {
@@ -1759,7 +1759,7 @@
     },
     {
       "article_id": "wp-828",
-      "cs_file": "content/posts/wp-828/index.cs.html",
+      "cs_file": "content/posts/2024-07-31-prometheus-metrics-and-node-load-heatmaps/index.cs.html",
       "cs_file_sha256": "9a77a77915a809630490af092adb6e9dcd55ba94e3188cde60d853abac20671c",
       "cs_path": "/metriky-pro-prometheus-a-heatmapy-zatizeni-nodu/",
       "exceptions": {
@@ -1771,7 +1771,7 @@
     },
     {
       "article_id": "wp-835",
-      "cs_file": "content/posts/wp-835/index.cs.html",
+      "cs_file": "content/posts/2024-08-19-primary-dns-servers/index.cs.html",
       "cs_file_sha256": "acefda954d0ffe3ecd104f61b3e34e5a36f29de306b3d57d052a462a4b6b7386",
       "cs_path": "/primarni-dns-servery/",
       "exceptions": {
@@ -1783,7 +1783,7 @@
     },
     {
       "article_id": "wp-841",
-      "cs_file": "content/posts/wp-841/index.cs.html",
+      "cs_file": "content/posts/2025-03-03-two-factor-login-with-passkeys/index.cs.html",
       "cs_file_sha256": "7899e480d07f1a230c1b3cfd6ff099cd57b1db924ff5401a8d73c1a36d001f29",
       "cs_path": "/dvoufaktorove-prihlasovani-s-passkey/",
       "exceptions": {
@@ -1795,7 +1795,7 @@
     },
     {
       "article_id": "wp-847",
-      "cs_file": "content/posts/wp-847/index.cs.html",
+      "cs_file": "content/posts/2025-05-16-linux-distributions-users-most-often-switch-to-rocky-linux-and-nixos/index.cs.html",
       "cs_file_sha256": "e194f31e625e9beb4a618862551a28a71fa4625780a89458c66a0aaafc9410c0",
       "cs_path": "/linuxove-distribuce-uzivatele-prechazeji-nejcasteji-na-rocky-linux-a-nixos/",
       "exceptions": {
@@ -5401,131 +5401,131 @@
     "wptexturize": "not applied; requires localized WordPress hooks"
   },
   "generated_files": {
-    "content/posts/wp-100/index.cs.html": "e34be0af9c59f0f47886b460f9150560de71d128e837df7165550f58201827b7",
-    "content/posts/wp-107/index.cs.html": "1620b3801fb52c6efd4542459644b2cfc8c93dda7e9ceb4759c856769d969647",
-    "content/posts/wp-112/index.cs.html": "7a22c3c3bd8051517362cda0d745e7e3353b21661eca93f754c83e647d28e75d",
-    "content/posts/wp-114/index.cs.html": "9ca432dcfb8ef818bb9a83a7d903357beb62ad81e88c195ced98ea01cae33190",
-    "content/posts/wp-119/index.cs.html": "9857ad117086b1f8b8c9c9181954f53d247517f121f7bc333a389b774be53fdc",
-    "content/posts/wp-123/index.cs.html": "1f1c3d910b2b75a58ea3092a4d7e3d6d499fe1c9213b9235695df88d554408bb",
-    "content/posts/wp-133/index.cs.html": "2f9a0e14343301d6279f26f8adc5eaaba0e28fbc788658a75aabb2a16e08aab8",
-    "content/posts/wp-137/index.cs.html": "4e288a84c21c7ce53d233f91996387024a1eaab7515229e018219d81fe8c3813",
-    "content/posts/wp-139/index.cs.html": "74012f8de806242d10fd4447d7b7854eccd517ed3c21532747c52a551232dc6b",
-    "content/posts/wp-15/index.cs.html": "ff72eb6e111b571449de136773f39307cab80ecd83890e93c27431168277876b",
-    "content/posts/wp-151/index.cs.html": "33a759f078668645318d01266e657b52312e55cc6e8874fc65af317a9087b6b6",
-    "content/posts/wp-156/index.cs.html": "e6e8b5d8c2651daf5a71da17161a6961146d1232084f8494cbdb053571e0f5ea",
-    "content/posts/wp-174/index.cs.html": "d45d8780c74b74066aa7d81678f4fcc9c3cf554f308198b89bdb9c4d46bce686",
-    "content/posts/wp-191/index.cs.html": "6357ff6a659887354c9afc1f33823a7777fd802a35c7d2b3180b77430482f6ee",
-    "content/posts/wp-205/index.cs.html": "1bf31365bcff91cb32c6cd3c7c0c831ee14bb1bc1f83c103f3d52dbb7db19d90",
-    "content/posts/wp-210/index.cs.html": "e5aca42da38d7a42ec6ce27c1477258ab9bccfe00f9881c3fefba29c982b3dda",
-    "content/posts/wp-215/index.cs.html": "cbcc0c3275bb842e5ad695cb94eddde43fcaf33acf37e9589107b557a6ce0d0e",
-    "content/posts/wp-229/index.cs.html": "97ed9de9bf31f995cd533f4b4ec8bc57ac8dbc240440f45618805ba1ee39b172",
-    "content/posts/wp-24/index.cs.html": "28f13f8c000621cfb8d427bb3ee5607d336ccbe4adb89cbac92c1499c7d20c8a",
-    "content/posts/wp-244/index.cs.html": "a674ddc68292d33205034d9e7c6a9941cf7cbc02a1bdaa912d9304a743dc206c",
-    "content/posts/wp-249/index.cs.html": "2ad704aababfa4b9e65a1d6095cbe0815f18cd1543781600e2ec6b098eab7cc4",
-    "content/posts/wp-253/index.cs.html": "111274a283350285a00f1b3698279105d86b8fe390853ea40250b88f8b56058c",
-    "content/posts/wp-264/index.cs.html": "ca5e888bf77a7631d640764a477c6e24f162b9cdc745bb0d28dc7ebfc3dbac6f",
-    "content/posts/wp-269/index.cs.html": "102092c128f858b69b8e5b8bf05130fa6bc1d874eec656a10a5dd25fcad2cdc0",
-    "content/posts/wp-275/index.cs.html": "72434fc26fc1791b1896646d7a3e9030b6caa8c78e6e0d184b322c19d8c55320",
-    "content/posts/wp-279/index.cs.html": "e4e909bc0dc02fcbd7bc0e8819c257348ba9637d085e8327c7bde06b8211dd06",
-    "content/posts/wp-284/index.cs.html": "4ee301d0ecbe21a66a59cb90fbe73c4450dcd0a7da094b2a5983d4c30ac41ddc",
-    "content/posts/wp-291/index.cs.html": "9b1424f378bc694c2d3100cd7f8a05869376c7def34b6004d1f7dc824a7a7dfd",
-    "content/posts/wp-299/index.cs.html": "14296f79c9be2fb8038d352ff6a7256e899aab5f08aa6604c53ec2e1e1c1844d",
-    "content/posts/wp-308/index.cs.html": "55a2e45f414324afd823cea76729a906261287f2d4f9a4852105fc48a124849e",
-    "content/posts/wp-316/index.cs.html": "c5f0fc4d596ade41896f652a3a3ce19e507cdcd03b30a7b03b90d7400797c6b5",
-    "content/posts/wp-326/index.cs.html": "2f0b9f21590d5608eb430bc5e89deee1afce7d1ea9432c5561242012650e7a58",
-    "content/posts/wp-333/index.cs.html": "24c3873804abfccfc4d61d7443e01592e37dc8f212748baedaa485443deda8c1",
-    "content/posts/wp-343/index.cs.html": "59611c58bb44ad739f361fd09e1c08b1e886391ff6faa891fa21fd39c12480e9",
-    "content/posts/wp-347/index.cs.html": "af6e0af2e0aa3431857b9c3bd67342147396f33fb600f2c12e11b8ca4821cdc1",
-    "content/posts/wp-358/index.cs.html": "9031bc4da10fa0d8107559a573e2867b20b374cc1049e03a1218a9564089aa86",
-    "content/posts/wp-362/index.cs.html": "81229d8d6b1504b78073a01dfdabadf901a1577b3cd2763e4113251143b2327c",
-    "content/posts/wp-367/index.cs.html": "7167763ac8c942ab2586954b2ec1cc699f340315865cf526d61e6fcf2fc2c9b8",
-    "content/posts/wp-37/index.cs.html": "d0028746b622b979fa71870591904cffa6bc1d17ea9013215c3a3fe7f00b3c83",
-    "content/posts/wp-378/index.cs.html": "13889fe4d1fd3816fbfcb2619dbc615cc9dbc3604dd9442e590db089dfcab39f",
-    "content/posts/wp-381/index.cs.html": "5a8d561c75bf286901b5011e53f91bbe50531f845dfd67dce5fb6061601075e7",
-    "content/posts/wp-387/index.cs.html": "f5adf56e45aebc62a1d448efc2e098993d6e5cafd41814bcd015949da226f2f3",
-    "content/posts/wp-390/index.cs.html": "f5caa6edaa37ebb40afa3243dd3a6d8615cdaabd2c7f51ed05bba16ab8add0a7",
-    "content/posts/wp-397/index.cs.html": "a9a1071a97e5c7750de68729edc0756f7fb21391b5985b1db17cac655004aede",
-    "content/posts/wp-403/index.cs.html": "d2e140caeb2717524cb1a928acad66f2f74a6199e63f9b8f56756270d25b5dc0",
-    "content/posts/wp-406/index.cs.html": "a4f4958c7dfe8b57282c1829f1137018382f043934ac84a612904548a969ff30",
-    "content/posts/wp-408/index.cs.html": "efccee7eafa7e1f92c0e92e78cb1fa1245e20081da7914cc02dae0e9252a3dc7",
-    "content/posts/wp-433/index.cs.html": "b0b06408005491a3a0129a2d8a4738e17816939c6d88809d79338a497e4807b0",
-    "content/posts/wp-443/index.cs.html": "ebe8cc7ff66fb78aff63b8ba3ca2dfe4677c4a58e52ea59da32a8a8b4337a496",
-    "content/posts/wp-448/index.cs.html": "a6aa504d6f851b88477c310745ab86ac553bda114328ab7dafa29230b155c2fd",
-    "content/posts/wp-450/index.cs.html": "3d22bf7bb1b4189617f007e5934decc90d437c93b3dec1e7b2b0e02a969989e7",
-    "content/posts/wp-455/index.cs.html": "6d482521f8227020ed503ca4568c07dfea93504e17857332c1919616e4a16769",
-    "content/posts/wp-460/index.cs.html": "e12432c5e66d13a607669a113b170660be4c8e57825811dc93925e632256d041",
-    "content/posts/wp-465/index.cs.html": "8eb7e7b10a4ff7bc7765f3e45cd4a00dbe8d7a327dad8d355808368f51bb3bbc",
-    "content/posts/wp-470/index.cs.html": "0382da692f4be127c32ad4488a3f7e2fc146fec6b14845b6b1cadef29a1cac3c",
-    "content/posts/wp-474/index.cs.html": "3ac1252d728259fb154294492c8a4295dbb723392f9635ccf49ff052524596f0",
-    "content/posts/wp-481/index.cs.html": "2b186ed9e5cdb0fededf0c9db19c36dd5d40511f49a8d14a80f2db2a141ea566",
-    "content/posts/wp-490/index.cs.html": "220f1fc96bff854123a4b87c2657dca29f7809a0e3ce435a3274ddc8e077eb13",
-    "content/posts/wp-493/index.cs.html": "54e244199f9fa0184a4362b0875305ef3c5356330d559b359d87b4f57b6ad22c",
-    "content/posts/wp-500/index.cs.html": "932d351c795ae00aa92b950ed8b7db02a321209f4cedc533c7394be7b19d8d73",
-    "content/posts/wp-506/index.cs.html": "5cc8f17e33050e6a2c1dc0033a4caa41e11a82b69ac4bc5d46d3a02bfa3fc941",
-    "content/posts/wp-51/index.cs.html": "4419981cfb9ddb14206a86e1728d636b1cd41ce69614b89d67fe87b0a4f77084",
-    "content/posts/wp-516/index.cs.html": "7b2bf62081cac8a254ff0885245f2c8becddb24b6857b6b038188a5428bdc677",
-    "content/posts/wp-521/index.cs.html": "e1a7a5cef3d5167a1a93df5c3927688444266382ce2f6e2a2ce7a5293edf0278",
-    "content/posts/wp-529/index.cs.html": "262ccecb5d079503507a2aec6d936721f052673824f2819f7a619b67edfb4f87",
-    "content/posts/wp-536/index.cs.html": "b3103b4a35377d5e709024a5fb53e1bbaa04d27299ab9cedfa6f92f2072d4fe4",
-    "content/posts/wp-539/index.cs.html": "a74a63da71d6ae7459af74856f423ff0d0578f0ce708d8e53a7723cec208918f",
-    "content/posts/wp-547/index.cs.html": "75215a11edba0d692ed5fc6a9983eb0f11065c5c8ecae33264e4124b7c3b72a8",
-    "content/posts/wp-552/index.cs.html": "90a0dd880357df80f97f0c10e4f6c893d7de9aeaed05181293910fdf7a860672",
-    "content/posts/wp-557/index.cs.html": "f8573d4fc04c86e3919c702bca3cf6c67dfcd560897da68aaaf6da604dd7d190",
-    "content/posts/wp-560/index.cs.html": "f676d9fe0b750630e91cfa8d034f4bf0efdc7bce75df12e87285b72562f92177",
-    "content/posts/wp-564/index.cs.html": "ad5a52784c2afcf08fb188965ec69180e29b3a621cfd244dbe7b44fe74ca46ee",
-    "content/posts/wp-573/index.cs.html": "c86f49427c56720cdfe2bd25ece2e59db5878bb5e7d61f644f98a693aa745bc4",
-    "content/posts/wp-576/index.cs.html": "e98edc658078fd626bc2817a798b0350acd9542b2c6e9e24f46e794d33d48c49",
-    "content/posts/wp-580/index.cs.html": "43868d537ba61cb282c4d3f9f05dbba9dfbdefdedc199be284cd5c40f81dfe49",
-    "content/posts/wp-588/index.cs.html": "06936960f920ac3d1d80eae578956a4b926a9a00566fd453dc3c0f30379f9a60",
-    "content/posts/wp-592/index.cs.html": "d08eb987dcbed21b4c054c05ba880e79de6ff3b069bdcfb52708c5d0f5f35f74",
-    "content/posts/wp-597/index.cs.html": "6c27fb3395db6e4879e3d7150275ea4ce6a60c57752077485dd3f5cf04a7bd59",
-    "content/posts/wp-601/index.cs.html": "54e098c71610d369c5a8510f6bc1f89b04d5ef188e54d89fe51ccb2870ad3354",
-    "content/posts/wp-606/index.cs.html": "41d91572cd6bcd45514deb89c54ee2ce2c48bf389405cb4e5a0284bad42dd4dd",
-    "content/posts/wp-61/index.cs.html": "190c8dd76cfb16c2b53b0ca79da05911c1efa710889d7c058725b5ebcd93d034",
-    "content/posts/wp-610/index.cs.html": "60008671d429a3ac36b7a1b6c4ce0d0ef0a9c08c67cbdbb92dfcf01dae60cc87",
-    "content/posts/wp-615/index.cs.html": "6d77f5ccb749cba267b4bb0a87e612bb0a3c4f9c65d9f9ab7e19bbe2ebaa2915",
-    "content/posts/wp-621/index.cs.html": "c969c0f8719d9852fcccded37a20def41f702d49589fc675e1ac97d6bbeaea10",
-    "content/posts/wp-625/index.cs.html": "d5fadd503711629811889269706e664c5b7e96e1496310a458d006af6e225b2d",
-    "content/posts/wp-629/index.cs.html": "e6561237ca3fff4b2834a8dc19b1b3586d2776c3d1712affdb9c890889aedbe0",
-    "content/posts/wp-636/index.cs.html": "1e627d92098e90c31d46220b4e86b9d6fd9d68c228a63bec07b56276fa8f3e13",
-    "content/posts/wp-639/index.cs.html": "46ca979f894b9f81d06904de4a22999b9c2f7726a14e3056fdc6c5093804ad2e",
-    "content/posts/wp-646/index.cs.html": "ad207854ad1e3072efe776343b06425b6f9ab889356e9958723eadcf2a1af9aa",
-    "content/posts/wp-651/index.cs.html": "35892234d15ba7bc5afeb0947bd22ece751c92027c17a302ecf38f53db8e1f87",
-    "content/posts/wp-653/index.cs.html": "9e05d12445bc1320c1b7a81a636675db0c82db093db2d5343f06ebfbe7108c55",
-    "content/posts/wp-662/index.cs.html": "25abb46638006f6fee2b55560c9ff62bcd18b48cced2b1888ad3d26db545f360",
-    "content/posts/wp-667/index.cs.html": "65b0626d0129aed3e8dd5d210ee241ecf6a66127a8396a47745dc9e077f61f5e",
-    "content/posts/wp-678/index.cs.html": "54b42b8b9a42be7d7ad1c7496289d0390f35c38e007dc9c98f8ac474edbfcb1b",
-    "content/posts/wp-681/index.cs.html": "aa1be16514f3da216803b6ab9e7f976cda187c36d54da756c12e04f5f61b9d79",
-    "content/posts/wp-69/index.cs.html": "0cd0303d6dc3299fc04b31476c404df32c4c03d6d5495314db8507c0cf6a935e",
-    "content/posts/wp-692/index.cs.html": "b024ae3a8882f8dfa52699b38fa482450addf1e572a4fa7ff76804e29d22637c",
-    "content/posts/wp-695/index.cs.html": "20a7ffa11247bf1a0971f00a3adbe56fe0a2b792375c6a7d8ed2a6f26e9bea1e",
-    "content/posts/wp-702/index.cs.html": "48763bd6b55405b793134ba67d26c1aeec42d0a4b723da52f651cb8f5a84c929",
-    "content/posts/wp-709/index.cs.html": "ca4cb2b77d43e734cd47a4b7efec1d7b3316288e59ccb68d397ebb7d49d0c0ef",
-    "content/posts/wp-713/index.cs.html": "06d20ec3e2753b805b62865105cf1ee09187645c0130804719639a1a7286946f",
-    "content/posts/wp-717/index.cs.html": "eff43a200e5423267408affa90c8579ea563ff6d36ee457c0879d4cb8eff62b7",
-    "content/posts/wp-722/index.cs.html": "a2fbc72218678c691befce9ae46eb3de0e801e8666a60632b7acc47dd1ec100a",
-    "content/posts/wp-730/index.cs.html": "c96586abf09768e010bd4df8b4d7fbec8871df25056cacf710c44c3e11243cbe",
-    "content/posts/wp-738/index.cs.html": "d4ed07819f1717c13b3a739be6c03252e6874475191b8894367d55d2a1afc7f1",
-    "content/posts/wp-74/index.cs.html": "493981e9d0f785fb6ff5ff1cbd9137a886efcd1a9d3160688a6d4b2cb3b66fb7",
-    "content/posts/wp-746/index.cs.html": "6b2a71652de462f6b61863ae48bdc44372a63ed4c96daa1940ffb08f464ffca2",
-    "content/posts/wp-759/index.cs.html": "c01a200b7061d68ae56dbee9a0296d4832e05d612dba47f7bec1a4dc2c8fd703",
-    "content/posts/wp-762/index.cs.html": "98cf6a570cbf43760df201f1e6a7ce81eeb5ce7c2c7ba7046aae24ed079560fa",
-    "content/posts/wp-773/index.cs.html": "4c5ecd51bc4ee1f411597508cc874e1517660100e191aa430f03c341f22fd34c",
-    "content/posts/wp-792/index.cs.html": "8e8b642a49498d01e67f5fcabfe167c1d46882f4b63aeec8ff91a20085c52410",
-    "content/posts/wp-8/index.cs.html": "1d5ecd7fe86c6717e8d066bcac1e9277dd1dbf7b587590bd5b4537042d4b8f24",
-    "content/posts/wp-805/index.cs.html": "5f28b86bee5ef236578f9e86705ea2374b2532bbed167716c573344027abffc4",
-    "content/posts/wp-807/index.cs.html": "17f2a24b109917792aca912a2aae9caaf5bbb6afc11d4163f2f6ca60a5367497",
-    "content/posts/wp-811/index.cs.html": "b0163f6673dacdb614162dec6ecfc3820c7769ebc8689ef040967203ba8d8341",
-    "content/posts/wp-815/index.cs.html": "a61bb7c1ba603f9224eed59da196a95dc81064ca0d228d832266187948fb2d21",
-    "content/posts/wp-82/index.cs.html": "5a058807db0efcccb408052a491e1e72e3796b88d650fb20c2cd548fbdbece8a",
-    "content/posts/wp-821/index.cs.html": "80ccba07b041c5217b72cf1e7d0eb3869a10236a8ef71d474b86eb6aba4ee3c9",
-    "content/posts/wp-824/index.cs.html": "b8ef25a41f81e15d767f50c17b5b3d7a95f691b574c47c1ec89aa335e7d8b5b5",
-    "content/posts/wp-828/index.cs.html": "9a77a77915a809630490af092adb6e9dcd55ba94e3188cde60d853abac20671c",
-    "content/posts/wp-835/index.cs.html": "acefda954d0ffe3ecd104f61b3e34e5a36f29de306b3d57d052a462a4b6b7386",
-    "content/posts/wp-84/index.cs.html": "11bba07716364e4a946537a3be7c777c1aa3000ce0ba5372dfb40c3439696c8b",
-    "content/posts/wp-841/index.cs.html": "7899e480d07f1a230c1b3cfd6ff099cd57b1db924ff5401a8d73c1a36d001f29",
-    "content/posts/wp-847/index.cs.html": "e194f31e625e9beb4a618862551a28a71fa4625780a89458c66a0aaafc9410c0",
-    "content/posts/wp-94/index.cs.html": "a86e72313c6525be2dd1263a6ec939a59db72efbee32a448f79b4c924ebf29b5",
+    "content/posts/2014-11-10-how-we-build-operating-system-templates-for-vpses/index.cs.html": "ff72eb6e111b571449de136773f39307cab80ecd83890e93c27431168277876b",
+    "content/posts/2014-11-10-we-have-marked-the-centos-7-template-as-stable/index.cs.html": "1d5ecd7fe86c6717e8d066bcac1e9277dd1dbf7b587590bd5b4537042d4b8f24",
+    "content/posts/2014-11-13-backups-at-vpsfree-from-rsync-to-zfs-snapshots/index.cs.html": "28f13f8c000621cfb8d427bb3ee5607d336ccbe4adb89cbac92c1499c7d20c8a",
+    "content/posts/2015-03-09-we-attended-installfest-2015/index.cs.html": "d0028746b622b979fa71870591904cffa6bc1d17ea9013215c3a3fe7f00b3c83",
+    "content/posts/2015-04-07-we-supported-ctu-students/index.cs.html": "4419981cfb9ddb14206a86e1728d636b1cd41ce69614b89d67fe87b0a4f77084",
+    "content/posts/2015-05-06-distributions-running-at-vpsfree-cz/index.cs.html": "190c8dd76cfb16c2b53b0ca79da05911c1efa710889d7c058725b5ebcd93d034",
+    "content/posts/2015-05-27-talks-for-docker-fans/index.cs.html": "493981e9d0f785fb6ff5ff1cbd9137a886efcd1a9d3160688a6d4b2cb3b66fb7",
+    "content/posts/2015-05-29-the-lasting-effect-of-conferences/index.cs.html": "5a058807db0efcccb408052a491e1e72e3796b88d650fb20c2cd548fbdbece8a",
+    "content/posts/2015-06-02-we-supported-volunteer-firefighters-by-hosting-the-dh-cz-portal/index.cs.html": "11bba07716364e4a946537a3be7c777c1aa3000ce0ba5372dfb40c3439696c8b",
+    "content/posts/2015-06-08-we-spoke-at-cryptofest-video/index.cs.html": "e34be0af9c59f0f47886b460f9150560de71d128e837df7165550f58201827b7",
+    "content/posts/2015-06-09-we-have-three-new-servers-in-our-prague-rack/index.cs.html": "a86e72313c6525be2dd1263a6ec939a59db72efbee32a448f79b4c924ebf29b5",
+    "content/posts/2015-08-12-nominate-vpsfree-cz-for-kristalova-lupa/index.cs.html": "1620b3801fb52c6efd4542459644b2cfc8c93dda7e9ceb4759c856769d969647",
+    "content/posts/2015-09-14-how-to-repair-a-broken-vps/index.cs.html": "7a22c3c3bd8051517362cda0d745e7e3353b21661eca93f754c83e647d28e75d",
+    "content/posts/2015-09-16-we-are-in-the-kristalova-lupa-awards-vote-for-us/index.cs.html": "9ca432dcfb8ef818bb9a83a7d903357beb62ad81e88c195ced98ea01cae33190",
+    "content/posts/2015-09-21-we-are-going-to-linuxdays-2015-come-and-see-us/index.cs.html": "9857ad117086b1f8b8c9c9181954f53d247517f121f7bc333a389b774be53fdc",
+    "content/posts/2015-10-14-we-were-at-linuxdays-2015-photos-and-video/index.cs.html": "1f1c3d910b2b75a58ea3092a4d7e3d6d499fe1c9213b9235695df88d554408bb",
+    "content/posts/2015-10-20-we-keep-growing-three-years-in-numbers/index.cs.html": "2f9a0e14343301d6279f26f8adc5eaaba0e28fbc788658a75aabb2a16e08aab8",
+    "content/posts/2015-10-26-vpsadmin-mount-changes-and-the-remote-console/index.cs.html": "74012f8de806242d10fd4447d7b7854eccd517ed3c21532747c52a551232dc6b",
+    "content/posts/2015-10-27-replacing-a-servers-motherboard/index.cs.html": "e6e8b5d8c2651daf5a71da17161a6961146d1232084f8494cbdb053571e0f5ea",
+    "content/posts/2015-10-29-we-are-going-to-openalt-come-for-a-coffee/index.cs.html": "33a759f078668645318d01266e657b52312e55cc6e8874fc65af317a9087b6b6",
+    "content/posts/2015-11-03-99-986-availability/index.cs.html": "4e288a84c21c7ce53d233f91996387024a1eaab7515229e018219d81fe8c3813",
+    "content/posts/2015-11-04-connect-your-servers-with-a-gre-tunnel/index.cs.html": "d45d8780c74b74066aa7d81678f4fcc9c3cf554f308198b89bdb9c4d46bce686",
+    "content/posts/2015-11-11-we-brought-coffee-and-logo-stickers-to-openalt/index.cs.html": "6357ff6a659887354c9afc1f33823a7777fd802a35c7d2b3180b77430482f6ee",
+    "content/posts/2015-11-16-where-are-we-from-far-beyond-prague/index.cs.html": "0cd0303d6dc3299fc04b31476c404df32c4c03d6d5495314db8507c0cf6a935e",
+    "content/posts/2015-11-20-we-didnt-win-kristalova-lupa-yet/index.cs.html": "1bf31365bcff91cb32c6cd3c7c0c831ee14bb1bc1f83c103f3d52dbb7db19d90",
+    "content/posts/2015-11-24-we-have-about-a-thousand-ipv4-addresses-left/index.cs.html": "e5aca42da38d7a42ec6ce27c1477258ab9bccfe00f9881c3fefba29c982b3dda",
+    "content/posts/2015-11-30-launching-support-for-kvm-virtualization/index.cs.html": "cbcc0c3275bb842e5ad695cb94eddde43fcaf33acf37e9589107b557a6ce0d0e",
+    "content/posts/2015-12-14-a-christmas-present-weve-doubled-disk-space-to-120-gb/index.cs.html": "97ed9de9bf31f995cd533f4b4ec8bc57ac8dbc240440f45618805ba1ee39b172",
+    "content/posts/2016-01-19-lupa-cz-wrote-about-us-and-says-we-are-unique/index.cs.html": "2ad704aababfa4b9e65a1d6095cbe0815f18cd1543781600e2ec6b098eab7cc4",
+    "content/posts/2016-01-25-vpsadmin-2-1-0-the-vps-console-in-your-terminal/index.cs.html": "111274a283350285a00f1b3698279105d86b8fe390853ea40250b88f8b56058c",
+    "content/posts/2016-01-28-how-to-use-256-gb-of-ram-in-a-server/index.cs.html": "a674ddc68292d33205034d9e7c6a9941cf7cbc02a1bdaa912d9304a743dc206c",
+    "content/posts/2016-02-10-vpsadmin-v2-2-0-setting-maintenance-windows-for-vpses/index.cs.html": "ca5e888bf77a7631d640764a477c6e24f162b9cdc745bb0d28dc7ebfc3dbac6f",
+    "content/posts/2016-02-15-come-and-see-us-at-installfest-5-and-6-march/index.cs.html": "102092c128f858b69b8e5b8bf05130fa6bc1d874eec656a10a5dd25fcad2cdc0",
+    "content/posts/2016-02-22-most-members-join-through-a-personal-recommendation/index.cs.html": "72434fc26fc1791b1896646d7a3e9030b6caa8c78e6e0d184b322c19d8c55320",
+    "content/posts/2016-03-08-installfest-went-very-well-take-a-look/index.cs.html": "e4e909bc0dc02fcbd7bc0e8819c257348ba9637d085e8327c7bde06b8211dd06",
+    "content/posts/2016-03-21-download-backups-from-the-command-line/index.cs.html": "4ee301d0ecbe21a66a59cb90fbe73c4450dcd0a7da094b2a5983d4c30ac41ddc",
+    "content/posts/2016-03-23-the-latest-docker-1-10-now-runs-everywhere-here/index.cs.html": "9b1424f378bc694c2d3100cd7f8a05869376c7def34b6004d1f7dc824a7a7dfd",
+    "content/posts/2016-04-18-the-beginnings-of-vpsfree-cz-how-i-gave-a-server-to-a-stranger/index.cs.html": "14296f79c9be2fb8038d352ff6a7256e899aab5f08aa6604c53ec2e1e1c1844d",
+    "content/posts/2016-04-19-haveapi-fs-mount-your-api-as-a-filesystem/index.cs.html": "55a2e45f414324afd823cea76729a906261287f2d4f9a4852105fc48a124849e",
+    "content/posts/2016-04-25-ddos-attacks-most-often-target-teamspeak/index.cs.html": "c5f0fc4d596ade41896f652a3a3ce19e507cdcd03b30a7b03b90d7400797c6b5",
+    "content/posts/2016-05-02-migrating-a-vps-between-providers/index.cs.html": "2f0b9f21590d5608eb430bc5e89deee1afce7d1ea9432c5561242012650e7a58",
+    "content/posts/2016-05-05-new-distributions-devuan-fedora-23-and-opensuse-13-2/index.cs.html": "24c3873804abfccfc4d61d7443e01592e37dc8f212748baedaa485443deda8c1",
+    "content/posts/2016-05-16-why-we-do-not-enable-swap-on-vpses/index.cs.html": "59611c58bb44ad739f361fd09e1c08b1e886391ff6faa891fa21fd39c12480e9",
+    "content/posts/2016-05-17-we-support-an-internet-without-bureaucratic-censorship/index.cs.html": "af6e0af2e0aa3431857b9c3bd67342147396f33fb600f2c12e11b8ca4821cdc1",
+    "content/posts/2016-05-31-weve-added-alpine-linux-3-3-and-slackware-14-1/index.cs.html": "9031bc4da10fa0d8107559a573e2867b20b374cc1049e03a1218a9564089aa86",
+    "content/posts/2016-06-07-arch-linux-update-and-void-linux/index.cs.html": "81229d8d6b1504b78073a01dfdabadf901a1577b3cd2763e4113251143b2327c",
+    "content/posts/2016-06-13-distributions-a-year-on-debian-ubuntu-and-centos-lead/index.cs.html": "7167763ac8c942ab2586954b2ec1cc699f340315865cf526d61e6fcf2fc2c9b8",
+    "content/posts/2016-06-22-vpsadmin-has-learned-english/index.cs.html": "13889fe4d1fd3816fbfcb2619dbc615cc9dbc3604dd9442e590db089dfcab39f",
+    "content/posts/2016-06-23-1000/index.cs.html": "5a8d561c75bf286901b5011e53f91bbe50531f845dfd67dce5fb6061601075e7",
+    "content/posts/2016-06-27-1000-members-means-we-have-not-messed-anything-up/index.cs.html": "f5adf56e45aebc62a1d448efc2e098993d6e5cafd41814bcd015949da226f2f3",
+    "content/posts/2016-08-04-join-us-on-irc-at-freenode-net-vpsfree/index.cs.html": "f5caa6edaa37ebb40afa3243dd3a6d8615cdaabd2c7f51ed05bba16ab8add0a7",
+    "content/posts/2016-08-16-share-code-snippets-at-paste-vpsfree-cz/index.cs.html": "a9a1071a97e5c7750de68729edc0756f7fb21391b5985b1db17cac655004aede",
+    "content/posts/2016-09-05-when-disks-fail-our-nas-gave-us-trouble/index.cs.html": "d2e140caeb2717524cb1a928acad66f2f74a6199e63f9b8f56756270d25b5dc0",
+    "content/posts/2016-09-12-our-first-server-with-ssds-and-512-gb-of-ram/index.cs.html": "a4f4958c7dfe8b57282c1829f1137018382f043934ac84a612904548a969ff30",
+    "content/posts/2016-09-21-why-we-want-a-20-gigabit-network/index.cs.html": "efccee7eafa7e1f92c0e92e78cb1fa1245e20081da7914cc02dae0e9252a3dc7",
+    "content/posts/2016-09-26-20-gigabits-is-coming-this-year/index.cs.html": "b0b06408005491a3a0129a2d8a4738e17816939c6d88809d79338a497e4807b0",
+    "content/posts/2016-10-03-we-are-going-to-linuxdays-come-and-see-us-there/index.cs.html": "ebe8cc7ff66fb78aff63b8ba3ca2dfe4677c4a58e52ea59da32a8a8b4337a496",
+    "content/posts/2016-10-18-haveapi-has-a-new-web-interface/index.cs.html": "a6aa504d6f851b88477c310745ab86ac553bda114328ab7dafa29230b155c2fd",
+    "content/posts/2016-10-24-the-dirty-cow-bug-under-openvz/index.cs.html": "3d22bf7bb1b4189617f007e5934decc90d437c93b3dec1e7b2b0e02a969989e7",
+    "content/posts/2016-10-25-vpsadmin-v2-5-0-private-ip-addresses-and-an-improved-traffic-overview/index.cs.html": "6d482521f8227020ed503ca4568c07dfea93504e17857332c1919616e4a16769",
+    "content/posts/2016-11-10-outages-and-systemd-services-that-fail-to-start/index.cs.html": "e12432c5e66d13a607669a113b170660be4c8e57825811dc93925e632256d041",
+    "content/posts/2016-11-22-the-first-vpsfree-hackathon-come-and-work-on-networking/index.cs.html": "8eb7e7b10a4ff7bc7765f3e45cd4a00dbe8d7a327dad8d355808368f51bb3bbc",
+    "content/posts/2016-11-24-haveapi-v0-7-blocking-actions/index.cs.html": "0382da692f4be127c32ad4488a3f7e2fc146fec6b14845b6b1cadef29a1cac3c",
+    "content/posts/2016-11-28-vpsadmin-can-upload-ssh-keys-to-vpses/index.cs.html": "3ac1252d728259fb154294492c8a4295dbb723392f9635ccf49ff052524596f0",
+    "content/posts/2016-12-07-how-did-our-first-vpsfree-hackathon-go/index.cs.html": "2b186ed9e5cdb0fededf0c9db19c36dd5d40511f49a8d14a80f2db2a141ea566",
+    "content/posts/2017-02-13-vpsadmin-v2-7-0-payments-emails-and-two-playground-vpses/index.cs.html": "220f1fc96bff854123a4b87c2657dca29f7809a0e3ce435a3274ddc8e077eb13",
+    "content/posts/2017-03-13-our-first-trip-abroad-linux-tage-in-chemnitz/index.cs.html": "54e244199f9fa0184a4362b0875305ef3c5356330d559b359d87b4f57b6ad22c",
+    "content/posts/2017-03-29-vpsadmin-2-8-0-improves-outage-reporting/index.cs.html": "932d351c795ae00aa92b950ed8b7db02a321209f4cedc533c7394be7b19d8d73",
+    "content/posts/2017-05-03-we-support-alpine-linux-and-host-its-main-mirror/index.cs.html": "5cc8f17e33050e6a2c1dc0033a4caa41e11a82b69ac4bc5d46d3a02bfa3fc941",
+    "content/posts/2017-05-29-linux-distributions-debian-and-ubuntu-lead-alpine-is-climbing/index.cs.html": "7b2bf62081cac8a254ff0885245f2c8becddb24b6857b6b038188a5428bdc677",
+    "content/posts/2017-06-26-what-is-a-reverse-dns-record-ptr-and-how-do-you-set-it/index.cs.html": "e1a7a5cef3d5167a1a93df5c3927688444266382ce2f6e2a2ce7a5293edf0278",
+    "content/posts/2017-09-05-vote-for-our-linuxdays-talks/index.cs.html": "262ccecb5d079503507a2aec6d936721f052673824f2819f7a619b67edfb4f87",
+    "content/posts/2017-09-11-vpsadmin-v2-9-brings-simple-vps-monitoring/index.cs.html": "b3103b4a35377d5e709024a5fb53e1bbaa04d27299ab9cedfa6f92f2072d4fe4",
+    "content/posts/2018-03-06-we-introduced-vpsadminos-a-system-for-running-containers/index.cs.html": "a74a63da71d6ae7459af74856f423ff0d0578f0ce708d8e53a7723cec208918f",
+    "content/posts/2018-05-21-were-moving-from-openvz-to-vpsadminos-and-launching-a-test-environment/index.cs.html": "75215a11edba0d692ed5fc6a9983eb0f11065c5c8ecae33264e4124b7c3b72a8",
+    "content/posts/2018-07-09-vpsadminos-status-report-what-we-are-working-on/index.cs.html": "90a0dd880357df80f97f0c10e4f6c893d7de9aeaed05181293910fdf7a860672",
+    "content/posts/2018-09-03-vpsadminos-installation-updates-deployment-and-networking/index.cs.html": "f8573d4fc04c86e3919c702bca3cf6c67dfcd560897da68aaaf6da604dd7d190",
+    "content/posts/2018-10-01-come-to-linuxdays-this-weekend-well-be-there/index.cs.html": "f676d9fe0b750630e91cfa8d034f4bf0efdc7bce75df12e87285b72562f92177",
+    "content/posts/2018-10-15-our-new-servers-are-fully-patched-against-known-cpu-bugs/index.cs.html": "ad5a52784c2afcf08fb188965ec69180e29b3a621cfd244dbe7b44fe74ca46ee",
+    "content/posts/2018-10-23-vpsadminos-networking-changes-downloadable-iso-backups-and-cgroups/index.cs.html": "c86f49427c56720cdfe2bd25ece2e59db5878bb5e7d61f644f98a693aa745bc4",
+    "content/posts/2018-11-01-try-cloning-production-vpses-to-the-vpsadminos-test-environment/index.cs.html": "e98edc658078fd626bc2817a798b0350acd9542b2c6e9e24f46e794d33d48c49",
+    "content/posts/2019-01-28-our-first-10-years-are-behind-us-with-plenty-more-to-come/index.cs.html": "43868d537ba61cb282c4d3f9f05dbba9dfbdefdedc199be284cd5c40f81dfe49",
+    "content/posts/2019-02-28-a-summary-of-saturdays-annual-meeting-todo/index.cs.html": "06936960f920ac3d1d80eae578956a4b926a9a00566fd453dc3c0f30379f9a60",
+    "content/posts/2019-03-01-were-heading-to-installfest-come-for-coffee-and-a-new-switch/index.cs.html": "d08eb987dcbed21b4c054c05ba880e79de6ff3b069bdcfb52708c5d0f5f35f74",
+    "content/posts/2019-05-02-terraform-provider-for-vpsadmin-automate-infrastructure-management/index.cs.html": "6c27fb3395db6e4879e3d7150275ea4ce6a60c57752077485dd3f5cf04a7bd59",
+    "content/posts/2019-05-22-two-factor-login-to-vpsadmin-for-better-security/index.cs.html": "54e098c71610d369c5a8510f6bc1f89b04d5ef188e54d89fe51ccb2870ad3354",
+    "content/posts/2019-06-04-six-months-of-vpsadminos-development-closer-to-launching-a-production-server/index.cs.html": "41d91572cd6bcd45514deb89c54ee2ce2c48bf389405cb4e5a0284bad42dd4dd",
+    "content/posts/2019-06-11-revising-distribution-templates-opensuse-slackware-and-void-linux-on-staging/index.cs.html": "60008671d429a3ac36b7a1b6c4ce0d0ef0a9c08c67cbdbb92dfcf01dae60cc87",
+    "content/posts/2019-10-29-vpsadminos-development-nfs-on-staging-the-overlay2-driver-for-docker-and-more/index.cs.html": "6d77f5ccb749cba267b4bb0a87e612bb0a3c4f9c65d9f9ab7e19bbe2ebaa2915",
+    "content/posts/2020-01-13-vpsadminos-in-production-in-prague/index.cs.html": "c969c0f8719d9852fcccded37a20def41f702d49589fc675e1ac97d6bbeaea10",
+    "content/posts/2020-02-28-migrating-our-infrastructure-to-20-gigabits/index.cs.html": "d5fadd503711629811889269706e664c5b7e96e1496310a458d006af6e225b2d",
+    "content/posts/2020-03-03-lets-encrypt-is-revoking-three-million-certificates-check-yours/index.cs.html": "e6561237ca3fff4b2834a8dc19b1b3586d2776c3d1712affdb9c890889aedbe0",
+    "content/posts/2020-03-16-it-problems-because-of-coronavirus-we-can-help-get-in-touch/index.cs.html": "1e627d92098e90c31d46220b4e86b9d6fd9d68c228a63bec07b56276fa8f3e13",
+    "content/posts/2020-03-17-were-launching-video-calls-at-meet-vpsfree-cz-free-and-without-registration/index.cs.html": "46ca979f894b9f81d06904de4a22999b9c2f7726a14e3056fdc6c5093804ad2e",
+    "content/posts/2020-03-18-the-first-day-of-video-calls-at-meet-vpsfree-cz/index.cs.html": "ad207854ad1e3072efe776343b06425b6f9ab889356e9958723eadcf2a1af9aa",
+    "content/posts/2020-03-30-what-next-for-meet-vpsfree-cz-new-software-and-hardware/index.cs.html": "35892234d15ba7bc5afeb0947bd22ece751c92027c17a302ecf38f53db8e1f87",
+    "content/posts/2020-04-02-expanding-meet-vpsfree-cz-with-two-new-servers/index.cs.html": "9e05d12445bc1320c1b7a81a636675db0c82db093db2d5343f06ebfbe7108c55",
+    "content/posts/2020-06-04-lets-move-to-ipv6-together-we-need-it/index.cs.html": "25abb46638006f6fee2b55560c9ff62bcd18b48cced2b1888ad3d26db545f360",
+    "content/posts/2020-06-26-datacentre-news-what-were-doing-now-and-planning-next/index.cs.html": "65b0626d0129aed3e8dd5d210ee241ecf6a66127a8396a47745dc9e077f61f5e",
+    "content/posts/2020-08-17-memory-management-on-vpsadminos/index.cs.html": "54b42b8b9a42be7d7ad1c7496289d0390f35c38e007dc9c98f8ac474edbfcb1b",
+    "content/posts/2020-09-10-choose-your-datacenter-carefully-it-could-be-a-partner-for-life/index.cs.html": "aa1be16514f3da216803b6ab9e7f976cda187c36d54da756c12e04f5f61b9d79",
+    "content/posts/2020-10-12-vpsadmin-updates-default-vps-features-and-oom-reports/index.cs.html": "b024ae3a8882f8dfa52699b38fa482450addf1e572a4fa7ff76804e29d22637c",
+    "content/posts/2020-11-24-test-support-for-new-lets-encrypt-certificates-at-test-vpsfree-cz/index.cs.html": "20a7ffa11247bf1a0971f00a3adbe56fe0a2b792375c6a7d8ed2a6f26e9bea1e",
+    "content/posts/2020-12-09-linux-distributions-ubuntu-grows-faster-than-debian-nixos-gains-popularity/index.cs.html": "48763bd6b55405b793134ba67d26c1aeec42d0a4b723da52f651cb8f5a84c929",
+    "content/posts/2021-02-18-vps-rescue-mode-boot-a-recovery-operating-system/index.cs.html": "ca4cb2b77d43e734cd47a4b7efec1d7b3316288e59ccb68d397ebb7d49d0c0ef",
+    "content/posts/2021-03-08-were-halfway-through-the-vpsadminos-migration-brno-is-next/index.cs.html": "06d20ec3e2753b805b62865105cf1ee09187645c0130804719639a1a7286946f",
+    "content/posts/2021-03-18-we-can-allocate-a-dedicated-64-ipv6-block-to-each-server/index.cs.html": "eff43a200e5423267408affa90c8579ea563ff6d36ee457c0879d4cb8eff62b7",
+    "content/posts/2021-09-20-the-first-vpsadminos-server-in-brno/index.cs.html": "a2fbc72218678c691befce9ae46eb3de0e801e8666a60632b7acc47dd1ec100a",
+    "content/posts/2021-12-13-migrate-to-vpsadminos-time-for-current-virtualization-and-a-new-kernel/index.cs.html": "c96586abf09768e010bd4df8b4d7fbec8871df25056cacf710c44c3e11243cbe",
+    "content/posts/2022-02-15-vps-start-menu-an-alternative-to-the-grub-bootloader/index.cs.html": "d4ed07819f1717c13b3a739be6c03252e6874475191b8894367d55d2a1afc7f1",
+    "content/posts/2022-06-03-post-mortem-a-few-words-about-the-outage/index.cs.html": "6b2a71652de462f6b61863ae48bdc44372a63ed4c96daa1940ffb08f464ffca2",
+    "content/posts/2022-06-08-infrastructure-status-at-status-vpsf-cz/index.cs.html": "c01a200b7061d68ae56dbee9a0296d4832e05d612dba47f7bec1a4dc2c8fd703",
+    "content/posts/2022-07-13-more-powerful-servers-to-counter-rising-energy-prices/index.cs.html": "98cf6a570cbf43760df201f1e6a7ce81eeb5ce7c2c7ba7046aae24ed079560fa",
+    "content/posts/2022-10-07-were-upgrading-almost-all-our-hardware-to-save-energy/index.cs.html": "4c5ecd51bc4ee1f411597508cc874e1517660100e191aa430f03c341f22fd34c",
+    "content/posts/2023-01-05-linux-distributions-rocky-linux-grows-quickly-slackware-disappears/index.cs.html": "8e8b642a49498d01e67f5fcabfe167c1d46882f4b63aeec8ff91a20085c52410",
+    "content/posts/2023-04-24-vpsadmin-news-ssh-host-keys-template-changes-and-cgroups/index.cs.html": "5f28b86bee5ef236578f9e86705ea2374b2532bbed167716c573344027abffc4",
+    "content/posts/2023-04-27-devcgprog-a-utility-for-configuring-the-cgroupv2-devices-controller/index.cs.html": "17f2a24b109917792aca912a2aae9caaf5bbb6afc11d4163f2f6ca60a5367497",
+    "content/posts/2023-07-10-automatic-vps-disk-expansion/index.cs.html": "b0163f6673dacdb614162dec6ecfc3820c7769ebc8689ef040967203ba8d8341",
+    "content/posts/2023-12-19-we-have-discourse-come-and-talk-mailing-lists-have-had-their-day/index.cs.html": "a61bb7c1ba603f9224eed59da196a95dc81064ca0d228d832266187948fb2d21",
+    "content/posts/2023-12-30-single-sign-on-in-vpsadmin/index.cs.html": "80ccba07b041c5217b72cf1e7d0eb3869a10236a8ef71d474b86eb6aba4ee3c9",
+    "content/posts/2024-01-15-weve-replaced-lxcfs-with-kernel-virtualization/index.cs.html": "b8ef25a41f81e15d767f50c17b5b3d7a95f691b574c47c1ec89aa335e7d8b5b5",
+    "content/posts/2024-07-31-prometheus-metrics-and-node-load-heatmaps/index.cs.html": "9a77a77915a809630490af092adb6e9dcd55ba94e3188cde60d853abac20671c",
+    "content/posts/2024-08-19-primary-dns-servers/index.cs.html": "acefda954d0ffe3ecd104f61b3e34e5a36f29de306b3d57d052a462a4b6b7386",
+    "content/posts/2025-03-03-two-factor-login-with-passkeys/index.cs.html": "7899e480d07f1a230c1b3cfd6ff099cd57b1db924ff5401a8d73c1a36d001f29",
+    "content/posts/2025-05-16-linux-distributions-users-most-often-switch-to-rocky-linux-and-nixos/index.cs.html": "e194f31e625e9beb4a618862551a28a71fa4625780a89458c66a0aaafc9410c0",
     "data/articles.json": "7ed997c821960549990c8eb5606696d06be0a80c03b167b37ef74af0b0839849",
     "data/authors.json": "c01e303fbdb293aaa4ce80bd7cfd9ffe085394c23e8ea0f6589d2383e2643634",
     "data/legacy-comments/wp-100.json": "37517e5f3dc66819f61f5a7bb8ace1921282415f10551d2defa5c3eb0985b570",
