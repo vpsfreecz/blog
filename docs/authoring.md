@@ -2,8 +2,7 @@
 
 This repository builds Czech at `https://blog.vpsfree.cz/` and English at
 `https://blog.vpsfree.org/`. Each language has its own host root. You can prepare
-and preview a draft from an ordinary clone with Git and Nix; no development
-workspace, session record or installed agent skill is required.
+and preview a draft from an ordinary clone with Git and Nix.
 
 ## Prepare a draft
 
@@ -158,24 +157,19 @@ nix develop -c bin/preview
 This includes real repository drafts. Open Czech at `http://localhost:1313/`
 and English at `http://localhost:1314/`; follow each article's explicit path
 and its paired language link. Use `nix develop -c bin/preview --fixtures` for
-the isolated synthetic demo instead. `--help` lists preview options. The VPN
-mode is intended for a configured review host, not a requirement for authoring.
-In a managed environment, follow that host's temporary-service registration
-rules. Ordinary clones can run the command directly. Keep drafts on loopback
-unless sharing them was explicitly requested.
+the isolated synthetic demo instead. `bin/preview --help` lists preview options.
+Keep drafts on loopback unless sharing them was explicitly requested.
 
 The preview renders a coherent snapshot of articles and their Pagefind index;
 it does not watch edits. Stop it after editing, rerun the same command with the
 same flags, and reload the browser. This rebuilds the pages and search together,
-including added or removed drafts. In a managed environment, use that host's
-authorized preview-replacement procedure.
+including added or removed drafts.
 
-Search from the sidebar or `/search/` on each language's loopback origin. The
-VPN English search page is `/en/search/`; its article results retain their
-explicit root paths. Search indexes titles and article bodies, including drafts
-in previews, while excluding navigation and historical comments. Production
-builds exclude drafts from both pages and search. Use the reload action if an
-old tab can no longer load its search files after an update.
+Search from the sidebar or `/search/` on each language's loopback origin. Search
+indexes titles and article bodies, including drafts in previews, while excluding
+navigation and historical comments. Production builds exclude drafts from both
+pages and search. Use the reload action if an old tab can no longer load its
+search files after an update.
 
 Inspect the body, byline, dates, images, code and language switch. Then run:
 

@@ -26,8 +26,7 @@ The preview shows repository content, including drafts, on loopback: Czech at
 link paired local pages. Add `--fixtures` to preview only the isolated synthetic
 demo instead. The normal production build never reads `fixtures/` and excludes
 drafts. Preview pages retain approved historical media iframes and contain no
-production Discourse scripts or comment embeds. Agent-owned previews
-in the managed workspace use its registered temporary-service command.
+production Discourse scripts or comment embeds.
 
 Production pages use Piwik at `piwik.vpsfree.cz` with a site ID configured for each
 language. Previews and synthetic fixtures omit the tracker, including its
@@ -36,17 +35,6 @@ no-JavaScript image.
 Each preview is a snapshot of its pages and search index. After editing, stop
 that preview, run the same command again (including any flags), and reload the
 browser. Pages do not update automatically while the snapshot is running.
-
-`nix develop -c bin/preview --vpn --fixtures` serves the synthetic demo on the
-VPN address `172.16.106.40:4567`: Czech at
-<http://aitherdev.int.vpsfree.cz:4567/> and English at
-<http://aitherdev.int.vpsfree.cz:4567/en/>. English fixture articles keep their
-explicit root paths, such as `/synthetic-example_1/`; only the English homepage,
-feed and search page use `/en/`. This single-origin preview is separate from production's
-two host roots. `--vpn` without `--fixtures` shows real repository drafts on
-that VPN listener. Only share drafts intended for everyone with VPN access.
-`bin/preview --help` lists these options; both flags can be combined in either
-order. No proxy or firewall changes are part of the preview command.
 
 `result/cs/` and `result/en/` are separate document roots. Both include `/feed/`
 and a sitemap. `result/metadata.json` records source/build inputs and SHA-256

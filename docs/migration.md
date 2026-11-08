@@ -6,8 +6,8 @@ approved historical comments, legacy upload files and an import manifest.
 Neither the generated site nor its Nix build needs WordPress, PHP or a database.
 
 Keep the original SQL, private key state and raw post bodies in owner-only
-operator storage outside this clone, session scratch directories and build
-inputs. Verify the recovery receipt's SQL/archive checksums before restoring.
+operator storage outside this clone and its build inputs. Verify the recovery
+receipt's SQL/archive checksums before restoring.
 The captured database snapshot is internally consistent; matching upload
 metadata before/after capture does not establish an atomic database/filesystem
 cutover snapshot. A production transition requires separate approval. Before
@@ -21,8 +21,7 @@ Use MariaDB 11.4.12, matching the captured database. Initialize a disposable dat
 directory with `mariadb-install-db`, then run `mariadbd --skip-networking` with a
 Unix socket inside an owner-only parent directory. Disable event scheduling,
 general/slow query logs and binary logging. Set `secure-file-priv` to a private
-empty directory; MariaDB treats the string `NULL` as a path. Register the local
-server with the host's temporary-service launcher in a managed environment.
+empty directory; MariaDB treats the string `NULL` as a path.
 Do not point these commands at an existing application database or reuse its
 socket. Restore the SQL with the supported MariaDB client and keep all restore
 output private. Restoring private SQL is preparation, not publication.
