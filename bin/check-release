@@ -7,6 +7,8 @@ import importlib.machinery
 import importlib.util
 import json
 from pathlib import Path
+import re
+from types import SimpleNamespace
 import subprocess
 import tempfile
 import unittest
@@ -134,6 +136,31 @@ class Upload(unittest.TestCase):
         self.assertNotIn('secrets.', build)
         self.assertIn("github.event_name == 'push'", deploy)
         self.assertIn("github.ref == 'refs/heads/main' && github.ref_protected", deploy)
+        gates = re.findall(r'^\s+if: (.+)$', text, re.MULTILINE)
+        self.assertEqual(len(gates), 3)
+        feature = 'refs/heads/2026-11-06-multilingual-blog-migration'
+        cases = [
+            ('vpsfreecz/blog', 'push', 'refs/heads/main', True, True, True),
+            ('vpsfreecz/blog', 'workflow_dispatch', 'refs/heads/main', True, True, False),
+            ('vpsfreecz/blog', 'push', feature, False, True, True),
+            ('vpsfreecz/blog', 'push', feature, True, True, True),
+            ('vpsfreecz/blog', 'push', 'refs/heads/main', False, False, False),
+            ('vpsfreecz/blog', 'workflow_dispatch', 'refs/heads/main', False, False, False),
+            ('vpsfreecz/blog', 'workflow_dispatch', feature, True, False, False),
+            ('vpsfreecz/blog', 'pull_request', feature, True, False, False),
+            ('vpsfreecz/blog', 'pull_request', 'refs/heads/main', True, False, False),
+            ('other/blog', 'push', feature, True, False, False),
+            ('other/blog', 'push', 'refs/heads/main', True, False, False),
+            ('vpsfreecz/blog', 'push', 'refs/heads/other', True, False, False),
+            ('vpsfreecz/blog', 'push', 'refs/tags/2026-11-06-multilingual-blog-migration', True, False, False),
+            ('vpsfreecz/blog', 'pull_request', 'refs/pull/1/merge', True, False, False),
+        ]
+        for repository, event, ref, protected, package, deliver in cases:
+            with self.subTest(repository=repository, event=event, ref=ref, protected=protected):
+                context = SimpleNamespace(repository=repository, event_name=event, ref=ref, ref_protected=protected)
+                actual = [eval(gate.replace('&&', ' and ').replace('||', ' or '),
+                               {'__builtins__': {}}, {'github': context}) for gate in gates]
+                self.assertEqual(actual, [package, package, deliver])
         self.assertIn('environment: blog-production', deploy)
         self.assertIn('cancel-in-progress: false', deploy)
         self.assertEqual(deploy.count('secrets.BLOG_DEPLOY_KEY'), 1)

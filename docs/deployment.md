@@ -1,17 +1,23 @@
 # Building and delivering a release
 
-The workflow checks and builds both language sites. Trusted protected-main runs
-also retain a release artifact. Only protected-main **push** runs upload it to
-`https://blog.vpsfree.cz/_deploy/blog`; manual runs prepare artifacts without
-authorizing delivery. Feature pushes and pull requests run checks without the
-deployment secret.
+The workflow checks and builds both language sites. Protected-main runs retain
+an artifact; protected-main **push** runs upload it to
+`https://blog.vpsfree.cz/_deploy/blog`. Manual runs on protected main prepare
+artifacts without authorizing delivery.
+
+A temporary exception also packages and uploads **push** runs from exactly
+`2026-11-06-multilingual-blog-migration` in `vpsfreecz/blog`. Other feature
+pushes, feature manual runs and pull requests receive no deployment secret.
 
 The separate `deploy` job uses the `blog-production` Actions environment. An
-operator must restrict that environment to protected `main`, set its
-`BLOG_DEPLOY_KEY` secret, and provision the matching target key. The job has
-read-only repository permissions. Its final step succeeds only after the target
-confirms that the exact validated release and its receipt are durable and
-selected. Builds and uploads do not deploy a system or change backend routing.
+operator must restrict that environment to protected `main` and, during this
+demonstration, the exact feature branch above. Set its `BLOG_DEPLOY_KEY` secret
+and provision the matching target key. After the demonstration, restore the
+main-only workflow gates and remove only the feature branch's environment
+allowance. The job has read-only repository permissions. Its final step succeeds
+only after the target confirms that the exact validated release and its receipt
+are durable and selected. Builds and uploads do not deploy a system or change
+backend routing.
 
 This workflow is the publication authority. The target authenticates the
 deployment key and validates package consistency. It does not query GitHub

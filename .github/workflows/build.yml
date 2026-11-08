@@ -22,13 +22,13 @@ jobs:
       - run: nix develop -c bin/check
       - run: nix develop -c bin/check-release
       - run: nix build .#site
-      - name: Package trusted main build
-        if: github.repository == 'vpsfreecz/blog' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_protected
+      - name: Package release
+        if: (github.repository == 'vpsfreecz/blog' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_protected) || (github.repository == 'vpsfreecz/blog' && github.event_name == 'push' && github.ref == 'refs/heads/2026-11-06-multilingual-blog-migration')
         run: >-
           nix develop -c bin/package-release --site result --output release
           --sha "$GITHUB_SHA" --run-id "$GITHUB_RUN_ID" --run-attempt "$GITHUB_RUN_ATTEMPT"
       - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        if: github.repository == 'vpsfreecz/blog' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_protected
+        if: (github.repository == 'vpsfreecz/blog' && github.event_name != 'pull_request' && github.ref == 'refs/heads/main' && github.ref_protected) || (github.repository == 'vpsfreecz/blog' && github.event_name == 'push' && github.ref == 'refs/heads/2026-11-06-multilingual-blog-migration')
         with:
           name: blog-${{ github.sha }}
           path: release/
@@ -38,7 +38,7 @@ jobs:
 
   deploy:
     needs: build
-    if: github.repository == 'vpsfreecz/blog' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.ref_protected
+    if: (github.repository == 'vpsfreecz/blog' && github.event_name == 'push' && github.ref == 'refs/heads/main' && github.ref_protected) || (github.repository == 'vpsfreecz/blog' && github.event_name == 'push' && github.ref == 'refs/heads/2026-11-06-multilingual-blog-migration')
     runs-on: ubuntu-latest
     environment: blog-production
     concurrency:
