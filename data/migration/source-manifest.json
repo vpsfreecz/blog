@@ -1784,7 +1784,7 @@
     {
       "article_id": "wp-841",
       "cs_file": "content/posts/2025-03-03-two-factor-login-with-passkeys/index.cs.html",
-      "cs_file_sha256": "7899e480d07f1a230c1b3cfd6ff099cd57b1db924ff5401a8d73c1a36d001f29",
+      "cs_file_sha256": "2c4db81d4ee1d0f8ab770a59eaefc72e3f6d038fb6bfbc4c8a4153beb9d772b0",
       "cs_path": "/dvoufaktorove-prihlasovani-s-passkey/",
       "exceptions": {
         "wptexturize_not_applied": 1
@@ -5524,7 +5524,7 @@
     "content/posts/2024-01-15-weve-replaced-lxcfs-with-kernel-virtualization/index.cs.html": "b8ef25a41f81e15d767f50c17b5b3d7a95f691b574c47c1ec89aa335e7d8b5b5",
     "content/posts/2024-07-31-prometheus-metrics-and-node-load-heatmaps/index.cs.html": "9a77a77915a809630490af092adb6e9dcd55ba94e3188cde60d853abac20671c",
     "content/posts/2024-08-19-primary-dns-servers/index.cs.html": "acefda954d0ffe3ecd104f61b3e34e5a36f29de306b3d57d052a462a4b6b7386",
-    "content/posts/2025-03-03-two-factor-login-with-passkeys/index.cs.html": "7899e480d07f1a230c1b3cfd6ff099cd57b1db924ff5401a8d73c1a36d001f29",
+    "content/posts/2025-03-03-two-factor-login-with-passkeys/index.cs.html": "2c4db81d4ee1d0f8ab770a59eaefc72e3f6d038fb6bfbc4c8a4153beb9d772b0",
     "content/posts/2025-05-16-linux-distributions-users-most-often-switch-to-rocky-linux-and-nixos/index.cs.html": "e194f31e625e9beb4a618862551a28a71fa4625780a89458c66a0aaafc9410c0",
     "data/articles.json": "7ed997c821960549990c8eb5606696d06be0a80c03b167b37ef74af0b0839849",
     "data/authors.json": "c01e303fbdb293aaa4ce80bd7cfd9ffe085394c23e8ea0f6589d2383e2643634",
