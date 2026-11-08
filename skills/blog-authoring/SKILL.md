@@ -35,11 +35,14 @@ ordinary clone; it requires no skill registry or external development workspace.
    production output. Keep private exports, credentials and unapproved personal
    data outside source and build inputs. Do not create forum topics or request
    forum credentials while authoring.
-6. Prepare publication only within the requested scope and Git host permissions.
-   Follow branch protections and editorial review; set `draft=false` only for an
-   approved variant, and commit intended files with ordinary hooks. Do not
-   initialize an empty remote without maintainer direction. Full-content RSS
-   uses stable per-language identities and excludes drafts in production builds.
-   The workflow prepares artifacts and the optional production Discourse embed
-   defaults off. Forum setup is unverified; activation remains disabled and
-   blocked on machine admission. Pushing a commit does not make an article live.
+6. Prepare publication only within the requested scope and Git host
+   permissions. Follow branch protections and editorial review; set
+   `draft=false` only for an approved variant, and commit intended files with
+   ordinary hooks. Do not initialize an empty remote without maintainer
+   direction. Full-content RSS uses stable per-language identities and
+   excludes drafts in production builds. The workflow prepares artifacts and
+   the optional production Discourse embed defaults off. Forum setup is
+   unverified. Target publication defaults off; after an operator enables and
+   resumes its installed policy, protected-main push builds can publish
+   validated content through authenticated upload. Feature pushes run checks
+   only; system deployment and public cutover remain operator steps.

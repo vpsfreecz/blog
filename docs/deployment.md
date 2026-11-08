@@ -1,65 +1,124 @@
-# Building a release artifact
+# Building and delivering a release
 
-The Actions workflow checks the pinned Hugo build and prepares release artifacts
-for trusted `main` pushes or manual runs on `main`. Pull requests and other
-branches run checks without producing an eligible release. This source workflow
-does not deploy the blog. The static hosting candidate and its pull timer remain
-disabled; activation is blocked until installed machine-coordination admission
-has been implemented and verified.
+The workflow checks and builds both language sites. Trusted protected-main runs
+also retain a release artifact. Only protected-main **push** runs upload it to
+`https://blog.vpsfree.cz/_deploy/blog`; manual runs prepare artifacts without
+authorizing delivery. Feature pushes and pull requests run checks without the
+deployment secret.
 
-The workflow uses read-only repository permissions and no deployment credentials.
-Its action commit pins were checked against upstream tags: checkout v7.0.1,
-install-nix-action v31.11.3 and upload-artifact v7.0.2. Those are reproducible tool
-pins, not minimum versions for article authors. `main` protection and a reviewed
-workflow are prerequisites for target-side artifact eligibility.
+The separate `deploy` job uses the `blog-production` Actions environment. An
+operator must restrict that environment to protected `main`, set its
+`BLOG_DEPLOY_KEY` secret, and provision the matching target key. The job has
+read-only repository permissions. Its final step succeeds only after the target
+confirms that the exact validated release and its receipt are durable and
+selected. Builds and uploads do not deploy a system or change backend routing.
 
-## Release identity
+This workflow is the publication authority. The target authenticates the
+deployment key and validates package consistency. It does not query GitHub
+independently to verify current main, branch protection or run success. Source
+SHA, run identity and build inputs are authenticated sender assertions. Anyone
+holding the key can authorize a conforming site, including its JavaScript.
+Protect main, the workflow and the environment accordingly.
 
-`bin/package-release` accepts only a clean checkout of the exact requested commit
-and matching Nix build metadata. Dirty or null identities remain valid for local
-authoring/preview, but cannot become release artifacts. The Nix build records its
-source and pinned build inputs plus SHA-256 hashes for every served file.
-Pagefind runs after Hugo and before hashing; its local module, WASM and index
-shards are part of the same complete release. Build inputs record Pagefind's
-version alongside Hugo's. An empty article root deliberately has no index bundle.
+## Release identity and retention
 
-The packager emits deterministic `payload.tar.gz` and `receipt.json` files. The
-archive contains separate `cs/` and `en/` document roots, `metadata.json` and a
-`release.json` envelope. The envelope/receipt identify `vpsfreecz/blog`, the exact
-source SHA, workflow path/run/attempt, artifact name and build inputs. The receipt
-also hashes the exact archive; self-referential archive hashes are avoided.
-Metadata and receipts are outside the served document roots. Production builds
-exclude drafts; the normal human translation-review requirements still apply.
+`bin/package-release` requires a clean checkout of the exact requested commit
+and matching Nix metadata. It emits deterministic `payload.tar.gz` and
+`receipt.json`. The archive contains `cs/`, `en/`, `metadata.json` and a
+`release.json` envelope; the metadata and envelope remain outside served roots.
+They bind the repository, workflow path, source SHA, run ID/attempt, pinned
+build inputs and complete file hashes, including Pagefind. The receipt hashes
+the archive. Dirty or null source identities remain supported for local
+previews but cannot become releases.
 
-An Actions artifact is named `blog-<source SHA>`. The workflow requests 90 days of
-retention; repository/organization retention policy must permit that setting
-before enabling the release pipeline. Artifact retention is not a durable backup.
-Rare posting does not remove a release already retained by the target.
+Actions retains `blog-<source SHA>` for the requested 90 days, subject to the
+repository's retention policy. The deploy job downloads that exact artifact
+from its own run. The target retains validated archives, releases, receipts,
+immutable CSS and historical media without automatic garbage collection. Back
+these up; Actions retention is not the recovery contract. No Hugo build runs on
+the VPS.
 
-## Target validation and expiry
+Rerunning only a failed deploy job reuses the retained artifact and its original
+build attempt. The deployment job does not rewrite that identity. Rerunning all
+jobs rebuilds and replaces the Actions artifact under the same name; its artifact
+ID and bytes may change. Target archives, receipts and ordering remain unchanged
+by that replacement.
 
-The configuration-owned helper independently checks the protected `main` SHA,
-verified workflow ID/path, repository, event, successful run and artifact through
-the GitHub API. Downloaded identity strings alone are not evidence. It verifies
-the archive digest, safe regular-file paths, exact declared payload and every
-file hash before staging. It never executes downloaded content. GitHub credentials
-are not forwarded to signed artifact-storage URLs or recorded in receipts.
+## Synchronous upload
 
-The helper retains exact archives, extracted releases and receipts locally,
-including current/previous releases, without automatic garbage collection. If
-the artifact for the current authorized SHA is missing or expired, it reports
-that SHA and keeps the current site unchanged. It never chooses an older build.
-An authorized operator reruns/dispatches the trusted workflow for the same SHA;
-the read-only target credential cannot dispatch it. No build runs on the VPS.
-A recovered machine needs the retained archive/receipt backup or that exact-source
-rebuild, plus the validated WordPress recovery material required before transition.
+`bin/upload-release` wraps the two package files in one deterministic ZIP and
+sends it with verified HTTPS to the fixed endpoint. It follows no redirects and
+has no insecure TLS option. The deployment key is read from the job
+environment, not an argument, URL, artifact or log. The client signs the
+method, exact path, workflow run number and SHA-256 of the ZIP body. The
+configuration repository's
+[operations guide](https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/docs/operations/blog-static.md)
+owns the exact protocol and target contract.
 
-Source/fixture preparation is separate from enabling this path. Outstanding
-operator facts include artifact visibility/read credentials, verified workflow
-ID, outbound API/download access, branch protection, retained backup and installed
-machine admission. No production credential is provisioned by these changes.
+Both nginx hops permit at most 512 MiB only at the exact Czech upload location.
+The validator also caps expanded content at 512 MiB and 25,000 files. English,
+disabled publication and other reserved deployment paths do not reach the
+receiver or WordPress. The retired webhook namespace returns 404. The
+provisional endpoint timeouts are 180 seconds; the client has a 300-second
+total budget and at most three attempts. Full-size measurement is required
+before deployment.
 
-## Checks and transition boundary
+A successful HTTP 200 confirms the source, release key, current receipt digest,
+body digest and workflow identity. The client checks every returned identity.
+Busy, paused, malformed, stale and conflicting requests return non-2xx
+responses. The client retries transient failures using the same ZIP bytes and
+signature. A lost reply can follow a successful commit, so an Actions failure
+means delivery was not confirmed. Retry the exact package or inspect root
+status before deciding whether content changed. No background queue or deferred
+publication exists.
+
+The target orders successful uploads by `(GITHUB_RUN_NUMBER,
+GITHUB_RUN_ATTEMPT)` within this fixed workflow. It binds each accepted order
+to the run ID, source and body digest. Lower orders and conflicting reuse are
+rejected. An identical retry succeeds only while that exact upload remains
+selected. A higher attempt may advance the durable order even when content is
+unchanged. Workflow concurrency prevents cancellation during upload, but the
+target ordering check remains necessary. This cannot detect a newer main commit
+that has not arrived. Recreating the workflow's ordering namespace needs an
+explicit operator reset.
+
+## Maintenance and recovery
+
+Static serving, publication and backend static selection default off. The
+backend frontend on port 80 keeps Czech WordPress public through loopback port
+8081; English returns 503. The public proxy forwards both hosts to backend port
+80. After the operator enables static storage and publication and explicitly
+resumes the installed policy, uploads can select content while WordPress
+remains public. Verify that content on backend `127.0.0.1:8080` with each fixed
+language Host before changing backend `serveStatic`. Returning it to false
+restores WordPress/English 503 without another proxy change.
+
+Root `blog-static-release maintenance-enter` waits on the same stable lock as
+pointer transactions and persists pause. The native pre-switch check requires
+pause before system changes, including disabling publication. After deployment
+and verification, `maintenance-exit` reconciles receipts and resumes only the
+selected policy and system generation. It never replays an upload. A request
+already receiving data cannot commit after pause or a system/policy change.
+
+Root `rollback --release KEY --expected-current DIGEST` selects an exact
+retained release through an irreversibly unprivileged content child. It
+persists pause and preserves the greatest committed upload order. Resume does
+not authorize an old request to undo rollback; use a newer authorized upload to
+publish again. Unknown pointers, invalid receipts or failed durability barriers
+require operator reconciliation. All archives and prior systems remain
+retained.
+
+Policy/control schema 2 is the signed-upload authority boundary. P21 can roll
+back retained schema-1 release content and restore WordPress routing with
+`serveStatic=false`. This does not establish a system rollback to P20: its
+maintenance check requires the older control schema and rejects schema-2 state.
+Retain old systems for recovery, but verify their activation and control-state
+compatibility before attempting a switch. Do not run old publication writers
+against the new state. Keep WordPress/database backups, account identities and
+prior inputs throughout the transition. Live TLS, runtime credentials, systemd
+authority and production delivery need separate operator verification.
+
+## Local checks
 
 ```sh
 nix develop -c bin/check
@@ -67,35 +126,16 @@ nix develop -c bin/check-release
 nix build .#site
 ```
 
-`bin/check-release` uses tiny local Git/site fixtures to check clean identity,
-dirty/null rejection, undeclared payload and deterministic packaging. The
-configuration repository owns mocked acquisition/transaction checks and its
-default-off hosting module. These checks do not prove deployed admission,
-credentials, branch policy or network reachability.
+`bin/check-release` uses small offline fixtures for package identity,
+deterministic archives, tamper detection, exact-byte lost-reply retries,
+response validation and workflow secret/event scoping. Configuration tests
+cover upload authentication, ZIP and payload bounds, ordering, crash
+reconciliation, maintenance and routing. These checks do not prove live
+branch/environment settings or production reachability.
 
-The candidate static listener is IPv4 port 8080 behind the existing exact proxy
-boundary; WordPress port 80 remains intact. A later approved transition must
-address English DNS/TLS, proxy routing, legacy query aliases, feed behavior and
-forum setup. Briefly check for new/changed articles or comments before switching
-and refresh the capture only if needed; no writer freeze is planned.
-
-The production activation/rollback/pull CLI currently refuses with
-`machine-admission-unavailable`. No flag, environment variable or filesystem
-lock substitutes for machine ownership. A future admitted transaction must
-recheck the authorized head and prior receipt immediately before atomically
-switching `current`, reconcile interruptions, retain immutable cached assets and
-record rollback separately. Source commits, successful CI or a Git push do not
-authorize a production transition.
-
-Rollback restores the complete previous site and search index together. Keep
-Pagefind's stable entry filenames under ordinary HTTP cache behavior; do not
-mark them immutable. Its hashed shards may disappear for an older open tab after
-a release. The search page reports load failures separately from no matches and
-offers a reload action: its adapter imports a fresh module URL and the pinned
-Pagefind loader fetches its entry data with a fresh cache key. This is a recoverable
-old-tab limit, not a promise to retain every old index indefinitely. No target
-configuration or asset-retention protocol is added for search.
-
-The [discussion guide](discussions.md) covers the separate default-off embed
-source and its runtime setup gates. Neither workflow preparation nor forum
-source code changes the current blog or creates discussion topics.
+Static-content rollback restores the complete site and search index together.
+Pagefind's hashed shards may disappear for an older open tab; the search
+adapter reports load failures and offers a reload. Its stable entry files
+retain ordinary HTTP caching. The [discussion guide](discussions.md) describes
+the separate, default-off forum embed and its setup gates. Uploads create no
+discussion topics.

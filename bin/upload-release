@@ -1,0 +1,130 @@
+#!/usr/bin/env python3
+"""Deliver one exact release with authenticated, bounded HTTPS retries."""
+import argparse
+import hashlib
+import hmac
+import http.client
+import json
+import os
+from pathlib import Path
+import signal
+import re
+import tempfile
+import time
+import zipfile
+
+HOST = 'blog.vpsfree.cz'
+PATH = '/_deploy/blog'
+MAX_BYTES = 512 * 1024 * 1024
+TOTAL_SECONDS = 300
+
+
+def message(number, digest):
+    return f'blog-upload-v1\nPOST\n{PATH}\n{number}\n{digest}\n'.encode('ascii')
+
+
+def prepare(directory, target):
+    if {p.name for p in directory.iterdir()} != {'payload.tar.gz', 'receipt.json'}:
+        raise ValueError('Expected exactly payload.tar.gz and receipt.json')
+    with zipfile.ZipFile(target, 'w', compression=zipfile.ZIP_STORED) as bundle:
+        for name in ('payload.tar.gz', 'receipt.json'):
+            path = directory / name
+            if path.is_symlink() or not path.is_file():
+                raise ValueError('Release members must be regular files')
+            item = zipfile.ZipInfo(name, date_time=(1980, 1, 1, 0, 0, 0))
+            item.external_attr = 0o100644 << 16
+            with bundle.open(item, 'w', force_zip64=True) as member, path.open('rb') as source:
+                while chunk := source.read(1024 * 1024):
+                    member.write(chunk)
+    length = target.tell()
+    if length <= 0 or length > MAX_BYTES:
+        raise ValueError('Transport ZIP exceeds 512 MiB')
+    target.seek(0)
+    digest = hashlib.file_digest(target, 'sha256').hexdigest()
+    target.seek(0)
+    return length, digest
+
+
+def exchange(body, headers, timeout):
+    # Fixed HTTPS origin/path, default certificate verification, no redirects.
+    connection = http.client.HTTPSConnection(HOST, timeout=timeout)
+    try:
+        connection.request('POST', PATH, body=body, headers=headers)
+        response = connection.getresponse()
+        raw = response.read(65537)
+        if len(raw) > 65536:
+            raise ValueError('Oversized upload response')
+        return response.status, raw
+    finally:
+        connection.close()
+
+
+def upload(directory, key, number, run_id, attempt, source_sha, transport=exchange):
+    if not 32 <= len(key) <= 4096 or not all(type(v) is int and 0 < v < 2 ** 63 for v in (number, run_id, attempt)):
+        raise ValueError('Invalid deployment key or run identity')
+    receipt = json.loads((directory / 'receipt.json').read_bytes())
+    expected = {'source_sha': source_sha, 'run_id': run_id,
+                'repository': 'vpsfreecz/blog', 'workflow_path': '.github/workflows/build.yml'}
+    if (type(receipt) is not dict or not re.fullmatch(r'[0-9a-f]{40}', source_sha)
+            or any(receipt.get(k) != v for k, v in expected.items())
+            or type(receipt.get('run_attempt')) is not int
+            or not 0 < receipt['run_attempt'] <= attempt
+            or not isinstance(receipt.get('archive_sha256'), str)
+            or not re.fullmatch(r'[0-9a-f]{64}', receipt['archive_sha256'])):
+        raise ValueError('Package does not match workflow identity')
+    # A deploy-only rerun reuses the original successful build's package.
+    expected = {k: receipt[k] for k in ('source_sha', 'run_id', 'run_attempt')}
+    expected['release'] = source_sha + '-' + receipt['archive_sha256'][:16]
+    deadline = time.monotonic() + TOTAL_SECONDS
+    with tempfile.TemporaryFile() as body:
+        length, digest = prepare(directory, body)
+        headers = {'Content-Type': 'application/zip', 'Content-Length': str(length),
+                   'X-Blog-Run-Number': str(number), 'X-Blog-Body-SHA256': digest,
+                   'X-Blog-Signature': 'sha256=' + hmac.new(key, message(number, digest), hashlib.sha256).hexdigest()}
+        for retry in range(3):
+            remaining = deadline - time.monotonic()
+            if remaining <= 0:
+                raise TimeoutError('Delivery confirmation deadline exceeded')
+            try:
+                body.seek(0)
+                status, raw = transport(body, headers, remaining)
+                if status == 200:
+                    result = json.loads(raw)
+                    if (type(result) is not dict or result.get('selected') is not True or any(result.get(k) != v for k, v in expected.items())
+                            or result.get('body_sha256') != digest or result.get('run_number') != number
+                            or not isinstance(result.get('receipt_sha256'), str)
+                            or not re.fullmatch(r'[0-9a-f]{64}', result['receipt_sha256'])):
+                        raise ValueError('Server did not confirm the exact selected release')
+                    return result
+                if status not in (408, 429, 500, 502, 503, 504):
+                    raise ValueError(f'Upload rejected with HTTP {status}')
+            except (OSError, http.client.HTTPException):
+                pass
+            if retry < 2:
+                time.sleep(min(2 ** retry, max(0, deadline - time.monotonic())))
+    raise TimeoutError('Delivery not confirmed; exact-byte retry or operator status required')
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--release', type=Path, required=True)
+    options = parser.parse_args()
+    # A hard total bound covers request writes/reads and retries, not just idle sockets.
+    def expired(*args):
+        raise TimeoutError('Delivery confirmation deadline exceeded')
+    signal.signal(signal.SIGALRM, expired)
+    signal.setitimer(signal.ITIMER_REAL, TOTAL_SECONDS)
+    try:
+        result = upload(options.release, os.environ['BLOG_DEPLOY_KEY'].encode('utf-8'),
+                        int(os.environ['GITHUB_RUN_NUMBER']), int(os.environ['GITHUB_RUN_ID']),
+                        int(os.environ['GITHUB_RUN_ATTEMPT']), os.environ['GITHUB_SHA'])
+        print(json.dumps(result, sort_keys=True))
+    except (KeyError, ValueError, OSError, http.client.HTTPException):
+        # No credential, signature, response body or package data in diagnostics.
+        raise SystemExit('Blog delivery was not confirmed; inspect target status or retry this exact package.')
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+
+
+if __name__ == '__main__':
+    main()

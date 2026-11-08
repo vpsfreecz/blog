@@ -27,11 +27,14 @@ it needs no installation or external workspace.
   These fields require manual review; checks do not enforce them yet.
 - Keep private exports, credentials, user records and unapproved personal data
   outside the repository and its build inputs. Synthetic fixtures stay draft-only.
-- Git host write permissions and branch protections control publication access.
-  Follow the requested branch/review policy; never assume an agent can grant
-  itself push permission. The workflow prepares release artifacts; activation is
-  disabled and blocked on verified machine admission. Pushing a commit does not
-  deploy the site. Do not initialize an empty remote without maintainer
-  direction. Imported articles, historical comments and full-content feeds are
-  implemented. The optional production Discourse embed defaults off; forum setup
-  and deployment still need verification and approval.
+- Git host write permissions and branch protections control publication
+  access. Follow the requested branch/review policy; never assume an agent can
+  grant itself push permission. The workflow prepares release artifacts.
+  Target publication defaults off; an operator must enable and resume its
+  installed policy before protected-main push builds can publish through
+  authenticated upload. Feature pushes run checks only; system deployment
+  and public cutover are operator steps. Do not initialize an empty remote without
+  maintainer direction. Imported articles, historical comments and
+  full-content feeds are implemented. The optional production Discourse embed
+  defaults off; forum setup and deployment still need verification and
+  approval.

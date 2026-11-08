@@ -205,9 +205,10 @@ hooks and contribution policy.
 Push the working branch only with the Git host's write permission. Follow any
 required review and protected-publication-branch policy before advancing that
 branch; an agent cannot grant itself permission. The Actions workflow checks
-source and packages trusted-main [release artifacts](deployment.md), but target
-activation and its timer remain disabled and blocked on verified machine
-admission. A successful push currently does not deploy an article. A maintainer
-must complete the documented deployment gates before Git pushes can serve as
-live publication. Do not initialize the remote or perform a server
-deployment as part of routine article writing without maintainer direction.
+source and packages trusted-main [release artifacts](deployment.md). Target
+publication defaults off. After a maintainer enables and resumes the installed
+policy, successful protected-main push builds can publish validated content
+through authenticated upload. Feature pushes run checks only. System deployment
+and public cutover remain maintainer operations. Do not initialize the remote or perform
+a server deployment as part of routine article writing without maintainer
+direction.

@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Tiny offline release-packager fixtures; no site build or network."""
 import hashlib
+import http.client
+import io
 import importlib.machinery
 import importlib.util
 import json
@@ -63,6 +65,88 @@ class Package(unittest.TestCase):
             (site / 'unexpected.sql').write_text('Untracked payload')
             with self.assertRaisesRegex(ValueError, 'Undeclared'):
                 release.package(site, root / 'extra', sha, 7, 1, source)
+
+
+upload_loader = importlib.machinery.SourceFileLoader('upload_release', str(Path(__file__).with_name('upload-release')))
+upload_spec = importlib.util.spec_from_loader(upload_loader.name, upload_loader)
+upload = importlib.util.module_from_spec(upload_spec)
+upload_loader.exec_module(upload)
+
+
+class Upload(unittest.TestCase):
+    def test_exact_byte_lost_reply_retry_and_response_identity(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            receipt = {'repository': 'vpsfreecz/blog', 'workflow_path': '.github/workflows/build.yml',
+                       'source_sha': 'a' * 40, 'run_id': 7, 'run_attempt': 1, 'archive_sha256': 'b' * 64}
+            (directory / 'receipt.json').write_text(json.dumps(receipt))
+            (directory / 'payload.tar.gz').write_bytes(b'fixture archive')
+            first, second = io.BytesIO(), io.BytesIO()
+            self.assertEqual(upload.prepare(directory, first), upload.prepare(directory, second))
+            self.assertEqual(first.getvalue(), second.getvalue())
+            bodies, signatures = [], []
+            def transport(body, headers, timeout):
+                bodies.append(body.read()); signatures.append(headers['X-Blog-Signature'])
+                if len(bodies) == 1: raise http.client.RemoteDisconnected('lost after commit')
+                return 200, json.dumps({**receipt, 'selected': True, 'release': 'a' * 40 + '-' + 'b' * 16,
+                    'body_sha256': headers['X-Blog-Body-SHA256'], 'run_number': 10,
+                    'receipt_sha256': 'c' * 64}).encode()
+            from unittest.mock import patch
+            with patch.object(upload.time, 'sleep'):
+                result = upload.upload(directory, b'x' * 32, 10, 7, 1, 'a' * 40, transport)
+            self.assertTrue(result['selected'])
+            self.assertEqual(bodies[0], bodies[1]); self.assertEqual(signatures[0], signatures[1])
+            for status, response in [(202, b'{}'), (302, b'{}'), (401, b'{}'), (409, b'{}'), (200, b'{"selected":true}')]:
+                with self.assertRaises(ValueError):
+                    upload.upload(directory, b'x' * 32, 10, 7, 1, 'a' * 40, lambda *args: (status, response))
+            with patch.object(upload, 'MAX_BYTES', 10), self.assertRaises(ValueError): upload.prepare(directory, io.BytesIO())
+
+    def test_retained_build_attempt_on_deploy_rerun(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            directory = Path(temporary)
+            receipt = {'repository': 'vpsfreecz/blog', 'workflow_path': '.github/workflows/build.yml',
+                       'source_sha': 'a' * 40, 'run_id': 7, 'run_attempt': 1, 'archive_sha256': 'b' * 64}
+            (directory / 'receipt.json').write_text(json.dumps(receipt))
+            (directory / 'payload.tar.gz').write_bytes(b'original build archive')
+            requests = []
+            def transport(body, headers, timeout):
+                requests.append((body.read(), dict(headers)))
+                return 200, json.dumps({'selected': True, 'source_sha': 'a' * 40,
+                    'run_id': 7, 'run_attempt': 1, 'release': 'a' * 40 + '-' + 'b' * 16,
+                    'body_sha256': headers['X-Blog-Body-SHA256'], 'run_number': 10,
+                    'receipt_sha256': 'c' * 64}).encode()
+            original = upload.upload(directory, b'x' * 32, 10, 7, 1, 'a' * 40, transport)
+            retried = upload.upload(directory, b'x' * 32, 10, 7, 2, 'a' * 40, transport)
+            self.assertEqual(original, retried)
+            self.assertEqual(requests[0], requests[1])
+            self.assertEqual(json.loads((directory / 'receipt.json').read_text()), receipt)
+            for field, value in [('run_attempt', 3), ('run_attempt', 0), ('run_attempt', True),
+                                 ('run_attempt', '1'), ('run_id', 8), ('source_sha', 'd' * 40),
+                                 ('repository', 'other/blog'), ('workflow_path', 'other.yml')]:
+                (directory / 'receipt.json').write_text(json.dumps({**receipt, field: value}))
+                with self.subTest(field=field, value=value), self.assertRaisesRegex(ValueError, 'workflow identity'):
+                    upload.upload(directory, b'x' * 32, 10, 7, 2, 'a' * 40, transport)
+            self.assertEqual(len(requests), 2)
+
+    def test_workflow_secret_and_event_scope(self):
+        text = (Path(__file__).resolve().parents[1] / '.github/workflows/build.yml').read_text()
+        build, deploy = text.split('  deploy:', 1)
+        self.assertNotIn('secrets.', build)
+        self.assertIn("github.event_name == 'push'", deploy)
+        self.assertIn("github.ref == 'refs/heads/main' && github.ref_protected", deploy)
+        self.assertIn('environment: blog-production', deploy)
+        self.assertIn('cancel-in-progress: false', deploy)
+        self.assertEqual(deploy.count('secrets.BLOG_DEPLOY_KEY'), 1)
+        self.assertIn('name: blog-${{ github.sha }}', deploy)
+        self.assertIn('needs: build', deploy)
+        self.assertIn('overwrite: true', build)
+        self.assertNotIn('cancel-in-progress: true', text)
+        self.assertEqual(upload.TOTAL_SECONDS, 300)
+        root = Path(__file__).resolve().parents[1]
+        for name in ('docs/authoring.md', 'skills/blog-authoring/SKILL.md'):
+            self.assertNotIn('through the webhook', (root / name).read_text())
+        documentation = (root / 'docs/deployment.md').read_text()
+        self.assertIn('https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/docs/operations/blog-static.md', documentation)
 
 
 unittest.main(verbosity=1)
