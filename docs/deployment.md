@@ -33,10 +33,12 @@ previews but cannot become releases.
 
 Actions retains `blog-<source SHA>` for the requested 90 days, subject to the
 repository's retention policy. The deploy job downloads that exact artifact
-from its own run. The target retains validated archives, releases, receipts,
-immutable CSS and historical media without automatic garbage collection. Back
-these up; Actions retention is not the recovery contract. No Hugo build runs on
-the VPS.
+from its own run. Target retention can prune old release directories and
+archives while preserving served and protected recovery releases, publication
+records, immutable CSS and current media. The configuration repository's
+operations guide defines the retention policy and inspection commands. Keep
+separate backups; Actions retention is not the recovery contract. No Hugo build
+runs on the VPS.
 
 Rerunning only a failed deploy job reuses the retained artifact and its original
 build attempt. The deployment job does not rewrite that identity. Rerunning all
@@ -105,8 +107,9 @@ retained release through an irreversibly unprivileged content child. It
 persists pause and preserves the greatest committed upload order. Resume does
 not authorize an old request to undo rollback; use a newer authorized upload to
 publish again. Unknown pointers, invalid receipts or failed durability barriers
-require operator reconciliation. All archives and prior systems remain
-retained.
+require operator reconciliation. Rollback requires a complete retained release;
+pruned payloads are no longer rollback targets. Keep prior systems and separate
+backups.
 
 Policy/control schema 2 is the signed-upload authority boundary. P21 can roll
 back retained schema-1 release content and restore WordPress routing with
