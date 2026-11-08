@@ -40,3 +40,8 @@ No separate media license is asserted.
 | https://discourse.vpsfree.cz/uploads/default/original/1X/1c6e46d683e6dfe2c5a48bebd15f08379f514d64.png | 28005 | `b53b1191002ff13edc9db7cb11881a9145361d46b2f01153e4fecf055a3e8e92` |
 | https://discourse.vpsfree.cz/uploads/default/optimized/1X/ff84bffeca5a0820b5637be2c6d6d760da968e0b_2_690x462.png | 69681 | `0dff4ac1b2e387b3138b4638553854eb18a23d2e6c42780aa31f40e70400bb00` |
 | https://discourse.vpsfree.cz/images/emoji/twitter/slight_smile.png?v=12 | 620 | `c7a2c052f383509ac9ec9da7f34cccc4c1d35040799426588c54a0d83cd9628f` |
+
+The favicon in `static/favicon.png` is an unchanged copy of the old blog's
+[Flat theme favicon](https://blog.vpsfree.cz/wp-content/themes/flat/favicon.png).
+It is a 16×16 PNG (607 bytes), with SHA-256
+`dfe1b759dd6db24982fb4844e514bebf102462ac8f54f16725e12cfea0105fe8`.
