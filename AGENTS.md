@@ -6,7 +6,8 @@ Any agent can read [the authoring skill](skills/blog-authoring/SKILL.md) directl
 it needs no installation or external workspace.
 
 - Use the pinned environment: `nix develop -c bin/check` and `nix build .#site`.
-  Use the repository's Git hooks if a framework is introduced; none is declared.
+  Install the ordinary pre-commit hook as described in the author guide; preserve
+  an existing hook setup. It checks the actual index without building the site.
 - Start drafts in `content/posts/YYYY-MM-DD-english-title/index.cs.md`; add
   `index.en.md` in the same bundle. Choose an independent immutable article ID
   outside `wp-`; the folder name does not identify the article. Follow the
@@ -20,16 +21,21 @@ it needs no installation or external workspace.
   the isolated synthetic demo. Preserve approved historical media iframes;
   production Discourse scripts and comment embeds remain disabled.
   Follow the host's service-registration rules if working in a managed environment.
-- Preserve technical facts, commands, links and attribution. English translations
-  stay drafts until a human reviews meaning and voice against the current Czech
-  file; hash its exact bytes, using the current `.md` or `.html` extension, and
-  record the reviewer fields described in the author guide.
-  These fields require manual review; checks do not enforce them yet.
+- Accept either Czech or English as the starting text. Proofread both languages
+  in context and preserve technical facts, commands, links and attribution.
+  Commit a complete CS/EN pair, including drafts. Finalize Czech before hashing
+  its exact file bytes into the English review record. Name the actual reviewer
+  or agent; preserve genuine historical human-review fields. Run
+  `nix develop -c bin/check-articles --staged` before committing. Hunspell reports
+  unknown words; it does not certify grammar, meaning or translation quality.
 - Keep private exports, credentials, user records and unapproved personal data
   outside the repository and its build inputs. Synthetic fixtures stay draft-only.
 - Git host write permissions and branch protections control publication
-  access. Follow the requested branch/review policy; never assume an agent can
-  grant itself push permission. The workflow prepares release artifacts.
+  access. When the user asks to publish a ready article, use fresh `main` with
+  ordinary hooks and protections. Drafts and preparation stay on a feature
+  branch. Include only the intended article changes and respect host permissions.
+  Observe the exact pushed article SHA with `bin/observe-publication` as described
+  in the guide. The workflow prepares release artifacts.
   Target publication defaults off; an operator must enable and resume its
   installed policy before protected-main push builds can publish through
   authenticated upload. Feature pushes run checks only; system deployment

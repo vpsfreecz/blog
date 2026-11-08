@@ -1,0 +1,290 @@
+#!/usr/bin/env python3
+"""Observe one exact main push and bilingual article; never publish or retry it."""
+import argparse
+import hashlib
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import re
+import shutil
+import signal
+import subprocess
+import sys
+import time
+import tomllib
+from urllib.error import HTTPError, URLError
+from urllib.parse import urlencode
+from urllib.request import HTTPRedirectHandler, Request, build_opener
+
+ROOT = Path(__file__).resolve().parent.parent
+REPOSITORY = 'vpsfreecz/blog'
+WORKFLOW = '.github/workflows/build.yml'
+
+
+class NoRedirect(HTTPRedirectHandler):
+    def redirect_request(self, *args):
+        return None
+
+
+def request(url, remaining):
+    with build_opener(NoRedirect()).open(Request(url, headers={'Accept': 'application/vnd.github+json', 'User-Agent': 'vpsfree-blog-publication-observer'}), timeout=max(0.1, min(20, remaining))) as response:
+        return response.read(16 * 1024 * 1024 + 1)
+
+
+def api(path, remaining):
+    deadline = time.monotonic() + remaining
+    try:
+        raw = request('https://api.github.com/' + path, remaining)
+    except (HTTPError, URLError, TimeoutError):
+        if not shutil.which('gh'):
+            raise
+        raw = subprocess.check_output(['gh', 'api', path], timeout=max(0.1, min(20, deadline - time.monotonic())), stderr=subprocess.DEVNULL)
+    if len(raw) > 16 * 1024 * 1024:
+        raise ValueError('Oversized API response')
+    return json.loads(raw)
+
+
+def exact_run(records, sha, branch="main"):
+    matches = [run for run in records if run.get('head_sha') == sha and run.get('head_branch') == branch
+               and run.get('event') == 'push' and run.get('path') == WORKFLOW
+               and run.get('repository', {}).get('full_name') == REPOSITORY]
+    return max(matches, key=lambda run: (run['run_number'], run['run_attempt']), default=None)
+
+
+def delivery(jobs, branch='main'):
+    named = {job['name']: job for job in jobs}
+    if not {'build', 'deploy'} <= named.keys() or any(named[name]['status'] != 'completed' for name in ('build', 'deploy')):
+        return None
+    if branch != 'main':
+        return named['build'].get('conclusion') == 'success' and named['deploy'].get('conclusion') == 'skipped'
+    return all(named[name].get('conclusion') == 'success' for name in ('build', 'deploy'))
+
+
+class IncompleteEvidence(ValueError):
+    pass
+
+
+def attempt_jobs(document, run, attempt):
+    jobs = document.get('jobs')
+    if (not isinstance(jobs, list) or type(document.get('total_count')) is not int
+            or document['total_count'] != len(jobs)):
+        raise IncompleteEvidence('Missing or incomplete attempt job list')
+    for job in jobs:
+        if (not isinstance(job, dict) or type(job.get('run_id')) is not int
+                or type(job.get('run_attempt')) is not int or job.get('run_id') != run['id']
+                or job.get('head_sha') != run['head_sha'] or job.get('run_attempt') != attempt
+                or not isinstance(job.get('name'), str) or not isinstance(job.get('status'), str)):
+            raise IncompleteEvidence('Job run/SHA/attempt does not match requested identity')
+    for name in ('build', 'deploy'):
+        if sum(job.get('name') == name for job in jobs) > 1:
+            raise IncompleteEvidence('Ambiguous ' + name + ' job')
+    return jobs
+
+
+def main_delivery(run, jobs, api_get, remaining):
+    """A deploy-only rerun reuses the first preceding build of this exact run."""
+    named = {job['name']: job for job in jobs}
+    deploy = named.get('deploy')
+    if not deploy or deploy.get('status') != 'completed':
+        raise IncompleteEvidence('Current attempt has no terminal deploy evidence')
+    if deploy.get('conclusion') != 'success':
+        return False, None
+    build = named.get('build')
+    attempt = run['run_attempt']
+    reused = build is None
+    while build is None and attempt > 1:
+        if remaining() <= 0:
+            raise IncompleteEvidence('Deadline reached while finding prerequisite build')
+        attempt -= 1
+        document = api_get(f'repos/{REPOSITORY}/actions/runs/{run["id"]}/attempts/{attempt}/jobs?per_page=100', remaining())
+        earlier = attempt_jobs(document, run, attempt)
+        build = next((job for job in earlier if job.get('name') == 'build'), None)
+    if build is None:
+        raise IncompleteEvidence('No prerequisite build in examined attempts')
+    if build.get('status') != 'completed':
+        raise IncompleteEvidence('Prerequisite build is not terminal')
+    if build.get('conclusion') != 'success':
+        return False, attempt
+    if reused:
+        steps = build.get('steps')
+        if not isinstance(steps, list):
+            raise IncompleteEvidence('Reused build package/upload steps are missing')
+        packages = [step for step in steps if step.get('name') == 'Package release']
+        uploads = [step for step in steps if re.fullmatch(r'Run actions/upload-artifact@[0-9a-f]{40}', step.get('name', ''))]
+        if (len(packages) != 1 or len(uploads) != 1
+                or any(step.get('status') != 'completed' or step.get('conclusion') != 'success'
+                       for step in packages + uploads)):
+            raise IncompleteEvidence('Reused build has no successful package and artifact upload proof')
+    return True, attempt
+
+
+class Page(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.canonicals, self.title, self.in_title, self.articles = [], '', False, []
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        if tag == 'title':
+            self.in_title = True
+        if tag == 'link' and attrs.get('rel') == 'canonical':
+            self.canonicals.append(attrs.get('href'))
+        if tag == 'article':
+            self.articles.append(attrs.get('data-article-id'))
+
+    def handle_endtag(self, tag):
+        if tag == 'title':
+            self.in_title = False
+
+    def handle_data(self, text):
+        if self.in_title:
+            self.title += text
+
+
+def expected_articles(sha, ident):
+    files = subprocess.check_output(['git', '-C', str(ROOT), 'ls-tree', '-rz', '--name-only', sha, '--', 'content/posts']).decode().split('\0')
+    result = {}
+    for path in files:
+        match = re.fullmatch(r'content/posts/[^/]+/index\.(cs|en)\.(md|html)', path)
+        if not match:
+            continue
+        raw = subprocess.check_output(['git', '-C', str(ROOT), 'show', sha + ':' + path])
+        front = tomllib.loads(raw.split(b'+++', 2)[1].decode())
+        if front.get('params', {}).get('article_id') == ident:
+            if front.get('draft', True):
+                raise ValueError('Requested article is a draft in the pushed source')
+            url = front['url']
+            if not re.fullmatch(r'/[a-z0-9/_-]+/', url) or url.startswith('//') or '..' in url:
+                raise ValueError('Unsupported public article path')
+            language = match[1]
+            if language in result:
+                raise ValueError('Duplicate requested language')
+            result[language] = {'url': 'https://blog.vpsfree.' + ('cz' if language == 'cs' else 'org') + url, 'path': language + url + 'index.html', 'title': front['title']}
+    if set(result) != {'cs', 'en'}:
+        raise ValueError('Exact source needs a complete CS/EN article pair')
+    return result
+
+
+def observe(sha, ident, expected, timeout=600, interval=10, artifact=None, api_get=api, fetch=request, clock=time.monotonic, sleep=time.sleep, branch='main'):
+    deadline = clock() + timeout
+    report = {'sha': sha, 'article': ident, 'ci': 'unknown', 'publication': 'unproven', 'site': {}, 'limits': [], 'branch': branch}
+    run = None
+    api_available = True
+    while clock() < deadline:
+        if api_available:
+            # CI proof belongs only to this fresh run/attempt observation.
+            report['ci'] = 'unknown'
+            report.pop('build_attempt', None)
+            report.pop('deploy_attempt', None)
+            report.pop('run', None)
+            try:
+                query = urlencode({'head_sha': sha, 'event': 'push', 'branch': branch, 'per_page': 100})
+                runs = api_get(f'repos/{REPOSITORY}/actions/workflows/build.yml/runs?' + query, deadline - clock())
+                run = exact_run(runs.get('workflow_runs', []), sha, branch)
+                if run:
+                    report['run'] = {key: run[key] for key in ('id', 'run_number', 'run_attempt', 'html_url', 'head_sha')}
+                    jobs = api_get(f'repos/{REPOSITORY}/actions/runs/{run["id"]}/attempts/{run["run_attempt"]}/jobs?per_page=100', max(0.1, deadline - clock()))
+                    current_jobs = attempt_jobs(jobs, run, run['run_attempt'])
+                    state = delivery(current_jobs, branch)
+                    if branch == 'main' and run['status'] == 'completed' and run.get('conclusion') == 'success':
+                        state, build_attempt = main_delivery(run, current_jobs, api_get, lambda: max(0, deadline - clock()))
+                        report['build_attempt'] = build_attempt
+                        report['deploy_attempt'] = run['run_attempt']
+                    if run['status'] == 'completed' and state is not None:
+                        report['ci'] = 'success' if run.get('conclusion') == 'success' and state else 'failed'
+                        if report['ci'] == 'failed':
+                            report['limits'].append('Exact run or build/deploy failed or skipped; no retry performed.')
+                            if branch != 'main':
+                                report['limits'].append('Feature delivery is unexpected; only skipped deploy is allowed.')
+                            return report
+                        if branch != 'main':
+                            report['publication'] = 'not requested (draft feature)'
+                            return report
+                    elif run['status'] == 'completed' and run.get('conclusion') != 'success':
+                        report['ci'] = 'failed'
+                        return report
+            except IncompleteEvidence as error:
+                report['limits'].append('CI prerequisite evidence is unproven: ' + str(error))
+                return report
+            except (OSError, ValueError, subprocess.SubprocessError):
+                api_available = False
+                report['limits'].append('CI API unavailable; public-site observations cannot prove CI or deployed commit.')
+                if branch != 'main':
+                    report['limits'][-1] = 'Feature CI API unavailable; no site fallback or publication requested.'
+                    return report
+        if branch != 'main':
+            remaining = deadline - clock()
+            if remaining > 0:
+                sleep(min(interval, remaining))
+            continue
+        for language, item in expected.items():
+            if clock() >= deadline:
+                break
+            try:
+                raw = fetch(item['url'], deadline - clock())
+                if len(raw) > 16 * 1024 * 1024:
+                    raise ValueError('Oversized article')
+                parsed = Page()
+                parsed.feed(raw.decode())
+                matches = parsed.canonicals == [item['url']] and parsed.title == item['title'] + ' | vpsFree.cz blog' and ident in parsed.articles
+                record = {'url': item['url'], 'title_canonical_article_match': matches}
+                if artifact:
+                    metadata = json.loads((artifact / 'metadata.json').read_bytes())
+                    if metadata['inputs'].get('revision') != sha:
+                        raise ValueError('Artifact source identity does not match requested SHA')
+                    local = (artifact / item['path']).read_bytes()
+                    if hashlib.sha256(local).hexdigest() != metadata['files'][item['path']]:
+                        raise ValueError('Artifact file hash mismatch')
+                    record['exact_artifact_bytes_match'] = raw == local
+                    matches = matches and record['exact_artifact_bytes_match']
+                report['site'][language] = record
+                record['observed'] = matches
+            except (OSError, ValueError, KeyError):
+                report['site'][language] = {'url': item['url'], 'observed': False}
+        if len(report['site']) == 2 and all(item.get('observed') for item in report['site'].values()):
+            if report['ci'] == 'success':
+                report['publication'] = 'delivery confirmed; public article observed'
+                if not artifact:
+                    report['limits'].append('No exact artifact supplied; public bytes do not prove the deployed commit.')
+                return report
+            if not api_available:
+                report['publication'] = 'site-only observation; CI and deployed commit unproven'
+                return report
+        remaining = deadline - clock()
+        if remaining > 0:
+            sleep(min(interval, remaining))
+    report['limits'].append('Observation timed out; no push, upload or recovery was retried.')
+    return report
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--sha', required=True)
+    parser.add_argument('--article', help='required for main publication; omitted for feature CI-only observation')
+    parser.add_argument('--branch', default='main', help='exact pushed branch; features observe CI only and require skipped delivery')
+    parser.add_argument('--timeout', type=int, default=600)
+    parser.add_argument('--interval', type=int, default=10)
+    parser.add_argument('--artifact', type=Path, help='optional existing exact-source native site root for byte comparisons')
+    args = parser.parse_args()
+    if args.branch == 'main' and not args.article:
+        parser.error('--article is required for main publication observation')
+    if not re.fullmatch(r'[A-Za-z0-9][A-Za-z0-9._/-]*', args.branch) or '..' in args.branch or not re.fullmatch(r'[0-9a-f]{40}', args.sha) or not 1 <= args.timeout <= 600 or not 1 <= args.interval <= 60:
+        parser.error('need an exact SHA, timeout 1..600 and interval 1..60 seconds')
+    def expired(*unused):
+        raise TimeoutError('Overall publication observation deadline exceeded')
+    signal.signal(signal.SIGALRM, expired)
+    signal.setitimer(signal.ITIMER_REAL, args.timeout)
+    try:
+        expected = expected_articles(args.sha, args.article) if args.branch == 'main' else {}
+        report = observe(args.sha, args.article, expected, args.timeout, args.interval, args.artifact, branch=args.branch)
+    except (OSError, ValueError, KeyError, subprocess.SubprocessError) as error:
+        print(json.dumps({'sha': args.sha, 'ci': 'unknown', 'publication': 'unproven', 'error': str(error)}))
+        return 1
+    finally:
+        signal.setitimer(signal.ITIMER_REAL, 0)
+    print(json.dumps(report, indent=2))
+    return 0 if report['ci'] == 'success' and (args.branch != 'main' or len(report['site']) == 2 and all(item.get('observed') for item in report['site'].values())) else 1
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())

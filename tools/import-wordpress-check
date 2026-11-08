@@ -132,6 +132,38 @@ class Safety(unittest.TestCase):
             self.assertNotIn(field, wp.SQL)
 
 
+def unique_object(pairs):
+    result = {}
+    for key, value in pairs:
+        assert key not in result, 'Duplicate JSON metadata key'
+        result[key] = value
+    return result
+
+
+def original_shared_projection(name, value, manifest):
+    """Hash only original shared rows; appended authored rows do not bless edits."""
+    def selected(mapping, names):
+        assert len(names) == len(set(names)), 'Duplicate original metadata selector'
+        assert all(name in mapping for name in names), 'Missing original shared metadata row'
+        return {name: mapping[name] for name in names}
+    if name == 'data/articles.json':
+        result = selected(value, [row['article_id'] for row in manifest['articles']])
+    elif name == 'data/authors.json':
+        slugs = [path.strip('/').split('/')[1] for path in manifest['archives']['authors']]
+        ids = []
+        for slug in slugs:
+            matches = [key for key, row in value.items() if row.get('slug') == slug]
+            assert len(matches) == 1, 'Missing or ambiguous original author slug'
+            ids.append(matches[0])
+        result = selected(value, ids)
+    elif name == 'data/taxonomies.json':
+        result = {kind: selected(value[kind], [path.strip('/').split('/')[1]
+                  for path in manifest['archives'][kind]]) for kind in ('categories', 'tags')}
+    else:
+        raise ValueError('Not shared generated metadata')
+    return wp.encoded(result)
+
+
 def check_corpus(root, private_posts=None):
     manifest = json.loads((root / 'data/migration/source-manifest.json').read_text())
     wp.article_paths(manifest)
@@ -151,7 +183,10 @@ def check_corpus(root, private_posts=None):
                 keys(item)
 
     for name, expected in manifest['generated_files'].items():
-        assert hashlib.sha256((root / name).read_bytes()).hexdigest() == expected, name
+        content = (root / name).read_bytes()
+        if name in ('data/articles.json', 'data/authors.json', 'data/taxonomies.json'):
+            content = original_shared_projection(name, json.loads(content, object_pairs_hook=unique_object), manifest)
+        assert hashlib.sha256(content).hexdigest() == expected, name
         assert not name.endswith('index.en.html')
         if name.endswith('.json'):
             keys(json.loads((root / name).read_text()))

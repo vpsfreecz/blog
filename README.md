@@ -77,8 +77,10 @@ comments and parent IDs for static thread rendering. Author, category, tag and
 date archives are implemented. [The migration guide](docs/migration.md) describes
 the public projection and its source/hash manifest.
 
-The author guide documents draft preparation and manual translation review;
-those editorial fields are not enforced by the current checks. Each feed emits
+The author guide covers writing from either language, automatic proofreading
+and translation, and staged checks for complete CS/EN pairs, metadata and source
+hashes. Hunspell reports unknown words; contextual review covers grammar and
+translation quality. Each feed emits
 up to ten full-content articles using stable language-specific GUIDs and
 original publication dates; draft translations stay out of production builds.
 CI checks and trusted-main artifact packaging are prepared. Target publication

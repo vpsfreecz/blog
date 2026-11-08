@@ -9,7 +9,8 @@
     in {
       devShells = eachSystem (system:
         let pkgs = import nixpkgs { inherit system; };
-        in { default = pkgs.mkShell { packages = [ pkgs.hugo pkgs.python3 pkgs.pagefind ]; }; });
+        in { default = pkgs.mkShell { packages = [ pkgs.hugo pkgs.python3 pkgs.pagefind
+            (pkgs.hunspell.withDicts (dicts: [ dicts.cs_CZ dicts.en_US ])) ]; }; });
       packages = eachSystem (system:
         let
           pkgs = import nixpkgs { inherit system; };

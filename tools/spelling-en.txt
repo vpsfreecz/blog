@@ -1,0 +1,20 @@
+# Reviewed technical names; one exact word per line, case-insensitive.
+VPS
+vpsFree
+vpsAdmin
+vpsAdminOS
+NixOS
+Nix
+Linux
+Pagefind
+Hugo
+Hunspell
+Git
+GitHub
+SSH
+API
+IPv6
+WordPress
+Discourse
+passkey
+passkeys

@@ -2,19 +2,24 @@
 
 This repository builds Czech at `https://blog.vpsfree.cz/` and English at
 `https://blog.vpsfree.org/`. Each language has its own host root. You can prepare
-and preview a draft from an ordinary clone with Git and Nix.
+and preview a draft from an ordinary clone with Git and Nix. When an agent writes
+an article, it corrects title and prose typos and supplies the missing language
+automatically. Review both versions for meaning before committing.
 
 ## Prepare a draft
 
 Clone `git@github.com:vpsfreecz/blog.git`, enter the clone and read
 [AGENTS.md](../AGENTS.md). On an initialized repository, create a working branch
-according to its contribution policy, for example `git switch -c article/network-update`.
-If the remote is empty, a maintainer must direct its initial default branch.
+for drafts or preparation, for example `git switch -c article/network-update`.
+Approved ready articles follow the main-branch publication steps below. If the
+remote is empty, a maintainer must direct its initial default branch.
 
 Choose an immutable article ID outside the reserved imported `wp-` namespace,
 such as `post-2026-11-network-update`. Create
-`content/posts/2026-11-06-network-update/index.cs.md` with a text editor.
-The following is a metadata example, not a real article:
+`content/posts/2026-11-06-network-update/index.cs.md` with a text editor, or start
+with `index.en.md` if the supplied text is English. Complete the other language
+before committing, even for a draft. A single-language working draft can still be
+previewed. The following is a metadata example, not a real article:
 
 ```toml
 +++
@@ -94,8 +99,10 @@ descriptions. Keep one file per language; do not add a Markdown duplicate of an
 existing HTML variant. Give the English variant an English title and
 explicit English `url`, such as `/network-update/`. Copy the original `date`,
 `translationKey` and `params.article_id`; retain the shared byline and discussion
-identity. A missing translation stays absent rather than showing Czech at an
-English URL.
+identity. Uncommitted previews can omit a translation. Every committed article,
+including a draft, needs exactly one Czech and one English variant with the same
+draft state and original date. An English URL never substitutes Czech content
+for a missing translation.
 
 Imported English articles keep the original source URLs. During rendering, links
 to known blog articles use an English page available in that build, including
@@ -123,28 +130,69 @@ import manifest's `cs_file_sha256` identifies that file; the separate
 not be used as the translation source hash. Approved historical comments remain
 in their original language and are shared across both article variants.
 
-Keep the English page's top-level `draft = true` while preparing it. A human
-reviewer compares meaning, commands/code, links, chronology, attribution and
-voice with the Czech source. After review, set `translation_status = "reviewed"`
-and add `translation_reviewed_by` with the reviewer's approved public name or
-identifier and `translation_reviewed_at` with an RFC3339 timestamp. Record the
-hash of the exact reviewed Czech file. These are manual editorial records;
-the current checks do not validate the fields or source freshness. Re-review
-English after any Czech source change before publishing the translation.
+Keep both pages at `draft = true` while preparing them. Proofread titles and
+prose in context, then compare meaning, commands/code, links, chronology,
+attribution and voice across the two languages. Either language can be the
+starting text; finalize Czech before calculating the complete-file hash recorded
+in English. After review, set `translation_status = "reviewed"`, name the actual
+reviewer or agent in `translation_reviewed_by`, and record an RFC3339
+`translation_reviewed_at`. Preserve genuine historical review provenance and
+never claim human approval for an agent review. Re-review after a Czech
+source change and refresh the English source hash. The article checker validates
+these records and source freshness; it cannot perform the contextual review.
 
 Use direct practical English, familiar technical terms and short paragraphs.
 Lead with what is available or has changed and how to use it. Preserve the
 original author's facts and viewpoint. Retain first-person claims only when
 supported by the source; do not invent experiences, jokes or promises. Keep
-the Czech source intact when adding English. For Czech member-facing instructions,
-address one reader informally and use standard spelling and typography.
+the source facts intact when correcting either language. For Czech member-facing
+instructions, address one reader informally and use standard spelling and
+typography.
 
 Style references include the [mailing-list archive](https://lists.vpsfree.cz/mailman3/hyperkitty/list/news-list@lists.vpsfree.cz/latest)
 and [announcements category](https://discourse.vpsfree.cz/c/announcements/5).
 Specific examples are the [primary DNS announcement](https://discourse.vpsfree.cz/t/primarni-dns-servery-primary-dns-servers/258)
 and [initial VPS configuration announcement](https://discourse.vpsfree.cz/t/prvotni-konfigurace-vps-skriptem-cloud-init-a-nixos-initial-vps-configuration-with-script-cloud-init-and-nixos/317).
 The collections contain multiple authors; a style reference never changes the
-article's byline. Human review covers voice as well as technical meaning.
+article's byline. Contextual review covers voice as well as technical meaning.
+
+## Check the staged articles
+
+Install the repository's ordinary hook only if the clone has no existing hook
+setup. Inspect `git config --get core.hooksPath` first; preserve an existing
+configuration and arrange for it to call the same staged check.
+
+```sh
+git config --local core.hooksPath .githooks
+git config --get core.hooksPath
+test -x .githooks/pre-commit
+```
+
+The hook runs `nix develop -c bin/check-articles --staged`. A failed check blocks
+the commit. It reads article and shared-metadata blobs from the actual index,
+including the other language when only one file was staged. An unstaged fix does
+not repair staged content, and an unstaged mistake does not replace a good index.
+The hook does not stage files, stash changes or build the site.
+
+Plain `nix develop -c bin/check-articles` checks working source. To focus spelling
+diagnostics, pass article IDs, for example:
+
+```sh
+nix develop -c bin/check-articles post-2026-11-network-update
+```
+
+Pairing, TOML, dates, URLs, authors, taxonomies, immutable identities and source
+hashes are still validated. Original archive rows remain audited; new unrelated
+shared-metadata rows do not require changing their recorded import digests.
+
+Pinned Hunspell Czech and English dictionaries report unknown title/prose words
+for new articles and introduced words in edited articles. Code, URLs and markup
+are excluded; visible link labels and image descriptions are included. Correct
+real errors, or justify a specific technical term in `tools/spelling-cs.txt` or
+`tools/spelling-en.txt`. Do not whitelist an article's errors to make a check pass.
+Unchanged legacy prose is not a new spelling-cleanup requirement. Unknown-word
+checks cannot prove grammar, translation quality or the absence of valid-word
+typos; contextual proofreading is still required.
 
 ## Preview and check
 
@@ -189,20 +237,51 @@ production Discourse comment embeds remain disabled.
 ## Prepare publication
 
 Review the diff for intended content, public attribution, stable URLs/GUIDs and
-private-data exclusions. Set `draft = false` only for a variant approved for
-publication; English also requires completed human review and a matching current
-Czech source hash. If that edit changes the Czech file, refresh its recorded hash
-after checking that the reviewed meaning is unchanged. Re-run checks and inspect
-the production output, then commit only the intended files using the repository's
-hooks and contribution policy.
+private-data exclusions. Set `draft = false` on both variants only for approved
+ready content, with reviewed English and its current Czech source hash. Stage
+only intended article/shared-metadata files, inspect `git diff --cached`, and run
+`nix develop -c bin/check-articles --staged` before the ordinary commit. The
+contextual review must be complete before marking English reviewed.
 
-Push the working branch only with the Git host's write permission. Follow any
-required review and protected-publication-branch policy before advancing that
-branch; an agent cannot grant itself permission. The Actions workflow checks
-source and packages trusted-main [release artifacts](deployment.md). Target
-publication defaults off. After a maintainer enables and resumes the installed
-policy, successful protected-main push builds can publish validated content
-through authenticated upload. Feature pushes run checks only. System deployment
-and public cutover remain maintainer operations. Do not initialize the remote or perform
-a server deployment as part of routine article writing without maintainer
-direction.
+For an article the user has asked to publish, start from fresh `main`, commit
+with ordinary hooks and push `main` within Git host permissions and protections.
+Keep drafts and preparation on a feature branch. A ready article does not need
+a feature-branch CI cycle before publication. Publish only the intended article
+changes; keep unrelated feature work separate. Respect a host refusal and obtain
+maintainer direction before initializing an empty remote. System deployment,
+publication settings and public cutover remain separate maintainer operations.
+
+Observe the exact pushed SHA and article ID:
+
+```sh
+nix develop -c bin/observe-publication --sha <pushed-SHA> --article <article-ID>
+```
+
+The read-only observer follows only that SHA's main-push Build blog run, including
+build and deploy jobs, with a default ten-minute bound. Failed or skipped delivery
+is not publication success. It never retries a push/upload or resumes publication.
+The observer first uses the public GitHub API. It can also use an existing `gh`
+login; it does not require a new login or secret. If CI cannot be observed,
+bounded CS/EN site checks report only title/article/canonical observations and
+explicitly leave CI
+and the deployed commit unproven. For byte comparisons, supply an existing build
+from the exact pushed source with `--artifact PATH`. Report the pushed SHA,
+run/attempt and result or limited fallback, including any timeout.
+
+For a draft pushed to a feature branch, observe checks on that exact branch:
+
+```sh
+nix develop -c bin/observe-publication --sha <pushed-SHA> --branch <feature-branch>
+```
+
+Feature success means the workflow and build passed and deployment was skipped.
+The observer reports that publication was not requested. It makes no public-site
+requests for a draft; unavailable CI or a timeout stays unknown. Unexpected
+feature deployment is a policy mismatch. Report the check result to the user
+without claiming the draft is live.
+
+The workflow prepares [release artifacts](deployment.md). Target publication
+defaults off; after an operator enables and resumes its installed policy,
+protected-main pushes can publish validated content through authenticated upload.
+Feature pushes run checks only. Article writing does not grant forum, server,
+credential or environment-setting changes.

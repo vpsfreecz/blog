@@ -2,6 +2,7 @@
 """Check the scaffold's route, isolation and reproducibility contracts."""
 import argparse
 import base64
+from datetime import datetime
 import hashlib
 from html.parser import HTMLParser
 import json
@@ -47,6 +48,12 @@ def discover_articles(directory):
 
 
 ARTICLE_SOURCES = discover_articles(ROOT / 'content/posts')
+
+
+def article_count(language, drafts=False):
+    return sum(language in variants and (drafts or not tomllib.loads(variants[language]
+               .read_bytes().decode().split('+++', 2)[1]).get('draft', False))
+               for variants in ARTICLE_SOURCES.values())
 
 
 class Page(HTMLParser):
@@ -119,7 +126,9 @@ class ArticleLinks(HTMLParser):
 
 def check_real_english_links(destination, environment):
     """Account for every corpus href, including explicit unmapped KB destinations."""
-    articles = json.loads((ROOT / 'data/articles.json').read_text())
+    shared = json.loads((ROOT / 'data/articles.json').read_text())
+    imported = json.loads((ROOT / 'data/migration/source-manifest.json').read_text())['articles']
+    articles = {row['article_id']: shared[row['article_id']] for row in imported}
     mapping = json.loads((ROOT / 'data/english-links.json').read_text())
     originals = {urlparse(row['discussion_url']).path: aid for aid, row in articles.items()}
     routes = {aid: {lang: tomllib.loads(ARTICLE_SOURCES[aid][lang]
@@ -305,13 +314,48 @@ def check_preview_isolation(work):
         assert (destination / 'en/index.html').read_text() == item['mode']
 
 
+def check_authored_article(work):
+    """Render one additional pair, then exclude its draft form without changing source."""
+    content, data = work / 'authored-content', work / 'authored-data'
+    shutil.copytree(ROOT / 'content', content)
+    shutil.copytree(ROOT / 'data', data)
+    bundle = content / 'posts/2020-01-01-authored-example'
+    bundle.mkdir()
+    shared = json.loads((data / 'articles.json').read_text())
+    shared['post-authored-check'] = {'author_ids': ['wp-user-6'],
+        'discussion_url': 'https://blog.vpsfree.cz/autorsky-priklad/',
+        'feed_guids': {lang: f'urn:vpsfree:blog:post-authored-check:{lang}' for lang in ('cs', 'en')}}
+    (data / 'articles.json').write_text(json.dumps(shared))
+    config = work / 'authored-config.json'
+    config.write_text(json.dumps({'dataDir': str(data)}))
+    for lang, title, route in [('cs', 'Autorský příklad', '/autorsky-priklad/'),
+                               ('en', 'Authored example', '/authored-example/')]:
+        (bundle / f'index.{lang}.md').write_text(
+            f'+++\ntitle = "{title}"\ndate = "2020-01-01T10:00:00+01:00"\n'
+            f'lastmod = "2020-01-01T10:00:00+01:00"\ndraft = false\nurl = "{route}"\n'
+            'translationKey = "post-authored-check"\n[params]\narticle_id = "post-authored-check"\n'
+            '+++\nArticle fixture.\n')
+    for draft in (False, True):
+        if draft:
+            for path in bundle.iterdir():
+                path.write_text(path.read_text().replace('draft = false', 'draft = true'))
+        destination = work / ('authored-draft' if draft else 'authored-production')
+        run('hugo', '--environment', 'production', '--contentDir', str(content),
+            '--config', f'hugo.toml,{config}', '--destination', str(destination), '--panicOnWarning')
+        run('bin/index-search', str(destination))
+        for lang, route in [('cs', 'autorsky-priklad'), ('en', 'authored-example')]:
+            assert (destination / lang / route / 'index.html').exists() is not draft
+            check_search_index(destination / lang,
+                {'cs-cz' if lang == 'cs' else 'en': article_count(lang) + (not draft)})
+
+
 def check_taxonomy_labels(work):
     destination = work / 'taxonomy-preview'
     run('hugo', '--environment', 'preview', '--buildDrafts', '--destination', str(destination), '--panicOnWarning')
     check_real_english_links(destination, 'preview')
     run('bin/index-search', str(destination))
-    check_search_index(destination / 'cs', {'cs-cz': 125})
-    check_search_index(destination / 'en', {'en': 125})
+    check_search_index(destination / 'cs', {'cs-cz': article_count('cs', drafts=True)})
+    check_search_index(destination / 'en', {'en': article_count('en', drafts=True)})
     translations = {'categories': {'akce': 'Events', 'bezpecnost': 'Security',
                     'distribuce': 'Distributions', 'nezarazene': 'Uncategorized',
                     'podpora': 'Support', 'skoly': 'Schools', 'technologie': 'Technology'},
@@ -348,7 +392,7 @@ def check_taxonomy_labels(work):
                 archive = Labels(destination / lang / route.strip('/') / 'index.html').labels
                 assert any(tag == 'h1' and text == expected for tag, _, text in archive), (lang, kind, slug)
     # Article association labels use the same resolver as the sidebar and headings.
-    for source in (ROOT / 'content/posts').glob('*/index.en.html'):
+    for source in (ROOT / 'content/posts').glob('*/index.en.*'):
         frontmatter = tomllib.loads(source.read_text().split('+++')[1])
         labels = Labels(destination / 'en' / frontmatter['url'].strip('/') / 'index.html').labels
         for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
@@ -414,6 +458,8 @@ def check_discussions(work):
             assert identities == [source_url, source_url]
 
 
+run('bin/check-articles')
+
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
     discovery = work / 'identity-discovery'
@@ -434,6 +480,7 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     check_piwik_guards(work)
     check_preview_isolation(work)
     check_taxonomy_labels(work)
+    check_authored_article(work)
     check_discussions(work)
     production, repeat, drafts, fixture_production = [work / x for x in
         ('production', 'repeat', 'drafts', 'fixture-production')]
@@ -443,11 +490,11 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     languages = tomllib.loads((ROOT / 'hugo.toml').read_text())['languages']
     piwik_ids = {lang: values.get('params', {}).get('piwikSiteId') for lang, values in languages.items()}
     check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'}, piwik_ids)
-    check_search_index(production / 'cs', {'cs-cz': 125})
-    check_search_index(production / 'en', {'en': 125})
+    check_search_index(production / 'cs', {'cs-cz': article_count('cs')})
+    check_search_index(production / 'en', {'en': article_count('en')})
     for language in ('cs', 'en'):
         page = Page(production / language / 'search/index.html')
-        assert page.has('section', **{'data-search-page': None, 'data-has-articles': 'true'})
+        assert page.has('section', **{'data-search-page': None, 'data-has-articles': str(bool(article_count(language))).lower()})
         assert page.has('form', action='/search/', method='get', role='search')
     assert not any('synthetic' in p or 'synteticky' in p for p in digest_tree(production))
     metadata = json.loads((production / 'metadata.json').read_text())
@@ -489,9 +536,9 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
                     posts.append(frontmatter)
                     page = Page(production / language / frontmatter['url'].strip('/') / 'index.html')
                     assert page.has('article', **{'data-article-id': frontmatter['params']['article_id']})
-            assert len(posts) == 125
+            assert len(posts) == article_count(language)
             items = ET.parse(production / language / 'feed/index.xml').findall('channel/item')
-            expected = sorted(posts, key=lambda post: post['date'], reverse=True)[:10]
+            expected = sorted(posts, key=lambda post: datetime.fromisoformat(post['date'].replace('Z', '+00:00')), reverse=True)[:10]
             assert len(items) == len(expected)
             for post, item in zip(expected, items):
                 assert item.findtext('guid') == article_data[post['params']['article_id']]['feed_guids'][language]

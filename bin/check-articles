@@ -1,0 +1,258 @@
+#!/usr/bin/env python3
+"""Validate commit-ready bilingual articles, with unknown-word diagnostics."""
+import argparse
+from collections import Counter
+from datetime import datetime
+import hashlib
+import importlib.machinery
+import importlib.util
+from html.parser import HTMLParser
+import json
+from pathlib import Path
+import re
+import subprocess
+import sys
+import tomllib
+from urllib.parse import urlsplit
+
+ROOT = Path(__file__).resolve().parent.parent
+ARTICLE = re.compile(r'content/posts/[^/]+/index\.(cs|en)\.(md|html)$')
+
+
+class Invalid(ValueError):
+    pass
+
+
+def require(condition, message):
+    if not condition:
+        raise Invalid(message)
+
+
+def git(root, *args, missing=False):
+    result = subprocess.run(['git', '-C', str(root), *args], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if missing and result.returncode:
+        return None
+    require(result.returncode == 0, result.stderr.decode(errors='replace').strip())
+    return result.stdout
+
+
+class Source:
+    def __init__(self, root, staged=False, previous=False):
+        self.root, self.staged, self.previous = Path(root), staged, previous
+        if previous:
+            self.paths = set(git(root, 'ls-tree', '-rz', '--name-only', 'HEAD', missing=True).decode().split('\0')) if git(root, 'rev-parse', '--verify', 'HEAD', missing=True) else set()
+        elif staged:
+            require(not git(root, 'ls-files', '-u'), 'index: resolve unmerged entries before checking articles')
+            self.paths = set(git(root, 'ls-files', '--cached', '-z').decode().split('\0'))
+        else:
+            self.paths = {p.relative_to(self.root).as_posix() for directory in ('content/posts', 'data', 'tools')
+                          for p in (self.root / directory).rglob('*') if p.is_file()}
+        self.paths.discard('')
+
+    def read(self, name):
+        require(name in self.paths, f'{name}: missing from ' + ('index' if self.staged else 'source'))
+        return git(self.root, 'show', ('HEAD:' if self.previous else ':') + name) if self.staged or self.previous else (self.root / name).read_bytes()
+
+    def json(self, name):
+        def unique(pairs):
+            result = {}
+            for key, value in pairs:
+                require(key not in result, f'{name}: duplicate JSON key {key}')
+                result[key] = value
+            return result
+        return json.loads(self.read(name), object_pairs_hook=unique)
+
+
+def frontmatter(raw, path):
+    require(raw.startswith(b'+++\n') or raw.startswith(b'+++\r\n'), f'{path}: expected TOML +++ front matter')
+    parts = raw.split(b'+++', 2)
+    require(len(parts) == 3, f'{path}: unclosed TOML front matter')
+    try:
+        return tomllib.loads(parts[1].decode()), parts[2].decode()
+    except (ValueError, UnicodeError) as error:
+        raise Invalid(f'{path}: invalid TOML/UTF-8: {error}') from error
+
+
+def articles(source):
+    result = {}
+    for path in sorted(source.paths):
+        if not path.startswith('content/posts/'):
+            continue
+        match = ARTICLE.fullmatch(path)
+        require(match is not None, f'{path}: supported article files are index.cs/en.md/html in one bundle')
+        language = match[1]
+        metadata, body = frontmatter(source.read(path), path)
+        require(isinstance(metadata.get('params'), dict), f'{path}: params table required')
+        ident = metadata['params'].get('article_id')
+        require(isinstance(ident, str) and re.fullmatch(r'[a-z][a-z0-9-]*', ident), f'{path}: invalid params.article_id')
+        variants = result.setdefault(ident, {})
+        require(language not in variants, f'{path}: duplicate {language} variant for {ident}')
+        require(all(Path(p).parent == Path(path).parent for p, _, _ in variants.values()), f'{path}: split bundle for {ident}')
+        variants[language] = (path, metadata, body)
+    return result
+
+
+def timestamp(value, label):
+    require(isinstance(value, (str, datetime)), f'{label}: expected timezone-bearing timestamp')
+    try:
+        parsed = datetime.fromisoformat(value.replace('Z', '+00:00')) if isinstance(value, str) else value
+    except ValueError as error:
+        raise Invalid(f'{label}: invalid timestamp') from error
+    require(not isinstance(value, str) or re.fullmatch(r'\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})', value), f'{label}: RFC3339 timestamp required')
+    require(parsed.tzinfo is not None and parsed.utcoffset() is not None, f'{label}: timezone required')
+    return parsed
+
+
+class Visible(HTMLParser):
+    def __init__(self):
+        super().__init__(convert_charrefs=True)
+        self.hidden, self.parts = [], []
+
+    def handle_starttag(self, tag, attrs):
+        if tag in ('pre', 'code', 'script', 'style'):
+            self.hidden.append(tag)
+        if not self.hidden:
+            self.parts.append(' ')
+            if tag == 'img':
+                self.parts.append(dict(attrs).get('alt', ''))
+
+    def handle_endtag(self, tag):
+        if tag in self.hidden:
+            del self.hidden[self.hidden.index(tag):]
+        self.parts.append(' ')
+
+    def handle_data(self, value):
+        if not self.hidden:
+            self.parts.append(value)
+
+
+def words(title, body, markdown):
+    if markdown:
+        body = re.sub(r'(?ms)^\s*(`{3,}|~{3,})[^\n]*\n.*?^\s*\1\s*$', ' ', body)
+        body = re.sub(r'(?m)^(?: {4}|\t).*$', ' ', body)
+        body = re.sub(r'`+[^`]*`+', ' ', body)
+        body = re.sub(r'!?\[([^\]]*)\]\([^)]*\)', r'\1', body)
+        body = re.sub(r'(?m)^\s*\[[^\]]+\]:\s*\S+.*$', ' ', body)
+    parser = Visible()
+    parser.feed(body)
+    text = title + ' ' + ' '.join(parser.parts)
+    text = re.sub(r'https?://\S+|\b\S+@\S+|\b\w*[_\d]\w*\b', ' ', text)
+    return Counter(re.findall(r"[^\W\d_]+(?:['’][^\W\d_]+)?", text, re.UNICODE))
+
+
+def check(source, ids=(), spelling=True):
+    current = articles(source)
+    previous_source = Source(source.root, previous=True)
+    previous = articles(previous_source)
+    require(set(previous) <= set(current), 'article IDs cannot disappear from committed source')
+    previous_data = previous_source.json('data/articles.json') if previous else {}
+    previous_authors = previous_source.json('data/authors.json') if previous else {}
+    data = source.json('data/articles.json')
+    authors = source.json('data/authors.json')
+    taxonomies = source.json('data/taxonomies.json')
+    loader = importlib.machinery.SourceFileLoader('archive_audit', str(source.root / 'tools/import-wordpress-check'))
+    spec = importlib.util.spec_from_loader(loader.name, loader)
+    audit = importlib.util.module_from_spec(spec)
+    loader.exec_module(audit)
+    manifest = source.json('data/migration/source-manifest.json')
+    original_manifest = previous_source.json('data/migration/source-manifest.json') if previous else manifest
+    for name in ('data/articles.json', 'data/authors.json', 'data/taxonomies.json'):
+        require(manifest['generated_files'][name] == original_manifest['generated_files'][name], f'{name}: original archive digest must not be replaced')
+        projection = audit.original_shared_projection(name, source.json(name), original_manifest)
+        require(hashlib.sha256(projection).hexdigest() == original_manifest['generated_files'][name], f'{name}: original archive metadata changed')
+    for original in manifest['articles']:
+        path = original['cs_file']
+        digest = hashlib.sha256(source.read(path)).hexdigest()
+        require(digest == original['cs_file_sha256'] == manifest['generated_files'][path], f'{path}: import manifest full-file hash mismatch')
+        metadata, _ = frontmatter(source.read(path), path)
+        require(metadata['params'].get('source_body_sha256') == original['source_body_sha256'], f'{path}: original source-body identity mismatch')
+    slugs, paths, guids = set(), {'cs': set(), 'en': set()}, set()
+    for ident, author in authors.items():
+        require(isinstance(author.get('name'), str) and author['name'].strip(), f'data/authors.json:{ident}: nonempty public byline required')
+        slug = author.get('slug')
+        require(isinstance(slug, str) and re.fullmatch(r'[a-z0-9]+(?:-[a-z0-9]+)*', slug) and slug not in slugs, f'data/authors.json:{ident}: invalid/duplicate archive slug')
+        slugs.add(slug)
+    require(set(data) == set(current), 'data/articles.json: shared rows and commit-ready article IDs must match')
+    for ident, variants in current.items():
+        require(set(variants) == {'cs', 'en'}, f'{ident}: both CS and EN are required, including drafts')
+        cs_path, cs, _ = variants['cs']
+        _, en, _ = variants['en']
+        row = data[ident]
+        require(isinstance(row, dict), f'{ident}: shared metadata object required')
+        require(isinstance(row.get('author_ids'), list) and row['author_ids'] and len(set(row['author_ids'])) == len(row['author_ids']) and all(a in authors for a in row['author_ids']), f'{ident}: existing public author_ids required')
+        require(row.get('discussion_url') == 'https://blog.vpsfree.cz' + cs.get('url', ''), f'{ident}: discussion_url must be the exact absolute Czech article URL')
+        require(cs.get('draft') == en.get('draft') and cs.get('date') == en.get('date'), f'{ident}: CS/EN publication state and original date must match')
+        for lang, (path, metadata, body) in variants.items():
+            require(isinstance(metadata.get('title'), str) and metadata['title'].strip(), f'{path}: nonempty title required')
+            for field in ('date', 'lastmod'):
+                timestamp(metadata.get(field), f'{path}:{field}')
+            require(type(metadata.get('draft')) is bool, f'{path}: draft must be an explicit boolean')
+            require(metadata.get('translationKey') == ident, f'{path}: translationKey must match params.article_id')
+            url = metadata.get('url')
+            require(isinstance(url, str), f'{path}: explicit URL required')
+            parsed = urlsplit(url)
+            require(not parsed.scheme and not parsed.netloc and not parsed.query and not parsed.fragment and url.startswith('/') and url.endswith('/') and not url.startswith(('/cs/', '/en/')) and url not in paths[lang] and re.fullmatch(r'/(?:[a-z0-9]+(?:[-_][a-z0-9]+)*/)+', url) and url.split('/')[1] not in ('search', 'feed', 'author', 'authors', 'category', 'categories', 'tag', 'tags', 'archive', 'archives', 'page', 'posts', 'assets', 'images', 'pagefind', 'admin', 'login', 'logout', 'robots', 'sitemap'), f'{path}: unique host-root URL required')
+            paths[lang].add(url)
+            for kind in ('categories', 'tags'):
+                terms = metadata.get(kind, [])
+                require(isinstance(terms, list) and all(t in taxonomies[kind] for t in terms), f'{path}:{kind}: unknown taxonomy reference')
+            guid = row.get('feed_guids', {}).get(lang)
+            require(isinstance(guid, str) and guid and guid not in guids, f'{ident}:{lang}: unique immutable feed GUID required')
+            guids.add(guid)
+            if ident not in previous:
+                require(not ident.startswith('wp-'), f'{ident}: wp- IDs are reserved for imports')
+                require(guid == f'urn:vpsfree:blog:{ident}:{lang}', f'{ident}:{lang}: new feed GUID must use the documented URN')
+                if lang == 'cs':
+                    require(re.fullmatch(r'/[a-z0-9]+(?:-[a-z0-9]+)*/', url) and not url.startswith('/wp-') and not re.fullmatch(r'/[0-9]+/', url), f'{path}: new Czech URL must be a nonnumeric lowercase root slug outside wp-')
+            elif lang in previous[ident]:
+                old_path, old, _ = previous[ident][lang]
+                require(Path(old_path).parent == Path(path).parent, f'{path}: assigned article bundle must remain stable')
+                for author_id in row['author_ids']:
+                    require(previous_authors.get(author_id) == authors[author_id], f'{ident}:{author_id}: existing public byline identity changed')
+                for field in ('url', 'date', 'translationKey'):
+                    require(old[field] == metadata[field], f'{path}:{field}: immutable published/source identity changed')
+                require(old.get('params', {}).get('source_body_sha256') == metadata['params'].get('source_body_sha256'), f'{path}: private source_body_sha256 changed')
+                require(previous_data[ident] == row, f'{ident}: shared byline/discussion/feed identity changed')
+        status = en['params'].get('translation_status')
+        require(status in ('draft', 'reviewed'), f'{ident}: translation_status must be draft or reviewed')
+        require(en['draft'] or status == 'reviewed', f'{ident}: non-draft English needs reviewed status')
+        require(en['params'].get('translation_source_sha256') == hashlib.sha256(source.read(cs_path)).hexdigest(), f'{ident}: stale translation_source_sha256 for complete Czech file')
+        if status == 'reviewed':
+            require(isinstance(en['params'].get('translation_reviewed_by'), str) and en['params']['translation_reviewed_by'].strip(), f'{ident}: actual translation reviewer identifier required')
+            timestamp(en['params'].get('translation_reviewed_at'), f'{ident}:translation_reviewed_at')
+        if spelling and (not ids or ident in ids):
+            for lang, (path, metadata, body) in variants.items():
+                tokens = words(metadata['title'], body, path.endswith('.md'))
+                if ident in previous and lang in previous[ident]:
+                    old_path, old, old_body = previous[ident][lang]
+                    tokens -= words(old['title'], old_body, old_path.endswith('.md'))
+                allow = {line.strip().casefold() for line in source.read(f'tools/spelling-{lang}.txt').decode().splitlines() if line.strip() and not line.startswith('#')}
+                candidates = sorted(t for t in tokens if t.casefold() not in allow)
+                if candidates:
+                    try:
+                        result = subprocess.run(['hunspell', '-l', '-i', 'UTF-8', '-d', 'cs_CZ' if lang == 'cs' else 'en_US'], input='\n'.join(candidates)+'\n', text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+                    except (OSError, subprocess.CalledProcessError) as error:
+                        raise Invalid(f'{path}:{lang}: pinned Hunspell unavailable: {error}') from error
+                    unknown = sorted(set(result.stdout.splitlines()))
+                    require(not unknown, f'{path}:{lang}: unknown prose/title words: ' + ', '.join(unknown) + '; correct them or justify precise technical wordlist entries')
+    require(not ids or set(ids) <= set(current), 'unknown requested article ID')
+    return current
+
+
+def main():
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument('--staged', action='store_true', help='read the actual Git index, including companions and shared data')
+    parser.add_argument('article', nargs='*', help='limit spelling diagnostics to these article IDs')
+    args = parser.parse_args()
+    try:
+        result = check(Source(ROOT, args.staged), args.article)
+    except (Invalid, ValueError, KeyError, TypeError, AssertionError) as error:
+        print(f'Article check failed: {error}', file=sys.stderr)
+        return 1
+    print(f'Passed: {len(result)} bilingual bundles, metadata/source bindings; unknown-word checks cover new or introduced prose only')
+    print('Hunspell does not prove grammar, meaning, language or translation quality.')
+    return 0
+
+
+if __name__ == '__main__':
+    raise SystemExit(main())
