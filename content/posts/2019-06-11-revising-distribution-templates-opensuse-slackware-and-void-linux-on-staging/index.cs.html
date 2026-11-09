@@ -46,12 +46,12 @@ $ osctl-image instantiate --build-dataset tank/image-builds ubuntu-18.04
 $ osctl ct start -F instance-abcdefgh
 $ osctl ct attach instance-abcdefgh
 </pre>
-<p>Když je vše v pořádku, je čas na pull request. My šablonu přídáváme do repozitáře, ze kterého si ji vpsAdminOS stáhne při vytváření nové VPS:</p>
+<p>Když je vše v pořádku, je čas na pull request. My šablonu přidáváme do repozitáře, ze kterého si ji vpsAdminOS stáhne při vytváření nové VPS:</p>
 <pre>
 $ osctl-image deploy --build-dataset tank/image-builds ubuntu-18.04 /kde/je/repozitar
 </pre>
 <p>Takto se staráme o výchozí repozitář na adrese <a href="https://images.vpsadminos.org">images.vpsadminos.org</a>.</p>
-<p>Celý postup se dá shrnout do toho posledního příkazu, protože <code>osctl-image deploy</code> šablonu když je potřeba automaticky sestaví, otestuje, a až pokud je vše v pořádku, přidá ji do repozitáře. Podobně fungují i příkazy <code>test</code> a <code>instantiate</code>, proto je všude použito <code>--build-dataset</code>, aby se šablona mohla případně sestavit. osctl-image na pozadí spravuje VPS pro sestavovaní i testování šablon, jak to přesně funguje je popsáno v manuálu.</p>
+<p>Celý postup se dá shrnout do toho posledního příkazu, protože <code>osctl-image deploy</code> šablonu když je potřeba automaticky sestaví, otestuje, a až pokud je vše v pořádku, přidá ji do repozitáře. Podobně fungují i příkazy <code>test</code> a <code>instantiate</code>, proto je všude použito <code>--build-dataset</code>, aby se šablona mohla případně sestavit. osctl-image na pozadí spravuje VPS pro sestavování i testování šablon, jak to přesně funguje je popsáno v manuálu.</p>
 <p>Abychom s tím měli dlouhodobě co nejméně práce, <a href="https://github.com/vpsfreecz/vpsadminos/blob/master/os/modules/services/osctl/image-repository.nix">připravil jsem Nix modul</a>, pomocí kterého lze deklarativně nastavit pravidelné sestavování repozitářů a jejich obsahu. Výsledek si můžete <a href="https://github.com/vpsfreecz/vpsfree-cz-configuration/blob/master/configs/image-repository.nix">prohlédnout ve vpsfree-cz-configuration</a>.</p>
 <p>Máme to nastaveno tak, aby se šablony sestavovaly jednou týdně v sobotu ráno. Ty, které se podaří správně sestavit a otestovat budou ihned přidány do repozitáře. Pokud něco selže, pošle se nám mail s cestou k logu, ve kterém zjistíme co a proč se stalo. Uvidíme na co ještě narazíme, ale zatím to vypadá, že by to mohlo fungovat.</p>
 

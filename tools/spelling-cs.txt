@@ -18,3 +18,15 @@ WordPress
 Discourse
 passkey
 passkeys
+
+# Reviewed existing author vocabulary and technical terms.
+PostgreSQL
+cílovka
+dvoufaktorovou
+linuxáci
+mountování
+míň
+odprezentují
+receive
+udít
+škálovatelnější

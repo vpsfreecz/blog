@@ -25,7 +25,7 @@ $ host 2a01:430:17:1::ffff:427
 7.2.4.0.f.f.f.f.0.0.0.0.0.0.0.0.1.0.0.0.7.1.0.0.0.3.4.0.1.0.a.2.ip6.arpa domain name pointer mxproxy.vpsfree.cz.
 </pre>
 <p>Proč je zřízení reverzního záznamu důležité? Mail servery přijímající poštu dnes sledují, jestli oba záznamy souhlasí. Tedy zda doménové jméno míří na IP adresu, ze které zase reverzní záznam míří zpět na stejnou doménu. Je to základní ochrana proti spamu, správce tím vlastně dokazuje, že má pod kontrolou záznamy v obou směrech a nejde jen o napadený stroj, který „náhodou“ odesílá poštu.</p>
-<p>Častou chybou je, že se správce snaží do reverzních záznamu vyjmenovat všechny domény, pro které bude daný mail server přijímat poštu. Tak to ale nefunguje. V reverzním záznamu je uvedené <strong>jméno serveru</strong>, ne domény spravované serverem. Tedy nejlépe něco jako <code>mail.example.com</code>. Musí to být jméno, kterým se mail server představuje při předávání pošty. V případě Postfixu je to konfigurační volba:</p>
+<p>Častou chybou je, že se správce snaží do reverzních záznamů vyjmenovat všechny domény, pro které bude daný mail server přijímat poštu. Tak to ale nefunguje. V reverzním záznamu je uvedené <strong>jméno serveru</strong>, ne domény spravované serverem. Tedy nejlépe něco jako <code>mail.example.com</code>. Musí to být jméno, kterým se mail server představuje při předávání pošty. V případě Postfixu je to konfigurační volba:</p>
 <pre>
 myhostname="mail.example.com"
 </pre>

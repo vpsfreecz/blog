@@ -32,7 +32,7 @@ source_body_sha256 = "da1a73b29fc5d59d32b9f42e435f6c4eb000d5ebe1be0ceeb3aef1160f
 <p>Mohli jste zaznamenat, že Linux 5.0 <a href="https://www.root.cz/zpravicky/zfs-on-linux-ma-mensi-zadrhel-s-kernelem-5-0/">omezil export funkcí</a> pro práci s FPU na GPL-only a odstřihl tak ZFS on Linux. Tímhle si nehodláme komplikovat život, ani snižovat výkon. Ten export jsme si v kernelu patchnuli, stejně jako to <a href="https://www.phoronix.com/scan.php?page=news_item&amp;px=NixOS-Linux-5.0-ZFS-FPU-Drop">pak udělal i NixOS</a>.</p>
 <p>V pátek jsme přešli na Linux 5.1 a ZFS on Linux 0.8.0. ZoL 0.8 je opravdu parádní vydání, doporučuju se <a href="https://github.com/zfsonlinux/zfs/releases/tag/zfs-0.8.0">podívat na novinky</a>.</p>
 <h1>/sys/devices/system/cpu/online</h1>
-<p>... používají některé aplikace na detekci počtu procesorů, aby věděly kolik mají používat vláken, workerů, apod. Tyto údaje v Linuxu nejsou nijak virtualizované a řeší se to v userspace pomocí LXCFS. Co všechno máte ve VPS "virtualizováno" přes LXCFS zjístite s:</p>
+<p>... používají některé aplikace na detekci počtu procesorů, aby věděly kolik mají používat vláken, workerů, apod. Tyto údaje v Linuxu nejsou nijak virtualizované a řeší se to v userspace pomocí LXCFS. Co všechno máte ve VPS "virtualizováno" přes LXCFS zjistíte s:</p>
 <p>grep lxcfs /proc/mounts</p>
 <p>V pátek jsme nasadili verzi LXCFS, která řeší i<br>
 /sys/devices/system/cpu/online. Používá to např. Python když zavoláte multiprocessing.cpu_count().</p>
