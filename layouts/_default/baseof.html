@@ -38,7 +38,7 @@
       <section class="widget join"><a href="{{ if $english }}https://vpsfree.org/registration/{{ else }}https://vpsfree.cz/registrace/{{ end }}"><img src="/theme/branding/{{ if $english }}join-us.svg{{ else }}pridej-se.png{{ end }}" width="150" height="147" alt="{{ i18n "join" }}"></a></section>
       <nav class="widget site-navigation" aria-label="{{ i18n "navigation" }}">
         <a href="{{ .Site.Home.RelPermalink }}">{{ i18n "home" }}</a> · <a href="{{ .Site.Home.Permalink }}feed/">RSS</a>
-        {{ if .Translations }}<div class="languages">{{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}</div>
+        {{ if .Translations }} · <div class="languages">{{ range .Translations }}<a href="{{ .Permalink }}" lang="{{ .Language.Locale }}" hreflang="{{ .Language.Locale }}">{{ .Language.Label }}</a>{{ end }}</div>
         {{ else if .IsPage }}<p>{{ i18n "missingTranslation" }}</p>{{ end }}
       </nav>
       {{ with .Site.GetPage "/search" }}<form class="widget search" action="{{ .RelPermalink }}" method="get" role="search"><label class="sr-only" for="site-search">{{ i18n "searchArticles" }}</label><input id="site-search" name="q" type="search" placeholder="{{ i18n "searchArticles" }}"><button type="submit">{{ i18n "search" }}</button></form>{{ end }}

@@ -108,8 +108,7 @@ p {
   padding:12px 25px
 }
 .languages {
-  display:inline;
-  margin-left:10px
+  display:inline
 }
 .languages a+a {
   margin-left:10px
