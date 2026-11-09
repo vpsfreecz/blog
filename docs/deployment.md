@@ -60,10 +60,9 @@ owns the exact protocol and target contract.
 Both nginx hops permit at most 512 MiB only at the exact Czech upload location.
 The validator also caps expanded content at 512 MiB and 25,000 files. English,
 disabled publication and other reserved deployment paths do not reach the
-receiver or WordPress. The retired webhook namespace returns 404. The
-provisional endpoint timeouts are 180 seconds; the client has a 300-second
-total budget and at most three attempts. Full-size measurement is required
-before deployment.
+receiver. The retired webhook namespace returns 404. The provisional endpoint
+timeouts are 180 seconds; the client has a 300-second total budget and at most
+three attempts. Full-size measurement is required before deployment.
 
 A successful HTTP 200 confirms the source, release key, current receipt digest,
 body digest and workflow identity. The client checks every returned identity.
@@ -86,14 +85,14 @@ explicit operator reset.
 
 ## Maintenance and recovery
 
-Static serving, publication and backend static selection default off. The
-backend frontend on port 80 keeps Czech WordPress public through loopback port
-8081; English returns 503. The public proxy forwards both hosts to backend port
-80. After the operator enables static storage and publication and explicitly
-resumes the installed policy, uploads can select content while WordPress
-remains public. Verify that content on backend `127.0.0.1:8080` with each fixed
-language Host before changing backend `serveStatic`. Returning it to false
-restores WordPress/English 503 without another proxy change.
+Static storage and publication default off. With static storage `enable=true`,
+the backend frontend on port 80 forwards both fixed language Hosts to loopback
+port 8080; with `enable=false`, both return 503. Missing content while enabled
+returns 404. The public proxy still forwards both hosts to backend port 80.
+The current configuration has no `serveStatic` selector or WordPress fallback.
+After enabling storage and publication, explicitly resume the installed policy
+before uploads can select content. Verify the selected release on backend
+`127.0.0.1:8080` with each fixed language Host.
 
 Root `blog-static-release maintenance-enter` waits on the same stable lock as
 pointer transactions and persists pause. The native pre-switch check requires
@@ -111,15 +110,21 @@ require operator reconciliation. Rollback requires a complete retained release;
 pruned payloads are no longer rollback targets. Keep prior systems and separate
 backups.
 
-Policy/control schema 2 is the signed-upload authority boundary. P21 can roll
-back retained schema-1 release content and restore WordPress routing with
-`serveStatic=false`. This does not establish a system rollback to P20: its
-maintenance check requires the older control schema and rejects schema-2 state.
-Retain old systems for recovery, but verify their activation and control-state
-compatibility before attempting a switch. Do not run old publication writers
-against the new state. Keep WordPress/database backups, account identities and
-prior inputs throughout the transition. Live TLS, runtime credentials, systemd
-authority and production delivery need separate operator verification.
+Policy/control schema 2 is the signed-upload authority boundary. Retained
+schema-1 release content can be restored through the compatible schema-2
+publisher; this does not establish a system rollback to the older schema-1
+generation, whose maintenance check rejects schema-2 state. Do not run old
+publication writers against the new state.
+
+Normal recovery uses a complete retained static release and the guarded rollback
+above. Restoring WordPress requires a retained, compatible historical schema-2
+system, its prior inputs and retained site/database data, and that system's
+routing selector. Content rollback alone does not restore WordPress. Before
+reactivation, verify activation and control-state compatibility and inspect old
+MySQL/tmpfiles rules for changes to retained ownership and permissions. Keep
+WordPress/database backups and account identities throughout the transition.
+Live TLS, runtime credentials, systemd authority and production delivery need
+separate operator verification.
 
 ## Local checks
 
