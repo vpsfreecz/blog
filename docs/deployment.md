@@ -98,8 +98,10 @@ Root `blog-static-release maintenance-enter` waits on the same stable lock as
 pointer transactions and persists pause. The native pre-switch check requires
 pause before system changes, including disabling publication. After deployment
 and verification, `maintenance-exit` reconciles receipts and resumes only the
-selected policy and system generation. It never replays an upload. A request
-already receiving data cannot commit after pause or a system/policy change.
+selected policy and system generation. It never replays an upload. Requests
+cannot commit while publication is paused. After an explicit resume, a request
+already receiving or staging content may finish if the selected policy, control
+state and upload ordering permit it.
 
 Root `rollback --release KEY --expected-current DIGEST` selects an exact
 retained release through an irreversibly unprivileged content child. It
