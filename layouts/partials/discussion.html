@@ -6,7 +6,6 @@
 <section id="comments" class="comments-area" aria-label="{{ i18n "discussion" }}"{{ with $discussionURL }} data-discussion-url="{{ . }}"{{ end }}>
   {{ if $comments }}
     <h2 class="comments-title">{{ i18n "legacyComments" }}</h2>
-    <p class="archive-note">{{ i18n "originalComments" }}</p>
     {{ partial "comment-thread.html" (dict "comments" $comments "parent" 0) }}
   {{ end }}
   {{ if $published }}<div id="respond"><h2 class="comments-title">{{ i18n "discussion" }}</h2>

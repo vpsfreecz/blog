@@ -1,7 +1,7 @@
 {{ $children := where .comments "parent_id" .parent }}
 {{ if $children }}<ol class="comment-list">{{ range $children }}
 <li id="comment-{{ .id }}" class="comment"><div class="comment-body">
-  <div class="comment-author">{{ if .author_url }}<a href="{{ .author_url }}" rel="nofollow ugc">{{ .author_name }}</a>{{ else }}{{ .author_name }}{{ end }}</div>
+  <div class="comment-author">{{ .author_name }}</div>
   <a class="comment-metadata" href="#comment-{{ .id }}"><time datetime="{{ .date }}">{{ $date := time.In "Europe/Prague" (time.AsTime .date) }}{{ $date.Format "2.1.2006 (15:04)" }}</time></a>
   {{/* Only the importer's allowlisted public comment HTML reaches this field. */}}
   <div class="comment-content">{{ .html | safeHTML }}</div>
