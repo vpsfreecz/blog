@@ -1,6 +1,13 @@
+{{ $listing := .listing }}
+{{ with .page }}
 {{ $site := .Site }}
 {{ $article := index hugo.Data.articles .Params.article_id }}
 <div class="entry-meta"><a href="{{ .Permalink }}"><time datetime="{{ .Date.Format "2006-01-02T15:04:05Z07:00" }}">{{ .Date.Format "2.1.2006" }}</time></a>
 {{ with $article }} {{ i18n "by" }} {{ range $i, $id := .author_ids }}{{ if $i }}, {{ end }}{{ with index hugo.Data.authors $id }}{{ $name := .name }}{{ with $site.GetPage (printf "/author/%s" .slug) }}<a href="{{ .RelPermalink }}">{{ $name }}</a>{{ else }}{{ $name }}{{ end }}{{ end }}{{ end }}{{ end }}
-{{ $count := 0 }}{{ with index hugo.Data "legacy-comments" }}{{ with index . $.Params.article_id }}{{ $count = len . }}{{ end }}{{ end }}
-<span class="sep">·</span><a href="{{ .RelPermalink }}#comments">{{ i18n "commentCount" (dict "Count" $count) }}</a></div>
+{{ if eq (partial "article-state.html" .) "published" }}
+{{ $source := partial "discussion-source.html" . }}
+{{ $expectedBase := index (dict "cs" "https://blog.vpsfree.cz/" "en" "https://blog.vpsfree.org/") .Language.Lang }}
+{{ $counts := and $listing $source (eq hugo.Environment "production") (not hugo.IsServer) (eq .Site.Params.discourse.enabled true) (eq .Site.BaseURL $expectedBase) }}
+<span class="sep">·</span><a href="{{ .RelPermalink }}#comments"{{ if $counts }} data-discourse-count="{{ $source }}"{{ end }}>{{ i18n "discourseDiscussion" }}{{ if $counts }}<span data-discourse-replies></span>{{ end }}</a>
+{{ end }}</div>
+{{ end }}

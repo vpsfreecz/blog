@@ -73,9 +73,8 @@ other = "Archived comments"
 [originalComments]
 other = "Historical comments are shown in their original language."
 
-[commentCount]
-one = "{{ .Count }} comment"
-other = "{{ .Count }} comments"
+[discourseDiscussion]
+other = "Discourse discussion"
 
 [taxonomy_categories_akce]
 other = "Events"

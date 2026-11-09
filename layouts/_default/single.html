@@ -2,7 +2,7 @@
 {{ $state := partial "article-state.html" . }}
 {{ $discoverable := ne $state "unlisted" }}
 <article class="hentry" data-article-id="{{ .Params.article_id }}" data-article-state="{{ $state }}"{{ if and .Params.article_id $discoverable }} data-search-article{{ end }}>
-  <header class="entry-header"><h1 class="entry-title"{{ if $discoverable }} data-pagefind-body data-pagefind-meta="title"{{ end }}>{{ .Title }}</h1><div data-pagefind-ignore>{{ partial "byline.html" . }}</div></header>
+  <header class="entry-header"><h1 class="entry-title"{{ if $discoverable }} data-pagefind-body data-pagefind-meta="title"{{ end }}>{{ .Title }}</h1><div data-pagefind-ignore>{{ partial "byline.html" (dict "page" . "listing" false) }}</div></header>
   {{ if .Draft }}<p class="draft" data-pagefind-ignore>{{ if and (eq .Language.Lang "en") (ne .Params.translation_status "reviewed") }}{{ i18n "unreviewedTranslation" }}{{ else }}{{ i18n "draft" }}{{ end }}</p>{{ end }}
   {{ if eq $state "unlisted" }}<p class="unlisted" data-unlisted-notice data-pagefind-ignore>{{ i18n "unlisted" }}</p>{{ end }}
   <div class="entry-content"{{ if $discoverable }} data-pagefind-body{{ end }}>{{ partial "article-html.html" (dict "page" . "html" .Content) }}</div>

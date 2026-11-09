@@ -5,7 +5,7 @@
 {{ $pages = partial "discoverable.html" $pages }}
 {{ range (.Paginate $pages).Pages }}
 <article class="hentry">
-  <header class="entry-header"><h2 class="entry-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>{{ partial "byline.html" . }}</header>
+  <header class="entry-header"><h2 class="entry-title"><a href="{{ .RelPermalink }}">{{ .Title }}</a></h2>{{ partial "byline.html" (dict "page" . "listing" true) }}</header>
   <div class="entry-content entry-summary">{{ partial "article-html.html" (dict "page" . "html" .Summary) }}<a href="{{ .RelPermalink }}">{{ i18n "readMore" }}</a></div>
 </article>
 {{ else }}<div class="hentry"><p>{{ i18n "empty" }}</p></div>{{ end }}

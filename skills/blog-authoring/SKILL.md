@@ -18,8 +18,10 @@ no external skill registry or development workspace is required.
    including for committed drafts. Imports keep their existing `.html` files.
    Automatically generate the missing language, then compare meaning and archive
    voice. Apply the guide's metadata rules: immutable ID, explicit root URLs,
-   shared public authors, Czech discussion URL and per-language feed GUIDs.
-   Preserve original archive identity and genuine human-review history.
+   shared public authors, original Czech source URL and per-language feed GUIDs.
+   Preserve original archive identity and genuine human-review history. Keep
+   `discussion_url` as Czech provenance; the actual published English counterpart
+   supplies the shared forum identity for both languages and listing reply counts.
    Map an existing author ID to a confirmed lowercase Discourse username in
    `data/discourse-authors.json`. Omit unknown mappings and keep public bylines
    unchanged. Do not infer usernames or add unused authors. Unmapped and

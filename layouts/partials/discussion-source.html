@@ -1,0 +1,16 @@
+{{/* Archive discussion_url stays Czech provenance; the real EN page is the forum source. */}}
+{{- $source := "" -}}
+{{- $id := .Params.article_id -}}
+{{- if not (index hugo.Data.articles $id) -}}{{- $id = "" -}}{{- end -}}
+{{- range .AllTranslations -}}
+  {{- if and (eq .Language.Lang "en") (eq .Type "posts") $id (eq .Params.article_id $id) (eq (partial "article-state.html" .) "published") -}}
+    {{- with try (urls.Parse .Permalink) -}}{{- with .Value -}}
+      {{- $path := .EscapedPath -}}
+      {{- $reserved := findRE `^/(?:cs|en|search|feed|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)/|^/[0-9]{4}/[0-9]{2}/` $path -}}
+      {{- if and (eq .Scheme "https") (eq .Host "blog.vpsfree.org") (not .User) (not .RawQuery) (not .ForceQuery) (not .Fragment) (not $reserved) (findRE `^/(?:[a-z0-9]+(?:[-_][a-z0-9]+)*/)+$` $path) -}}
+        {{- $source = .String -}}
+      {{- end -}}
+    {{- end -}}{{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- return $source -}}

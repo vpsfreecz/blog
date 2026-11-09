@@ -73,10 +73,8 @@ other = "Archiv komentářů"
 [originalComments]
 other = "Komentáře z původního blogu jsou bez překladu."
 
-[commentCount]
-one = "{{ .Count }} komentář"
-few = "{{ .Count }} komentáře"
-other = "{{ .Count }} komentářů"
+[discourseDiscussion]
+other = "Diskuse na Discourse"
 
 [searchArticles]
 other = "Hledat v článcích"

@@ -75,10 +75,13 @@ the forum uses its configured fallback account. Do not infer a username from a
 name or slug, or create an unused author record. Articles with multiple authors
 keep all names in the byline and use the fallback account for the forum topic.
 
-Both languages use the same author IDs and the same absolute Czech
-`discussion_url`. Never replace it with the English or preview URL. Give a new
-Czech article a lowercase root-slug path within the [discussion path rules](discussions.md#source-hosts-and-paths),
-and preserve the source URL after publication. Article writing needs no forum
+Both languages use the same author IDs and retain the absolute Czech
+`discussion_url` for original-source navigation. Never replace that provenance
+field with an English or preview URL. Keep a new Czech route at a nonnumeric
+lowercase root slug outside reserved routes and `wp-`. Both languages use the
+actual published English counterpart as their shared forum source and reply-count lookup URL; see the
+[discussion path rules](discussions.md#source-hosts-and-paths).
+Keep both public article URLs stable. Article writing needs no forum
 credentials or manual topic-creation step. After the [forum setup and pilot](discussions.md#pilot-and-enable)
 and production opt-in, the native embed can create a shared topic on the first
 article visit. The source defaults to disabled. Drafts, previews and unlisted

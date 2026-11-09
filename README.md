@@ -69,8 +69,10 @@ published URL and article ID stable. A missing translation remains absent.
 
 `data/articles.json` maps article IDs to shared `discussion_url`, `author_ids`,
 per-language `feed_guids` and optional `legacy_post_id`. `discussion_url` is the
-original absolute Czech
-permalink, independent of each translation's canonical URL. `data/authors.json`
+original absolute Czech permalink for provenance and source navigation. Both
+languages use the actual published English counterpart as their shared forum
+source; each keeps its own canonical URL. Optional listing counts show Discourse
+replies only. Archived WordPress comments remain separate. `data/authors.json`
 maps stable author IDs to public `name`, archive `slug` and optional approved
 public URL. `data/legacy-comments/<article_id>.json` holds the approved original
 comments and parent IDs for static thread rendering. Author, category, tag and

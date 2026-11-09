@@ -50,6 +50,11 @@
     <footer class="site-footer">vpsFree.cz · <a href="{{ if eq .Site.Language.Lang "en" }}https://vpsfree.org/{{ else }}https://vpsfree.cz/{{ end }}">{{ i18n "mainSite" }}</a>{{ if ne hugo.Environment "production" }}<p class="preview">{{ i18n "preview" }}</p>{{ end }}</footer>
   </main>
 </div>
+{{ $expectedBase := index (dict "cs" "https://blog.vpsfree.cz/" "en" "https://blog.vpsfree.org/") .Language.Lang }}
+{{ if and (in (slice "home" "section" "taxonomy" "term") .Kind) (eq hugo.Environment "production") (not hugo.IsServer) (eq .Site.Params.discourse.enabled true) (eq .Site.BaseURL $expectedBase) }}
+  {{ $counts := resources.Get "js/discourse-counts.js" | fingerprint }}
+  <script defer src="{{ $counts.RelPermalink }}" integrity="{{ $counts.Data.Integrity }}"></script>
+{{ end }}
 {{ partial "piwik.html" . }}
 </body>
 </html>

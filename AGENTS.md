@@ -16,7 +16,9 @@ it needs no installation or external workspace.
   structure and code. Keep `translationKey` and `params.article_id` identical.
 - Keep Czech and English at their separate production host roots. Preserve
   published paths and dates, shared bylines, feed identities and the
-  original Czech `discussion_url`. Never infer identity from a translated title.
+  original Czech `discussion_url` for provenance and source navigation. Both
+  languages use the actual published English counterpart as the shared forum
+  source and listing reply-count identity. Never infer identity from a translated title.
 - Preview real drafts with `nix develop -c bin/preview`. `--fixtures` selects
   the isolated synthetic demo. Preserve approved historical media iframes;
   production Discourse scripts and comment embeds remain disabled.

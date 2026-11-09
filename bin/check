@@ -540,9 +540,9 @@ def check_discussions(work):
     sources = {'published': source_url, 'draft': source_url, 'unlisted': source_url,
                'unmapped': source_url, 'multiple': source_url,
                'escaped': 'https://blog.vpsfree.cz/a&b/',
-               'wrong-host': 'https://blog.vpsfree.cz.invalid/article/',
-               'query': source_url + '?preview=1', 'fragment': source_url + '#comments',
-               'port': 'https://blog.vpsfree.cz:443/article/'}
+               'missing-en': source_url, 'mismatch': source_url,
+               'en-draft': source_url, 'en-unlisted': source_url,
+               'nested': source_url, 'archive-collision': source_url}
     authors = {'wp-user-6': {'name': 'Jakub Skokan', 'slug': 'aither'},
                'wp-user-1': {'name': 'Petr Krčmář', 'slug': 'krcmar'},
                'wp-user-2': {'name': 'Jiří Medvěd', 'slug': 'medved'},
@@ -578,12 +578,15 @@ def check_discussions(work):
                 self.byline.append(text)
     for article_id in sources:
         for lang in ('cs', 'en'):
+            if article_id == 'missing-en' and lang == 'en':
+                continue
+            route = '/nested_path/english_article/' if article_id == 'nested' and lang == 'en' else '/2020/01/' if article_id == 'archive-collision' and lang == 'en' else f'/discussion-{article_id}-{lang}/'
             (content / f'{article_id}.{lang}.html').write_text('+++\ntitle = "Synthetic discussion check"\n'
                 'date = "2026-01-01T12:00:00+01:00"\ntype = "posts"\n'
-                f'draft = {str(article_id == "draft").lower()}\n'
-                f'url = "/discussion-{article_id}-{lang}/"\ncategories = ["p30-fixture"]\n'
-                f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id}"\n'
-                f'unlisted = {str(article_id == "unlisted").lower()}\n'
+                f'draft = {str(article_id == "draft" or article_id == "en-draft" and lang == "en").lower()}\n'
+                f'url = "{route}"\ncategories = ["p30-fixture"]\n'
+                f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id if article_id != "mismatch" or lang == "cs" else "different-id"}"\n'
+                f'unlisted = {str(article_id == "unlisted" or article_id == "en-unlisted" and lang == "en").lower()}\n'
                 '+++\n<p>Synthetic local check only.</p>\n')
     cases = (('production', True, False, True), ('production', False, False, False),
              ('preview', True, False, True), ('vpn', True, False, True), ('production', True, True, True))
@@ -596,6 +599,7 @@ def check_discussions(work):
         config = tomllib.loads((ROOT / 'hugo.toml').read_text())
         config.update(contentDir=str(content), dataDir=str(data))
         config['params']['discourse']['enabled'] = enabled
+        config['pagination'] = {'pagerSize': 50}
         for lang, host in (('cs', 'blog.vpsfree.cz'), ('en', 'blog.vpsfree.org')):
             config['languages'][lang]['baseURL'] = f'https://{lang}.preview.invalid/' if wrong_origin else f'https://{host}/'
         config_path = work / f'discussion-{number}.json'
@@ -604,19 +608,28 @@ def check_discussions(work):
         run('hugo', '--environment', environment, '--buildDrafts', '--configDir', str(config_dir),
             '--config', str(config_path), '--destination', str(destination), '--panicOnWarning')
         identities = []
+        article_paths = set()
         for article_id in sources:
             for lang in ('cs', 'en'):
-                path = destination / lang / f'discussion-{article_id}-{lang}/index.html'
+                if article_id == 'missing-en' and lang == 'en':
+                    continue
+                route = 'nested_path/english_article' if article_id == 'nested' and lang == 'en' else '2020/01' if article_id == 'archive-collision' and lang == 'en' else f'discussion-{article_id}-{lang}'
+                path = destination / lang / route / 'index.html'
+                article_paths.add(path)
                 text = path.read_text()
                 head = AuthorHead(text)
-                names = [authors[ident]['name'] for ident in author_ids[article_id]]
+                names = [authors[ident]['name'] for ident in author_ids[article_id]] if not (article_id == 'mismatch' and lang == 'en') else []
                 username = usernames.get(author_ids[article_id][0], '') if mapped and len(names) == 1 else ''
-                assert head.metadata == {'author': [', '.join(names)], 'discourse-username': [username]}
+                assert head.metadata == ({'author': [', '.join(names)], 'discourse-username': [username]} if names else {})
                 assert all(name in ''.join(head.byline) for name in names)
                 assert not any(tag == 'em' and 'data-p30-injected' in attrs for tag, attrs in Page(path).elements)
-                should_embed = environment == 'production' and enabled and not wrong_origin and article_id in ('published', 'escaped', 'unmapped', 'multiple')
+                valid_source = article_id in ('published', 'escaped', 'unmapped', 'multiple', 'nested')
+                should_embed = environment == 'production' and enabled and not wrong_origin and valid_source
+                expected_source = 'https://blog.vpsfree.org/' + ('nested_path/english_article/' if article_id == 'nested' else f'discussion-{article_id}-en/')
+                assert not any('data-discourse-count' in attrs for _, attrs in Page(path).elements)
+                assert not any(tag == 'script' and re.fullmatch(r'/js/discourse-counts\.[0-9a-f]+\.js', attrs.get('src', '')) for tag, attrs in Page(path).elements)
                 assert ('window.DiscourseEmbed =' in text) == should_embed, (number, article_id, lang)
-                published = article_id not in ('draft', 'unlisted')
+                published = article_id not in ('draft', 'unlisted') and not (lang == 'en' and article_id in ('en-draft', 'en-unlisted'))
                 assert Page(path).has('a', href='https://discourse.vpsfree.cz/') == published
                 assert Page(path).has('div', id='respond') == published
                 assert Page(path).has('div', id='discourse-comments') == should_embed
@@ -624,15 +637,25 @@ def check_discussions(work):
                     encoded = text.split('window.DiscourseEmbed = ', 1)[1]
                     payload, _ = json.JSONDecoder().raw_decode(encoded)
                     assert payload == {'discourseUrl': 'https://discourse.vpsfree.cz/',
-                                       'discourseEmbedUrl': sources[article_id]}
+                                       'discourseEmbedUrl': expected_source, 'fullApp': True}
                     if article_id == 'published':
                         identities.append(payload['discourseEmbedUrl'])
-                    if article_id == 'escaped':
-                        assert r'\u0026' in encoded
                     assert Page(path).has('div', id='discourse-comments')
         if identities:
-            assert identities == [source_url, source_url]
-        article_paths = {destination / lang / f'discussion-{ident}-{lang}/index.html' for ident in sources for lang in ('cs', 'en')}
+            assert identities == ['https://blog.vpsfree.org/discussion-published-en/'] * 2
+        for lang in ('cs', 'en'):
+            listing = Page(destination / lang / 'index.html')
+            markers = {attrs['data-discourse-count'] for _, attrs in listing.elements if 'data-discourse-count' in attrs}
+            eligible = environment == 'production' and enabled and not wrong_origin
+            expected_markers = {'https://blog.vpsfree.org/' + ('nested_path/english_article/' if ident == 'nested' else f'discussion-{ident}-en/') for ident in ('published', 'escaped', 'unmapped', 'multiple', 'nested')} if eligible else set()
+            assert markers == expected_markers, (number, lang, markers)
+            scripts = [attrs for tag, attrs in listing.elements if tag == 'script' and re.fullmatch(r'/js/discourse-counts\.[0-9a-f]+\.js', attrs.get('src', ''))]
+            assert len(scripts) == int(eligible)
+            if scripts:
+                assert 'defer' in scripts[0] and scripts[0]['integrity'].startswith('sha256-')
+            for _, attrs in listing.elements:
+                if 'data-discourse-count' in attrs:
+                    assert attrs['href'].startswith('/') and attrs['href'].endswith('#comments')
         for path in destination.rglob('*.html'):
             if path not in article_paths:
                 assert not AuthorHead(path.read_text()).metadata, path
@@ -640,6 +663,7 @@ def check_discussions(work):
 
 
 run('bin/check-articles')
+run('node', 'tools/check-discourse-counts.js')
 
 with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     work = Path(directory)
@@ -758,8 +782,8 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
                         href=f'http://localhost:{other_port}/{other_path}/')
         assert page.has('a', href=f'http://localhost:{other_port}/{other_path}/')
         assert page.has('article', **{'data-article-id': 'synthetic-pair'})
-        assert page.has('section', id='comments', **{'data-discussion-url':
-            'https://blog.vpsfree.cz/synteticky-priklad_1/'})
+        assert page.has('section', id='comments')
+        assert not any('data-discussion-url' in attrs for _, attrs in page.elements)
         assert page.has('meta', name='robots', content='noindex, nofollow')
     unpaired = drafts / 'cs/synteticky-bez-prekladu/index.html'
     assert 'Překlad zatím není k dispozici.' in unpaired.read_text()
