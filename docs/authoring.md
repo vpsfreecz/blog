@@ -68,6 +68,13 @@ Add the article's shared entry to `data/articles.json`, preserving other entries
 Reuse a stable author ID from `data/authors.json`, or add an approved public
 byline with a stable archive slug, for example
 `"example-author": {"name": "Public author name", "slug": "public-author"}`.
+If the author has a confirmed Discourse account, map their existing author ID to
+its lowercase username in `data/discourse-authors.json`. Keep their public name
+and original author row unchanged. Omit the mapping when the username is unknown;
+the forum uses its configured fallback account. Do not infer a username from a
+name or slug, or create an unused author record. Articles with multiple authors
+keep all names in the byline and use the fallback account for the forum topic.
+
 Both languages use the same author IDs and the same absolute Czech
 `discussion_url`. Never replace it with the English or preview URL. Give a new
 Czech article a lowercase root-slug path within the [discussion path rules](discussions.md#source-hosts-and-paths),

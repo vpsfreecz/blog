@@ -297,6 +297,51 @@ class Articles(unittest.TestCase):
             self.validate()
 
 
+class DiscourseAuthors(unittest.TestCase):
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory()
+        self.addCleanup(self.temp.cleanup)
+        self.root = Path(self.temp.name)
+        (self.root / 'data').mkdir()
+        self.authors = {'wp-user-6': {'name': 'Jakub Skokan'}, 'wp-user-1': {'name': 'Petr Krčmář'}}
+        (self.root / 'data/authors.json').write_text(json.dumps(self.authors))
+        self.mapping = self.root / 'data/discourse-authors.json'
+        self.git('init', '--quiet')
+
+    def git(self, *args):
+        return subprocess.check_output(['git', '-C', str(self.root), *args], stderr=subprocess.PIPE)
+
+    def validate(self, staged=False):
+        source = check.Source(self.root, staged)
+        return check.discourse_authors(source, source.json('data/authors.json'))
+
+    def test_optional_and_explicit_map_with_shared_username(self):
+        self.assertEqual(self.validate(), {})
+        self.mapping.write_text(json.dumps({'wp-user-6': 'aither', 'wp-user-1': 'aither'}))
+        self.assertEqual(self.validate(), {'wp-user-6': 'aither', 'wp-user-1': 'aither'})
+
+    def test_invalid_objects_ids_keys_and_username_values(self):
+        for value in ([], None, {'missing-author': 'aither'}, *(
+                {'wp-user-6': value} for value in (None, '', ' aither', 'aither ', 'Aither',
+                                                  'aither name', 'aither\n', 'aither\x00', 'aither\x7f', 'aither\u200b'))):
+            self.mapping.write_text(json.dumps(value))
+            with self.subTest(value=value), self.assertRaises(check.Invalid):
+                self.validate()
+        self.mapping.write_text('{"wp-user-6":"aither","wp-user-6":"snajpa"}')
+        with self.assertRaisesRegex(check.Invalid, 'duplicate JSON key'):
+            self.validate()
+
+    def test_actual_index_ignores_unstaged_fix_or_mistake(self):
+        self.mapping.write_text('{"wp-user-6":"Aither"}')
+        self.git('add', 'data')
+        self.mapping.write_text('{"wp-user-6":"aither"}')
+        with self.assertRaisesRegex(check.Invalid, 'lowercase'):
+            self.validate(staged=True)
+        self.git('add', 'data')
+        self.mapping.write_text('{"wp-user-6":"Aither"}')
+        self.assertEqual(self.validate(staged=True), {'wp-user-6': 'aither'})
+
+
 class Observer(unittest.TestCase):
     def setUp(self):
         self.sha = 'a' * 40

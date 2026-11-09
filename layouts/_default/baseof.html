@@ -6,6 +6,17 @@
   <title>{{ if not .IsHome }}{{ .Title }} | {{ end }}{{ .Site.Title }}</title>
   <link rel="canonical" href="{{ .Permalink }}">
   <link rel="icon" type="image/png" href="/favicon.png">
+  {{ if and .IsPage (eq .Type "posts") .Params.article_id }}
+    {{ with index hugo.Data.articles .Params.article_id }}
+      {{ $authorIDs := .author_ids }}
+      {{ $names := slice }}{{ range $authorIDs }}{{ $names = $names | append (index hugo.Data.authors .).name }}{{ end }}
+      {{ $username := "" }}
+      {{ if eq (len $authorIDs) 1 }}{{ with index hugo.Data "discourse-authors" }}{{ with index . (index $authorIDs 0) }}{{ $username = . }}{{ end }}{{ end }}{{ end }}
+      <meta name="author" content="{{ delimit $names ", " }}">
+      {{/* An empty element prevents Discourse from treating the public name as a username. */}}
+      <meta name="discourse-username" content="{{ $username }}">
+    {{ end }}
+  {{ end }}
   {{ range .AllTranslations }}<link rel="alternate" hreflang="{{ .Language.Locale }}" href="{{ .Permalink }}">{{ end }}
   <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ .Site.Home.Permalink }}feed/">
   {{ $css := resources.Get "css/site.css" | resources.ExecuteAsTemplate "css/site.css" . | fingerprint }}

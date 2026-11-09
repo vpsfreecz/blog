@@ -20,6 +20,10 @@ no external skill registry or development workspace is required.
    voice. Apply the guide's metadata rules: immutable ID, explicit root URLs,
    shared public authors, Czech discussion URL and per-language feed GUIDs.
    Preserve original archive identity and genuine human-review history.
+   Map an existing author ID to a confirmed lowercase Discourse username in
+   `data/discourse-authors.json`. Omit unknown mappings and keep public bylines
+   unchanged. Do not infer usernames or add unused authors. Unmapped and
+   multi-author articles use the forum's configured fallback account.
 3. Set the same boolean flags in both files. Draft uses `draft = true` without
    unlisted. An unlisted review copy uses `draft = false` and
    `params.unlisted = true`. Published uses `draft = false` without unlisted.

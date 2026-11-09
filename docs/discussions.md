@@ -57,12 +57,12 @@ A second importer can also update an existing topic's content, author or tags.
 Select native first-view creation as the sole creator for this blog after
 reconciling those records. The IRC bot's blog feed poll is a separate consumer.
 
-Choose an actual publicly readable category, such as a dedicated Blog category,
-and verify its ID and ordinary member read/reply permissions. Select an existing
-appropriate import username. Preserve signup, login and moderation rules. Match
-existing topics by exact source identity, rather than title. If a discussion has
-no safe native mapping, keep that source out of the pilot until it is resolved;
-preserve the topic and replies instead of creating a replacement.
+Choose a publicly readable category, such as Blog, and verify its ID and ordinary
+member read/reply permissions. Set **Username for topic creation**
+(`embed_by_username`) to the existing admin account used as the fallback author.
+Preserve signup, login and moderation rules. Match existing topics by their source
+URL rather than title. Resolve any missing or ambiguous source mapping before
+using that article in the pilot; preserve the topic and its replies.
 
 ### Source hosts and paths
 
@@ -70,14 +70,24 @@ Open `/admin/customize/embedding`. Use **Add host**, **Allowed hosts**,
 **Path allowlist**, **Post to category** and **Post author**. The stored fields
 are `host`, `allowed_paths`, `category_id` and `user`; the form also supports
 **Topic tags**. Verify the selected category: an invalid or blank category can
-fall back to uncategorized. Set the per-host author explicitly so page metadata
-does not select the import identity. Preserve unrelated host entries.
+fall back to uncategorized. Leave **Post author** blank on both blog hosts so the
+article metadata can select its author. A value here overrides both the metadata
+and the global fallback. Preserve unrelated host entries.
 
-Start with exact host `blog.vpsfree.cz` and an anchored rule allowing only the
-selected pilot article. For example, `/sitova-novinka/` would use
-`\A/sitova-novinka/\z`; use the actual shared `discussion_url` pathname, escaping
-any regex metacharacters. After the pilot passes, use this rule for current and
-future lowercase root-slug article paths:
+Article heads contain the public author names in `author`. The optional
+`data/discourse-authors.json` maps existing author IDs to confirmed lowercase
+Discourse usernames. Articles with one mapped author put that username in
+`discourse-username`. Unmapped and multi-author articles emit the same tag with
+empty content. The tag's presence prevents Discourse from treating the public
+name as a username, so it uses the configured fallback instead. Keep all names
+in a multi-author byline; do not select the first coauthor as the topic owner.
+
+Adding metadata does not migrate existing forum topics. Check their source
+mappings and intended ownership before importing or refreshing them. The metadata
+also does not enable the embed.
+
+Add exact host `blog.vpsfree.cz`. For normal operation, use this anchored rule
+for current and future lowercase root-slug article paths:
 
 ```text
 \A/(?!(?:feed|search|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)/|wp-|[0-9]+/)[a-z0-9]+(?:-[a-z0-9]+)*/\z
@@ -98,7 +108,8 @@ can trigger import of an allowed public article. Keep redirects and canonicals
 on the public blog and retain Discourse's private-address safeguards.
 
 Add exact host `blog.vpsfree.org` with **Path allowlist** `\A(?!)\z`, using the
-same verified category and author. This rule rejects every English import URL.
+same verified category and a blank **Post author**. This rule rejects every
+English import URL.
 The pinned forum includes all registered hosts in CSP `frame-ancestors`
 independently of their path rules, so the English host row permits framing of
 the shared Czech discussion. Keep `embed_any_origin=false` and
@@ -108,7 +119,15 @@ avoid wildcard origins or disabling CSP.
 
 ### Extraction and visibility
 
-In **Crawlers configuration**, set `allowed_embed_selectors` to `.entry-content`.
+The Discourse deployment manages the settings below through the existing NixOS
+`services.discourse.siteSettings` option, including `embed_by_username` from the
+configured admin username. Host entries, category selection and permissions
+remain in the forum UI. Nix supplies defaults; values saved through the UI take
+precedence. When using this deployment, leave these settings in Nix and verify
+the effective values after deployment rather than entering them again in the UI.
+
+For a separately managed forum, in **Crawlers configuration**, set
+`allowed_embed_selectors` to `.entry-content`.
 The static article body has that wrapper; historical comments, navigation and
 discussion controls are outside it. Leave `blocked_embed_selectors` empty unless
 an observed extraction problem calls for a specific exclusion. Retain these
@@ -140,8 +159,10 @@ notification or account policy automatically.
 1. Complete the [hosting and release prerequisites](deployment.md), including
    the English HTTPS host. Keep the embed off through the initial static-site
    switch. WordPress markup does not prove extraction of the final static page.
-2. Keep only the selected Czech path allowed and the English reject-all row in
-   place. On a desktop browser, open `/admin/customize/embedding`, choose
+2. Select one published Czech article with a reconciled source mapping for the
+   pilot. Keep the English reject-all row in place. You may temporarily restrict
+   the Czech rule to this one path, but that restriction is not required for
+   normal operation. On a desktop browser, open `/admin/customize/embedding`, choose
    **Hosts**, and expand **Configuration snippet**. Keep **Full app mode** off.
    In a separate tab, open the selected final static Czech article. In the
    browser's developer tools, use **Elements** to add

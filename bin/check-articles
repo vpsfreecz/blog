@@ -13,6 +13,7 @@ import re
 import subprocess
 import sys
 import tomllib
+import unicodedata
 from urllib.parse import urlsplit
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -149,6 +150,19 @@ def words(title, body, markdown):
     return Counter(re.findall(r"[^\W\d_]+(?:['’][^\W\d_]+)?", text, re.UNICODE))
 
 
+def discourse_authors(source, authors):
+    path = 'data/discourse-authors.json'
+    mapping = source.json(path) if path in source.paths else {}
+    require(isinstance(mapping, dict), f'{path}: expected an author-ID to username object')
+    for ident, username in mapping.items():
+        require(ident in authors, f'{path}:{ident}: unknown author ID')
+        require(isinstance(username, str) and username and username == username.strip()
+                and username == username.lower()
+                and not any(c.isspace() or unicodedata.category(c) in ('Cc', 'Cf') for c in username),
+                f'{path}:{ident}: username must be nonempty, trimmed lowercase without whitespace/control characters')
+    return mapping
+
+
 def check(source, ids=(), spelling=True):
     current = articles(source)
     previous_source = Source(source.root, previous=True)
@@ -158,6 +172,7 @@ def check(source, ids=(), spelling=True):
     previous_authors = previous_source.json('data/authors.json') if previous else {}
     data = source.json('data/articles.json')
     authors = source.json('data/authors.json')
+    discourse_authors(source, authors)
     taxonomies = source.json('data/taxonomies.json')
     loader = importlib.machinery.SourceFileLoader('archive_audit', str(source.root / 'tools/import-wordpress-check'))
     spec = importlib.util.spec_from_loader(loader.name, loader)

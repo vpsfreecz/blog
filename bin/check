@@ -538,25 +538,61 @@ def check_discussions(work):
         path.mkdir()
     source_url = 'https://blog.vpsfree.cz/shared-discussion-fixture/'
     sources = {'published': source_url, 'draft': source_url, 'unlisted': source_url,
+               'unmapped': source_url, 'multiple': source_url,
                'escaped': 'https://blog.vpsfree.cz/a&b/',
                'wrong-host': 'https://blog.vpsfree.cz.invalid/article/',
                'query': source_url + '?preview=1', 'fragment': source_url + '#comments',
                'port': 'https://blog.vpsfree.cz:443/article/'}
-    (data / 'articles.json').write_text(json.dumps({key: {'discussion_url': value, 'author_ids': []}
+    authors = {'wp-user-6': {'name': 'Jakub Skokan', 'slug': 'aither'},
+               'wp-user-1': {'name': 'Petr Krčmář', 'slug': 'krcmar'},
+               'wp-user-2': {'name': 'Jiří Medvěd', 'slug': 'medved'},
+               'fixture-special': {'name': 'Jméno "citace" & <em data-p30-injected>', 'slug': 'special'}}
+    author_ids = {key: ['wp-user-6'] for key in sources}
+    author_ids.update(unmapped=['wp-user-2'], multiple=['wp-user-6', 'wp-user-1'], escaped=['fixture-special'])
+    (data / 'articles.json').write_text(json.dumps({key: {'discussion_url': value, 'author_ids': author_ids[key]}
                                                   for key, value in sources.items()}))
-    (data / 'authors.json').write_text('{}')
+    (data / 'authors.json').write_text(json.dumps(authors))
+    (data / 'taxonomies.json').write_text(json.dumps({'tags': {}, 'categories': {'p30-fixture': {'name': 'Fixture'}}}))
+    shutil.copytree(ROOT / 'content/search', content / 'search')
+    usernames = {'wp-user-6': 'aither', 'wp-user-1': 'krcmar', 'fixture-special': 'special'}
+
+    class AuthorHead(HTMLParser):
+        def __init__(self, text):
+            super().__init__()
+            self.metadata, self.byline, self.depth = {}, [], 0
+            self.feed(text)
+
+        def handle_starttag(self, tag, attrs):
+            attrs = dict(attrs)
+            if tag == 'meta' and attrs.get('name') in ('author', 'discourse-username'):
+                self.metadata.setdefault(attrs['name'], []).append(attrs.get('content'))
+            if tag == 'div' and (self.depth or attrs.get('class') == 'entry-meta'):
+                self.depth += 1
+
+        def handle_endtag(self, tag):
+            if tag == 'div' and self.depth:
+                self.depth -= 1
+
+        def handle_data(self, text):
+            if self.depth:
+                self.byline.append(text)
     for article_id in sources:
         for lang in ('cs', 'en'):
             (content / f'{article_id}.{lang}.html').write_text('+++\ntitle = "Synthetic discussion check"\n'
                 'date = "2026-01-01T12:00:00+01:00"\ntype = "posts"\n'
                 f'draft = {str(article_id == "draft").lower()}\n'
-                f'url = "/discussion-{article_id}-{lang}/"\n'
+                f'url = "/discussion-{article_id}-{lang}/"\ncategories = ["p30-fixture"]\n'
                 f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id}"\n'
                 f'unlisted = {str(article_id == "unlisted").lower()}\n'
                 '+++\n<p>Synthetic local check only.</p>\n')
-    cases = (('production', True, False), ('production', False, False),
-             ('preview', True, False), ('vpn', True, False), ('production', True, True))
-    for number, (environment, enabled, wrong_origin) in enumerate(cases):
+    cases = (('production', True, False, True), ('production', False, False, False),
+             ('preview', True, False, True), ('vpn', True, False, True), ('production', True, True, True))
+    for number, (environment, enabled, wrong_origin, mapped) in enumerate(cases):
+        mapping_path = data / 'discourse-authors.json'
+        if mapped:
+            mapping_path.write_text(json.dumps(usernames))
+        elif mapping_path.exists():
+            mapping_path.unlink()
         config = tomllib.loads((ROOT / 'hugo.toml').read_text())
         config.update(contentDir=str(content), dataDir=str(data))
         config['params']['discourse']['enabled'] = enabled
@@ -572,7 +608,13 @@ def check_discussions(work):
             for lang in ('cs', 'en'):
                 path = destination / lang / f'discussion-{article_id}-{lang}/index.html'
                 text = path.read_text()
-                should_embed = environment == 'production' and enabled and not wrong_origin and article_id in ('published', 'escaped')
+                head = AuthorHead(text)
+                names = [authors[ident]['name'] for ident in author_ids[article_id]]
+                username = usernames.get(author_ids[article_id][0], '') if mapped and len(names) == 1 else ''
+                assert head.metadata == {'author': [', '.join(names)], 'discourse-username': [username]}
+                assert all(name in ''.join(head.byline) for name in names)
+                assert not any(tag == 'em' and 'data-p30-injected' in attrs for tag, attrs in Page(path).elements)
+                should_embed = environment == 'production' and enabled and not wrong_origin and article_id in ('published', 'escaped', 'unmapped', 'multiple')
                 assert ('window.DiscourseEmbed =' in text) == should_embed, (number, article_id, lang)
                 published = article_id not in ('draft', 'unlisted')
                 assert Page(path).has('a', href='https://discourse.vpsfree.cz/') == published
@@ -590,6 +632,11 @@ def check_discussions(work):
                     assert Page(path).has('div', id='discourse-comments')
         if identities:
             assert identities == [source_url, source_url]
+        article_paths = {destination / lang / f'discussion-{ident}-{lang}/index.html' for ident in sources for lang in ('cs', 'en')}
+        for path in destination.rglob('*.html'):
+            if path not in article_paths:
+                assert not AuthorHead(path.read_text()).metadata, path
+    print('Article author metadata: mapped/unmapped/multiple/escaped, both languages, optional map and embed guards PASS')
 
 
 run('bin/check-articles')
