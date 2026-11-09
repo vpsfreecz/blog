@@ -116,7 +116,7 @@ Add exact host `blog.vpsfree.org`. For normal operation, use this anchored rule
 for English article paths, including supported nested and underscore paths:
 
 ```text
-\A/(?!(?:cs|en|search|feed|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)/|[0-9]{4}/[0-9]{2}/)(?:[a-z0-9]+(?:[-_][a-z0-9]+)*/)+\z
+\A/(?!(?:cs|en|search|feed|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)(?:/|\z)|[0-9]{4}/[0-9]{2}(?:/|\z))[a-z0-9]+(?:[-_][a-z0-9]+)*(?:/[a-z0-9]+(?:[-_][a-z0-9]+)*)*/?\z
 ```
 
 This namespace excludes reserved roots, language prefixes and generated
@@ -124,6 +124,10 @@ calendar-month archive paths. It supports the existing English route grammar,
 including nested and underscore paths. Keep English article URLs stable; add an
 exclusion before introducing another nonarticle root. Original Czech routes and
 provenance fields stay unchanged.
+
+Discourse removes the trailing slash from the source URL before matching the
+host used to select the import category. Host rules must accept both forms so
+the canonical article URL and normalized import URL select the same host entry.
 
 The pinned host model checks the Ruby regex against both encoded and decoded
 path plus query. A blank rule allows every path; rules are not automatically
@@ -139,7 +143,7 @@ Add exact host `blog.vpsfree.cz` with the same verified category and blank
 **Post author**, using the existing Czech root-slug rule:
 
 ```text
-\A/(?!(?:feed|search|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)/|wp-|[0-9]+/)[a-z0-9]+(?:-[a-z0-9]+)*/\z
+\A/(?!(?:feed|search|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)(?:/|\z)|wp-|[0-9]+(?:/|\z))[a-z0-9]+(?:-[a-z0-9]+)*/?\z
 ```
 
 Full-app mode checks the parent referrer against host path rules as well as CSP.
@@ -211,7 +215,14 @@ notification or account policy automatically.
 2. Select one published English article with a reconciled source mapping for the
    pilot. Both hosts need the article-path rules above. You may temporarily narrow
    each rule to its pilot article path; a reject-all rule would block full-app
-   framing. On a desktop browser, open `/admin/customize/embedding`, choose
+   framing. For example, the paired passkey article uses these pilot rules:
+
+   ```text
+   blog.vpsfree.org: \A/two-factor-login-with-passkeys/?\z
+   blog.vpsfree.cz:  \A/dvoufaktorove-prihlasovani-s-passkey/?\z
+   ```
+
+   On a desktop browser, open `/admin/customize/embedding`, choose
    **Hosts**, and expand **Configuration snippet**. Verify that **Full app mode**
    and the effective server setting are enabled.
    In a separate tab, open the selected final static English article. In the
@@ -263,12 +274,25 @@ content and static outputs. It performs no forum requests. Browser verification
 of a local candidate must use synthetic origins and blocked forum requests.
 Loading an enabled production embed is not a read-only appearance check.
 
+Check the documented host rules with Ruby from the locked Nixpkgs input:
+
+```sh
+nix shell --no-write-lock-file --no-update-lock-file --inputs-from . nixpkgs#ruby -c ruby tools/check-discussion-paths.rb
+```
+
+This check makes no forum requests.
+
 ## Stop imports or recover
 
 Disable the blog embed through the normal content release. To stop new imports
 immediately, the operator can narrow the affected source-host path rule through
 the forum UI while keeping the host row needed for framing. Keep direct forum
 links and preserve every topic, source mapping, reply and archived comment.
+
+Correcting a host rule affects subsequent host selection; it does not move an
+already miscategorized topic. Use the staff topic editor to move the existing
+topic to the intended category. Preserve its source mapping, author, replies
+and listed/unlisted state. Do not delete or reimport it as a repair.
 
 For a blog cutover failure, follow the [hosting recovery procedure](deployment.md)
 to restore the retained WordPress route. Do not roll back or delete the forum
