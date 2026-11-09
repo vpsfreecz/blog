@@ -122,6 +122,7 @@ class Page(HTMLParser):
     def __init__(self):
         super().__init__()
         self.canonicals, self.title, self.in_title, self.articles = [], '', False, []
+        self.states, self.robots, self.unlisted_notice = [], [], False
 
     def handle_starttag(self, tag, attrs):
         attrs = dict(attrs)
@@ -131,6 +132,11 @@ class Page(HTMLParser):
             self.canonicals.append(attrs.get('href'))
         if tag == 'article':
             self.articles.append(attrs.get('data-article-id'))
+            self.states.append(attrs.get('data-article-state'))
+        if tag == 'meta' and attrs.get('name') == 'robots':
+            self.robots.extend(part.strip().lower() for part in attrs.get('content', '').split(','))
+        if 'data-unlisted-notice' in attrs:
+            self.unlisted_notice = True
 
     def handle_endtag(self, tag):
         if tag == 'title':
@@ -159,9 +165,14 @@ def expected_articles(sha, ident):
             language = match[1]
             if language in result:
                 raise ValueError('Duplicate requested language')
-            result[language] = {'url': 'https://blog.vpsfree.' + ('cz' if language == 'cs' else 'org') + url, 'path': language + url + 'index.html', 'title': front['title']}
+            unlisted = front.get('params', {}).get('unlisted', False)
+            if type(unlisted) is not bool:
+                raise ValueError('Invalid unlisted state in pushed source')
+            result[language] = {'url': 'https://blog.vpsfree.' + ('cz' if language == 'cs' else 'org') + url, 'path': language + url + 'index.html', 'title': front['title'], 'state': 'unlisted' if unlisted else 'published'}
     if set(result) != {'cs', 'en'}:
         raise ValueError('Exact source needs a complete CS/EN article pair')
+    if result['cs']['state'] != result['en']['state']:
+        raise ValueError('Exact source needs matching CS/EN states')
     return result
 
 
@@ -226,8 +237,11 @@ def observe(sha, ident, expected, timeout=600, interval=10, artifact=None, api_g
                     raise ValueError('Oversized article')
                 parsed = Page()
                 parsed.feed(raw.decode())
-                matches = parsed.canonicals == [item['url']] and parsed.title == item['title'] + ' | vpsFree.cz blog' and ident in parsed.articles
-                record = {'url': item['url'], 'title_canonical_article_match': matches}
+                identity = parsed.canonicals == [item['url']] and parsed.title == item['title'] + ' | vpsFree.cz blog' and ident in parsed.articles
+                state = item.get('state', 'published')
+                state_match = parsed.states == [state] and (parsed.unlisted_notice and {'noindex', 'nofollow'} <= set(parsed.robots) if state == 'unlisted' else not parsed.unlisted_notice and 'noindex' not in parsed.robots)
+                matches = identity and state_match
+                record = {'url': item['url'], 'title_canonical_article_match': identity, 'expected_state': state, 'state_match': state_match}
                 if artifact:
                     metadata = json.loads((artifact / 'metadata.json').read_bytes())
                     if metadata['inputs'].get('revision') != sha:

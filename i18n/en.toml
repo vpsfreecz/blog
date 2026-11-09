@@ -65,7 +65,7 @@ other = "by"
 other = "Main website"
 
 [unreviewedTranslation]
-other = "This English translation is awaiting human review."
+other = "This English translation is awaiting editorial review."
 
 [legacyComments]
 other = "Archived comments"
@@ -133,3 +133,6 @@ other = "Show more results"
 
 [searchNoJS]
 other = "Search requires JavaScript."
+
+[unlisted]
+other = "Review copy. Anyone with the link can read this article."

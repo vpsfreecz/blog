@@ -107,3 +107,6 @@ other = "Další výsledky"
 
 [searchNoJS]
 other = "Vyhledávání vyžaduje JavaScript."
+
+[unlisted]
+other = "Pracovní verze článku k připomínkám. Je dostupná každému, kdo má odkaz."

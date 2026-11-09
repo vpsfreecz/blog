@@ -1,8 +1,12 @@
-{{ $posts := where .Site.RegularPages "Type" "posts" }}
+{{ $posts := partial "discoverable.html" (where .Site.RegularPages "Type" "posts") }}
 <section class="widget"><h2 class="widget-title">{{ i18n "recent" }}</h2><ul>{{ range first 5 $posts.ByDate.Reverse }}<li><a href="{{ .RelPermalink }}">{{ .Title }}</a></li>{{ end }}</ul></section>
 {{ range $kind := slice "tags" "categories" }}
-{{ $terms := index site.Taxonomies $kind }}
+{{ $terms := slice }}
+{{ range (index site.Taxonomies $kind).Alphabetical }}
+  {{ $count := len (partial "discoverable.html" .Pages) }}
+  {{ if $count }}{{ $terms = $terms | append (dict "Page" .Page "Count" $count) }}{{ end }}
+{{ end }}
 {{ $max := 1 }}{{ range $terms }}{{ $max = math.Max $max .Count }}{{ end }}
-{{ if $terms }}<section class="widget {{ if eq $kind "tags" }}tag-cloud{{ end }}"><h2 class="widget-title">{{ i18n $kind }}</h2>{{ if eq $kind "categories" }}<ul>{{ end }}{{ range $terms.Alphabetical }}{{ if eq $kind "categories" }}<li>{{ end }}<a href="{{ .Page.RelPermalink }}"{{ if eq $kind "tags" }} style="font-size: {{ add 8 (mul 14 (div (sub (math.Log (add .Count 1)) (math.Log 2)) (math.Max 0.01 (sub (math.Log (add $max 1)) (math.Log 2))))) }}pt"{{ end }}>{{ partial "term-name.html" (dict "kind" $kind "slug" .Page.Data.Term) }}</a>{{ if eq $kind "categories" }} ({{ .Count }})</li>{{ end }}{{ end }}{{ if eq $kind "categories" }}</ul>{{ end }}</section>{{ end }}
+{{ if $terms }}<section class="widget {{ if eq $kind "tags" }}tag-cloud{{ end }}"><h2 class="widget-title">{{ i18n $kind }}</h2>{{ if eq $kind "categories" }}<ul>{{ end }}{{ range $terms }}{{ if eq $kind "categories" }}<li>{{ end }}<a href="{{ .Page.RelPermalink }}"{{ if eq $kind "tags" }} style="font-size: {{ add 8 (mul 14 (div (sub (math.Log (add .Count 1)) (math.Log 2)) (math.Max 0.01 (sub (math.Log (add $max 1)) (math.Log 2))))) }}pt"{{ end }}>{{ partial "term-name.html" (dict "kind" $kind "slug" .Page.Data.Term) }}</a>{{ if eq $kind "categories" }} ({{ .Count }})</li>{{ end }}{{ end }}{{ if eq $kind "categories" }}</ul>{{ end }}</section>{{ end }}
 {{ end }}
 <section class="widget"><h2 class="widget-title">{{ i18n "archives" }}</h2><ul>{{ range $posts.GroupByDate "2006/01" }}<li><a href="{{ site.Home.RelPermalink }}{{ .Key }}/">{{ (index .Pages 0).Date | time.Format "January 2006" }}</a> ({{ len .Pages }})</li>{{ end }}</ul></section>

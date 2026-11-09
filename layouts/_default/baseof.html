@@ -10,7 +10,7 @@
   <link rel="alternate" type="application/rss+xml" title="RSS" href="{{ .Site.Home.Permalink }}feed/">
   {{ $css := resources.Get "css/site.css" | resources.ExecuteAsTemplate "css/site.css" . | fingerprint }}
   <link rel="stylesheet" href="{{ $css.RelPermalink }}" integrity="{{ $css.Data.Integrity }}">
-  {{ if ne hugo.Environment "production" }}<meta name="robots" content="noindex, nofollow">{{ end }}
+  {{ if or (ne hugo.Environment "production") (eq (partial "article-state.html" .) "unlisted") }}<meta name="robots" content="noindex, nofollow">{{ end }}
 </head>
 <body>
 <a class="skip-link" href="#main">{{ i18n "skip" }}</a>

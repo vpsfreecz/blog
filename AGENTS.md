@@ -15,7 +15,7 @@ it needs no installation or external workspace.
   Imported articles use `index.cs.html` and `index.en.html`; preserve their HTML
   structure and code. Keep `translationKey` and `params.article_id` identical.
 - Keep Czech and English at their separate production host roots. Preserve
-  published paths, original dates, shared bylines, feed identities and the
+  published paths and dates, shared bylines, feed identities and the
   original Czech `discussion_url`. Never infer identity from a translated title.
 - Preview real drafts with `nix develop -c bin/preview`. `--fixtures` selects
   the isolated synthetic demo. Preserve approved historical media iframes;
@@ -31,9 +31,14 @@ it needs no installation or external workspace.
 - Keep private exports, credentials, user records and unapproved personal data
   outside the repository and its build inputs. Synthetic fixtures stay draft-only.
 - Git host write permissions and branch protections control publication
-  access. When the user asks to publish a ready article, use fresh `main` with
-  ordinary hooks and protections. Drafts and preparation stay on a feature
-  branch. Include only the intended article changes and respect host permissions.
+  access. When the user asks to share an unlisted review copy or publish an
+  article, use fresh `main` with ordinary hooks and protections. Keep drafts on
+  a feature branch. Unlisted review copies use `draft = false` and
+  `params.unlisted = true` in both languages. Anyone with the link can read them;
+  listings, search, feeds and discussion embeds exclude them. To publish, clear
+  `unlisted` and set the actual announcement date. Once published, preserve that
+  date and state. Keep bundle, URLs, IDs and GUIDs stable throughout. Include only
+  the intended article changes and respect host permissions.
   Observe the exact pushed article SHA with `bin/observe-publication` as described
   in the guide. The workflow prepares release artifacts.
   Target publication defaults off; an operator must enable and resume its

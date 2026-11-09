@@ -245,7 +245,7 @@ blockquote {
 .entry-taxonomies span {
   display:block
 }
-.draft {
+.draft, .unlisted {
   margin-top:20px;
   padding:10px;
   background:#fff6df;

@@ -61,7 +61,7 @@ class Articles(unittest.TestCase):
         self.cs.parent.mkdir(parents=True, exist_ok=True)
         def source(language, title, body):
             path = '/novy-clanek/' if language == 'cs' else '/new-article/'
-            return f'+++\ntitle = {json.dumps(title, ensure_ascii=False)}\ndate = "2026-11-09T10:00:00+01:00"\nlastmod = "2026-11-09T10:00:00+01:00"\ndraft = {str(draft).lower()}\nurl = "{path}"\ntranslationKey = "post-fixture"\ncategories = ["technologie"]\n[params]\narticle_id = "post-fixture"\n' + ('+++\n'+body if language == 'cs' else 'translation_status = "reviewed"\ntranslation_reviewed_by = "fixture-agent"\ntranslation_reviewed_at = "2026-11-09T11:00:00+01:00"\ntranslation_source_sha256 = "SOURCE"\n+++\n'+body)
+            return f'+++\ntitle = {json.dumps(title, ensure_ascii=False)}\ndate = "2020-01-01T10:00:00+01:00"\nlastmod = "2020-01-01T10:00:00+01:00"\ndraft = {str(draft).lower()}\nurl = "{path}"\ntranslationKey = "post-fixture"\ncategories = ["technologie"]\n[params]\narticle_id = "post-fixture"\n' + ('+++\n'+body if language == 'cs' else 'translation_status = "reviewed"\ntranslation_reviewed_by = "fixture-agent"\ntranslation_reviewed_at = "2026-11-09T11:00:00+01:00"\ntranslation_source_sha256 = "SOURCE"\n+++\n'+body)
         cs_body = 'Nový článek o systému Linux.\n'
         en_body = 'New article about Linux.\n'
         if code:
@@ -137,7 +137,7 @@ class Articles(unittest.TestCase):
     def test_metadata_failures_and_duplicate_identity(self):
         self.pair()
         valid = self.cs.read_text()
-        for before, after in [('title = "Nový článek"', 'title = ""'), ('title = "Nový článek"', 'title = ['), ('draft = false', 'draft = "false"'), ('2026-11-09T10:00:00+01:00', '2026-11-09T10:00:00'), ('translationKey = "post-fixture"', 'translationKey = "other"')]:
+        for before, after in [('title = "Nový článek"', 'title = ""'), ('title = "Nový článek"', 'title = ['), ('draft = false', 'draft = "false"'), ('2020-01-01T10:00:00+01:00', '2020-01-01T10:00:00'), ('translationKey = "post-fixture"', 'translationKey = "other"')]:
             self.cs.write_text(valid.replace(before, after))
             self.bind()
             with self.subTest(field=before), self.assertRaises(check.Invalid):
@@ -172,6 +172,87 @@ class Articles(unittest.TestCase):
             data['post-fixture']['discussion_url'] = 'https://blog.vpsfree.cz' + url
             path.write_bytes(audit.wp.encoded(data))
             with self.subTest(url=url), self.assertRaisesRegex(check.Invalid, 'new Czech URL'):
+                self.validate()
+
+    def flags(self, state, date=None):
+        for path in (self.cs, self.en):
+            text = path.read_text()
+            text = re.sub(r'draft = (?:true|false)', 'draft = ' + str(state == 'draft').lower(), text)
+            text = re.sub(r'\nunlisted = (?:true|false)', '', text)
+            if state == 'unlisted':
+                text = text.replace('[params]', '[params]\nunlisted = true')
+            if date:
+                text = re.sub(r'^date = .*$', f'date = "{date}"', text, flags=re.M)
+            path.write_text(text)
+        self.bind()
+
+    def commit_pair(self):
+        self.git('add', '.')
+        message = self.root / 'message'
+        message.write_text('Retain previous editorial state fixture\n')
+        self.git('-c', 'user.name=Fixture', '-c', 'user.email=fixture@example.invalid',
+                 'commit', '--quiet', '-F', str(message))
+        message.unlink()
+
+    def test_visibility_truth_table_and_staged_mismatch(self):
+        self.pair(draft=True)
+        for state in ('draft', 'unlisted', 'published'):
+            self.flags(state)
+            self.validate()
+        good = self.cs.read_text()
+        for bad in ('unlisted = "true"', 'unlisted = 1'):
+            self.cs.write_text(good.replace('[params]', '[params]\n' + bad))
+            self.bind()
+            with self.assertRaisesRegex(check.Invalid, 'unlisted must be boolean'):
+                self.validate()
+        self.cs.write_text(good)
+        self.flags('draft')
+        self.cs.write_text(self.cs.read_text().replace('[params]', '[params]\nunlisted = true'))
+        self.bind()
+        with self.assertRaisesRegex(check.Invalid, 'cannot both'):
+            self.validate()
+        self.flags('unlisted')
+        self.git('add', '.')
+        self.en.write_text(self.en.read_text().replace('unlisted = true', 'unlisted = false'))
+        self.git('add', self.en.relative_to(self.root).as_posix())
+        self.flags('unlisted')  # Working copy is fixed, actual index is still mismatched.
+        with self.assertRaisesRegex(check.Invalid, 'CS/EN publication state'):
+            self.validate(staged=True)
+
+    def test_date_promotion_then_published_freeze(self):
+        self.pair(draft=True)
+        self.commit_pair()
+        for state, date in [('draft', '2021-01-01T10:00:00+01:00'),
+                            ('unlisted', '2022-01-01T10:00:00+01:00'),
+                            ('published', '2023-01-01T10:00:00+01:00')]:
+            self.flags(state, date)
+            self.git('add', '.')
+            self.validate(staged=True)
+            self.commit_pair()
+        for state in ('draft', 'unlisted'):
+            self.flags(state)
+            with self.assertRaisesRegex(check.Invalid, 'published articles cannot'):
+                self.validate()
+        self.flags('published', '2024-01-01T10:00:00+01:00')
+        with self.assertRaisesRegex(check.Invalid, 'published announcement date'):
+            self.validate()
+
+    def test_future_dates_and_publication_overrides(self):
+        self.pair(draft=True)
+        self.flags('draft', '2099-01-01T10:00:00+01:00')
+        self.validate()
+        for state in ('unlisted', 'published'):
+            self.flags(state)
+            with self.assertRaisesRegex(check.Invalid, 'cannot be in the future'):
+                self.validate()
+        self.flags('draft')
+        good = self.cs.read_text()
+        for override in ('publishDate = "2020-01-01T10:00:00+01:00"',
+                         'expiryDate = "2099-01-01T10:00:00+01:00"',
+                         'build = {list = "never"}', 'sitemap = {disable = true}'):
+            self.cs.write_text(good.replace('[params]', override + '\n[params]'))
+            self.bind()
+            with self.assertRaisesRegex(check.Invalid, 'overrides are unsupported'):
                 self.validate()
 
     def test_shared_original_projection_additions_and_tampering(self):
@@ -235,7 +316,7 @@ class Observer(unittest.TestCase):
         return {'workflow_runs': [self.run]}
 
     def page(self, url, remaining):
-        return f'<title>Example | vpsFree.cz blog</title><link rel="canonical" href="{url}"><article data-article-id="post-fixture">Body</article>'.encode()
+        return f'<title>Example | vpsFree.cz blog</title><link rel="canonical" href="{url}"><article data-article-id="post-fixture" data-article-state="published">Body</article>'.encode()
 
     def sleep(self, seconds):
         self.now += seconds
@@ -411,6 +492,22 @@ class Observer(unittest.TestCase):
         self.assertEqual(report['ci'], 'unknown')
         self.assertNotIn('build_attempt', report)
         self.assertNotIn('deploy_attempt', report)
+
+    def test_unlisted_and_published_state_evidence(self):
+        for item in self.expected.values():
+            item['state'] = 'unlisted'
+        def page(url, remaining):
+            return self.page(url, remaining).replace(b'data-article-state="published"',
+                b'data-article-state="unlisted"') + b'<meta name="robots" content="noindex, nofollow"><p data-unlisted-notice>Review copy</p>'
+        self.assertTrue(all(item['observed'] for item in self.result(fetch=page)['site'].values()))
+        self.now = 0
+        self.assertFalse(any(item['observed'] for item in self.result()['site'].values()))
+        for item in self.expected.values():
+            item['state'] = 'published'
+        self.now = 0
+        self.assertFalse(any(item['observed'] for item in self.result(fetch=page)['site'].values()))
+        self.now = 0
+        self.assertTrue(all(item['observed'] for item in self.result()['site'].values()))
 
     def test_rate_limit_site_only_and_timeout(self):
         def unavailable(*args):

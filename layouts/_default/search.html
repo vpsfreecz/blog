@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{ $articles := where (where .Site.RegularPages "Type" "posts") "Params.article_id" "ne" nil }}
+{{ $articles := partial "discoverable.html" (where (where .Site.RegularPages "Type" "posts") "Params.article_id" "ne" nil) }}
 <section class="hentry search-page" data-search-page data-has-articles="{{ if $articles }}true{{ else }}false{{ end }}"
   data-prompt="{{ i18n "searchPrompt" }}" data-loading="{{ i18n "searchLoading" }}"
   data-count="{{ i18n "searchCount" }}" data-no-matches="{{ i18n "searchNoMatches" }}"

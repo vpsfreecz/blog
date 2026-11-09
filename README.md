@@ -90,3 +90,7 @@ authenticated upload. Feature pushes run checks only; system deployment and
 public cutover remain operator steps. Forum setup and a production transition
 need separate approval. Keep raw exports, private email addresses, credentials
 and operator data outside this repository and its build inputs.
+
+Articles can be draft, unlisted for direct-link review, or published. Unlisted
+pages are public to anyone with the link and excluded from generated discovery;
+see the [authoring guide](docs/authoring.md#choose-visibility-and-prepare-publication).

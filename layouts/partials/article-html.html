@@ -26,7 +26,7 @@
   {{- end -}}
   {{- $english := dict -}}
   {{- range hugo.Sites -}}{{- if eq .Language.Lang "en" -}}
-    {{- range .RegularPages -}}{{- if and (eq .Type "posts") .Params.article_id -}}
+    {{- range partial "discoverable.html" .RegularPages -}}{{- if and (eq .Type "posts") .Params.article_id -}}
       {{- $english = merge $english (dict .Params.article_id .) -}}
     {{- end -}}{{- end -}}
   {{- end -}}{{- end -}}

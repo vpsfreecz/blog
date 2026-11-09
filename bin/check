@@ -50,10 +50,28 @@ def discover_articles(directory):
 ARTICLE_SOURCES = discover_articles(ROOT / 'content/posts')
 
 
-def article_count(language, drafts=False):
-    return sum(language in variants and (drafts or not tomllib.loads(variants[language]
-               .read_bytes().decode().split('+++', 2)[1]).get('draft', False))
+def eligible(front, drafts=False, listed=True):
+    date = front['date']
+    date = datetime.fromisoformat(date.replace('Z', '+00:00')) if isinstance(date, str) else date
+    return (drafts or not front.get('draft', False) and date <= datetime.now().astimezone()) and (not listed or not front.get('params', {}).get('unlisted', False))
+
+
+def article_count(language, drafts=False, listed=True):
+    return sum(language in variants and eligible(tomllib.loads(variants[language]
+               .read_bytes().decode().split('+++', 2)[1]), drafts, listed)
                for variants in ARTICLE_SOURCES.values())
+
+
+def taxonomy_memberships(sources, language, drafts=False):
+    terms = {'categories': set(), 'tags': set()}
+    for variants in sources.values():
+        if language not in variants:
+            continue
+        front = tomllib.loads(variants[language].read_text().split('+++', 2)[1])
+        if eligible(front, drafts):
+            for kind in terms:
+                terms[kind].update(front.get(kind, []))
+    return terms
 
 
 class Page(HTMLParser):
@@ -289,6 +307,7 @@ def check_preview_isolation(work):
         'mode = args[args.index("--environment") + 1]\n'
         '(destination / "en").mkdir(exist_ok=True)\n'
         '(destination / "en/index.html").write_text(mode)\n'
+        'assert "--buildDrafts" in args and "--buildFuture" in args\n'
         'if args[0] == "server":\n'
         '    assert "--watch=false" in args and "--cleanDestinationDir" not in args\n'
         '    bundle = destination / ("pagefind" if mode == "vpn" else "cs/pagefind") / "pagefind.js"\n'
@@ -349,9 +368,116 @@ def check_authored_article(work):
                 {'cs-cz' if lang == 'cs' else 'en': article_count(lang) + (not draft)})
 
 
+def check_article_states(work, index=True):
+    """Tiny real-Hugo state fixture, also indexed by the full check batch."""
+    site = work / 'states-site'
+    site.mkdir()
+    for name in ('assets', 'layouts', 'i18n', 'config', 'hugo.toml'):
+        (site / name).symlink_to(ROOT / name, target_is_directory=(ROOT / name).is_dir())
+    content, data = site / 'content', work / 'states-data'
+    (content / 'posts').mkdir(parents=True)
+    data.mkdir()
+    shutil.copy2(ROOT / 'content/_content.gotmpl', content)
+    shutil.copytree(ROOT / 'content/search', content / 'search')
+    shared, authors = {}, {}
+    states = {'public': ('2019-01-01', False, False),
+              'review': ('2020-02-01', False, True),
+              'draft': ('2099-03-01', True, False)}
+    for name, (date, draft, unlisted) in states.items():
+        ident = 'post-' + name
+        authors[name] = {'name': name.title() + ' Author', 'slug': name + '-author'}
+        shared[ident] = {'author_ids': [name], 'discussion_url': f'https://blog.vpsfree.cz/{name}-cs/',
+                         'feed_guids': {lang: f'urn:vpsfree:blog:{ident}:{lang}' for lang in ('cs', 'en')}}
+        bundle = content / 'posts' / (date + '-' + name)
+        bundle.mkdir()
+        for lang in ('cs', 'en'):
+            (bundle / f'index.{lang}.md').write_text(
+                f'+++\ntitle="{name.title()} {lang} distinctive"\ndate="{date}T10:00:00+01:00"\n'
+                f'lastmod="{date}T10:00:00+01:00"\ndraft={str(draft).lower()}\n'
+                f'url="/{name}-{lang}/"\ntranslationKey="{ident}"\n'
+                f'categories=["mixed", "{name}-only"]\ntags=["mixed", "{name}-only"]\n'
+                f'[params]\narticle_id="{ident}"\nunlisted={str(unlisted).lower()}\n+++\n'
+                f'{name.title()} article body.\n')
+    (data / 'articles.json').write_text(json.dumps(shared))
+    (data / 'authors.json').write_text(json.dumps(authors))
+    (data / 'taxonomies.json').write_text(json.dumps({kind: {slug: {'name': slug} for slug in
+        ('mixed', 'public-only', 'review-only', 'draft-only')} for kind in ('tags', 'categories')}))
+    overlay = work / 'states.json'
+    overlay.write_text(json.dumps({'dataDir': str(data), 'staticDir': [],
+                                  'params': {'discourse': {'enabled': True}}}))
+    for phase in ('production', 'promotion', 'preview'):
+        if phase == 'promotion':
+            for path in (content / 'posts/2020-02-01-review').iterdir():
+                path.write_text(path.read_text().replace('unlisted=true', 'unlisted=false')
+                                .replace('2020-02-01T10:00:00+01:00', '2021-04-01T10:00:00+01:00'))
+        if phase == 'preview':
+            for path in (content / 'posts/2020-02-01-review').iterdir():
+                path.write_text(path.read_text().replace('unlisted=false', 'unlisted=true'))
+        destination = work / ('states-' + phase)
+        flags = ('--buildDrafts', '--buildFuture') if phase == 'preview' else ()
+        run('hugo', '--environment', 'preview' if phase == 'preview' else 'production',
+            '--source', str(site), '--config', f'hugo.toml,{overlay}',
+            '--destination', str(destination), '--panicOnWarning', *flags)
+        if index:
+            run('bin/index-search', str(destination))
+        for lang in ('cs', 'en'):
+            root = destination / lang
+            listed = {'public', 'review'} if phase == 'promotion' else {'public', 'draft'} if phase == 'preview' else {'public'}
+            rendered = listed | {'review'}
+            for name in states:
+                path = root / f'{name}-{lang}/index.html'
+                assert path.is_file() == (name in rendered), (phase, name, lang)
+                if not path.is_file():
+                    continue
+                page = Page(path)
+                unlisted = name == 'review' and phase != 'promotion'
+                state = 'unlisted' if unlisted else 'draft' if name == 'draft' else 'published'
+                assert page.has('article', **{'data-article-state': state})
+                assert any(tag == 'p' and 'data-unlisted-notice' in attrs for tag, attrs in page.elements) == unlisted
+                assert page.has('meta', name='robots', content='noindex, nofollow') == (unlisted or phase == 'preview')
+                assert any(tag == 'article' and 'data-search-article' in attrs for tag, attrs in page.elements) == (not unlisted)
+                assert ('data-pagefind-body' in page.text) == (not unlisted)
+                assert ('window.DiscourseEmbed =' in page.text) == (phase != 'preview' and not unlisted)
+                assert page.has('div', id='respond') == (state == 'published')
+                host = ('http://localhost:1313/' if lang == 'cs' else 'http://localhost:1314/') if phase == 'preview' else ('https://blog.vpsfree.cz/' if lang == 'cs' else 'https://blog.vpsfree.org/')
+                other_host = ('http://localhost:1314/' if lang == 'cs' else 'http://localhost:1313/') if phase == 'preview' else ('https://blog.vpsfree.org/' if lang == 'cs' else 'https://blog.vpsfree.cz/')
+                assert page.has('link', rel='canonical', href=host + f'{name}-{lang}/')
+                assert page.has('link', rel='alternate', href=other_host + f'{name}-' + ('en' if lang == 'cs' else 'cs') + '/', hreflang='en' if lang == 'cs' else 'cs-CZ')
+                assert (root / f'author/{name}-author/index.html').is_file() == (name in listed)
+                assert any(t == 'a' and a.get('href') == f'/author/{name}-author/' for t, a in page.elements) == (name in listed)
+            sitemap = ET.parse(root / 'sitemap.xml')
+            urls = [element.text or element.get('href', '') for element in sitemap.iter()]
+            feed = (root / 'feed/index.xml').read_text()
+            for name in states:
+                assert any(f'/{name}-{lang}/' in url for url in urls) == (name in listed)
+                assert (f'/{name}-{lang}/' in feed) == (name in listed)
+            if phase != 'promotion':
+                assert not (root / ('2021/04/index.html' if phase == 'preview' else '2020/02/index.html')).exists()
+                for path in root.rglob('*.html'):
+                    if path == root / f'review-{lang}/index.html':
+                        continue
+                    text = path.read_text()
+                    assert f'/review-{lang}/' not in text, path
+                    assert not any(tag == 'a' and attrs.get('href') in ('/category/review-only/', '/tag/review-only/')
+                                   for tag, attrs in Page(path).elements), path
+            required = taxonomy_memberships(discover_articles(content / 'posts'), lang, drafts=phase == 'preview')
+            for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
+                assert required[kind] == {'mixed'} | {name + '-only' for name in listed}
+                for slug in ('mixed', 'public-only', 'review-only', 'draft-only'):
+                    assert Page(root / 'index.html').has('a', href=f'/{prefix}/{slug}/') == (slug in required[kind])
+                    if slug in required[kind]:
+                        assert (root / prefix / slug / 'index.html').is_file()
+            mixed = Page(root / 'category/mixed/index.html')
+            assert re.search(r'href="/category/mixed/">mixed</a> \((\d+)\)', Page(root / 'index.html').text)[1] == str(len(listed))
+            assert f'/review-{lang}/' in mixed.text if phase == 'promotion' else f'/review-{lang}/' not in mixed.text
+            if index:
+                check_search_index(root, {'cs-cz' if lang == 'cs' else 'en': len(listed)})
+    print('Three-state bilingual fixture passed: direct pages, promotion, discovery, future preview and discussion')
+
+
 def check_taxonomy_labels(work):
     destination = work / 'taxonomy-preview'
-    run('hugo', '--environment', 'preview', '--buildDrafts', '--destination', str(destination), '--panicOnWarning')
+    run('hugo', '--environment', 'preview', '--buildDrafts', '--buildFuture', '--destination', str(destination), '--panicOnWarning')
     check_real_english_links(destination, 'preview')
     run('bin/index-search', str(destination))
     check_search_index(destination / 'cs', {'cs-cz': article_count('cs', drafts=True)})
@@ -383,14 +509,18 @@ def check_taxonomy_labels(work):
     taxonomies = json.loads((ROOT / 'data/taxonomies.json').read_text())
     for lang in ('cs', 'en'):
         home = Labels(destination / lang / 'index.html').labels
+        required = taxonomy_memberships(ARTICLE_SOURCES, lang, drafts=True)
         for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
             for slug, term in taxonomies[kind].items():
                 expected = translations[kind].get(slug, term['name']) if lang == 'en' else term['name']
                 route = f'/{prefix}/{slug}/'
-                assert any(tag == 'a' and attrs.get('href') == route and text == expected
-                           for tag, attrs, text in home), (lang, kind, slug)
-                archive = Labels(destination / lang / route.strip('/') / 'index.html').labels
-                assert any(tag == 'h1' and text == expected for tag, _, text in archive), (lang, kind, slug)
+                linked = any(tag == 'a' and attrs.get('href') == route for tag, attrs, _ in home)
+                assert linked == (slug in required[kind]), (lang, kind, slug)
+                if slug in required[kind]:
+                    assert any(tag == 'a' and attrs.get('href') == route and text == expected
+                               for tag, attrs, text in home), (lang, kind, slug)
+                    archive = Labels(destination / lang / route.strip('/') / 'index.html').labels
+                    assert any(tag == 'h1' and text == expected for tag, _, text in archive), (lang, kind, slug)
     # Article association labels use the same resolver as the sidebar and headings.
     for source in (ROOT / 'content/posts').glob('*/index.en.*'):
         frontmatter = tomllib.loads(source.read_text().split('+++')[1])
@@ -407,7 +537,7 @@ def check_discussions(work):
     for path in (content, data, config_dir):
         path.mkdir()
     source_url = 'https://blog.vpsfree.cz/shared-discussion-fixture/'
-    sources = {'published': source_url, 'draft': source_url,
+    sources = {'published': source_url, 'draft': source_url, 'unlisted': source_url,
                'escaped': 'https://blog.vpsfree.cz/a&b/',
                'wrong-host': 'https://blog.vpsfree.cz.invalid/article/',
                'query': source_url + '?preview=1', 'fragment': source_url + '#comments',
@@ -422,6 +552,7 @@ def check_discussions(work):
                 f'draft = {str(article_id == "draft").lower()}\n'
                 f'url = "/discussion-{article_id}-{lang}/"\n'
                 f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id}"\n'
+                f'unlisted = {str(article_id == "unlisted").lower()}\n'
                 '+++\n<p>Synthetic local check only.</p>\n')
     cases = (('production', True, False), ('production', False, False),
              ('preview', True, False), ('vpn', True, False), ('production', True, True))
@@ -443,7 +574,10 @@ def check_discussions(work):
                 text = path.read_text()
                 should_embed = environment == 'production' and enabled and not wrong_origin and article_id in ('published', 'escaped')
                 assert ('window.DiscourseEmbed =' in text) == should_embed, (number, article_id, lang)
-                assert Page(path).has('a', href='https://discourse.vpsfree.cz/')
+                published = article_id not in ('draft', 'unlisted')
+                assert Page(path).has('a', href='https://discourse.vpsfree.cz/') == published
+                assert Page(path).has('div', id='respond') == published
+                assert Page(path).has('div', id='discourse-comments') == should_embed
                 if should_embed:
                     encoded = text.split('window.DiscourseEmbed = ', 1)[1]
                     payload, _ = json.JSONDecoder().raw_decode(encoded)
@@ -481,6 +615,7 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     check_preview_isolation(work)
     check_taxonomy_labels(work)
     check_authored_article(work)
+    check_article_states(work)
     check_discussions(work)
     production, repeat, drafts, fixture_production = [work / x for x in
         ('production', 'repeat', 'drafts', 'fixture-production')]
@@ -522,20 +657,27 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
                 assert page.has('li', id='comment-' + str(comment['id']))
             month = frontmatter['date'][:7].replace('-', '/')
             assert (production / 'cs' / month / 'index.html').is_file()
-        for author in json.loads((ROOT / 'data/authors.json').read_text()).values():
+        for author_id in {aid for ident, variants in ARTICLE_SOURCES.items() if eligible(tomllib.loads(variants['cs'].read_text().split('+++', 2)[1])) for aid in article_data[ident]['author_ids']}:
+            author = json.loads((ROOT / 'data/authors.json').read_text())[author_id]
             assert (production / 'cs/author' / author['slug'] / 'index.html').is_file()
-        for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
-            for slug in json.loads((ROOT / 'data/taxonomies.json').read_text())[kind]:
-                assert (production / 'cs' / prefix / slug / 'index.html').is_file()
+        for language in ('cs', 'en'):
+            required = taxonomy_memberships(ARTICLE_SOURCES, language)
+            home = Page(production / language / 'index.html')
+            for kind, prefix in (('categories', 'category'), ('tags', 'tag')):
+                for slug in json.loads((ROOT / 'data/taxonomies.json').read_text())[kind]:
+                    assert home.has('a', href=f'/{prefix}/{slug}/') == (slug in required[kind])
+                    if slug in required[kind]:
+                        assert (production / language / prefix / slug / 'index.html').is_file()
         for language in ('cs', 'en'):
             posts = []
             for variants in ARTICLE_SOURCES.values():
                 source = variants[language]
                 frontmatter = tomllib.loads(source.read_bytes().decode().split('+++')[1])
-                if not frontmatter.get('draft', False):
-                    posts.append(frontmatter)
+                if eligible(frontmatter, listed=False):
                     page = Page(production / language / frontmatter['url'].strip('/') / 'index.html')
                     assert page.has('article', **{'data-article-id': frontmatter['params']['article_id']})
+                    if eligible(frontmatter):
+                        posts.append(frontmatter)
             assert len(posts) == article_count(language)
             items = ET.parse(production / language / 'feed/index.xml').findall('channel/item')
             expected = sorted(posts, key=lambda post: datetime.fromisoformat(post['date'].replace('Z', '+00:00')), reverse=True)[:10]
@@ -796,7 +938,7 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
 
     # All real draft destinations must exist in the single-port topology too.
     real_vpn = work / 'real-link-vpn'
-    run('hugo', '--environment', 'vpn', '--buildDrafts', '--destination', str(real_vpn), '--panicOnWarning')
+    run('hugo', '--environment', 'vpn', '--buildDrafts', '--buildFuture', '--destination', str(real_vpn), '--panicOnWarning')
     check_real_english_links(real_vpn, 'vpn')
 
     # Exercise production host metadata without publishing a fixture.

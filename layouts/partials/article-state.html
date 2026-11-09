@@ -1,0 +1,7 @@
+{{- $state := "published" -}}
+{{- if .Draft -}}
+  {{- $state = "draft" -}}
+{{- else if .Params.unlisted -}}
+  {{- $state = "unlisted" -}}
+{{- end -}}
+{{- return $state -}}

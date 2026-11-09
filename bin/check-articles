@@ -103,6 +103,15 @@ def timestamp(value, label):
     return parsed
 
 
+def article_state(metadata):
+    draft = metadata.get('draft')
+    unlisted = metadata.get('params', {}).get('unlisted', False)
+    require(type(draft) is bool, 'draft must be an explicit boolean')
+    require(type(unlisted) is bool, 'params.unlisted must be boolean')
+    require(not (draft and unlisted), 'draft and unlisted cannot both be true')
+    return 'draft' if draft else 'unlisted' if unlisted else 'published'
+
+
 class Visible(HTMLParser):
     def __init__(self):
         super().__init__(convert_charrefs=True)
@@ -181,12 +190,14 @@ def check(source, ids=(), spelling=True):
         require(isinstance(row, dict), f'{ident}: shared metadata object required')
         require(isinstance(row.get('author_ids'), list) and row['author_ids'] and len(set(row['author_ids'])) == len(row['author_ids']) and all(a in authors for a in row['author_ids']), f'{ident}: existing public author_ids required')
         require(row.get('discussion_url') == 'https://blog.vpsfree.cz' + cs.get('url', ''), f'{ident}: discussion_url must be the exact absolute Czech article URL')
-        require(cs.get('draft') == en.get('draft') and cs.get('date') == en.get('date'), f'{ident}: CS/EN publication state and original date must match')
+        state = article_state(cs)
+        require(state == article_state(en) and cs.get('date') == en.get('date'), f'{ident}: CS/EN publication state and date must match')
         for lang, (path, metadata, body) in variants.items():
             require(isinstance(metadata.get('title'), str) and metadata['title'].strip(), f'{path}: nonempty title required')
             for field in ('date', 'lastmod'):
                 timestamp(metadata.get(field), f'{path}:{field}')
-            require(type(metadata.get('draft')) is bool, f'{path}: draft must be an explicit boolean')
+            require(not {key.casefold() for key in metadata} & {'publishdate', 'expirydate', 'build', '_build', 'render', 'list', 'sitemap'}, f'{path}: publication schedule/build/sitemap overrides are unsupported')
+            require(state == 'draft' or timestamp(metadata['date'], path) <= datetime.now().astimezone(), f'{path}: non-draft announcement date cannot be in the future')
             require(metadata.get('translationKey') == ident, f'{path}: translationKey must match params.article_id')
             url = metadata.get('url')
             require(isinstance(url, str), f'{path}: explicit URL required')
@@ -209,8 +220,11 @@ def check(source, ids=(), spelling=True):
                 require(Path(old_path).parent == Path(path).parent, f'{path}: assigned article bundle must remain stable')
                 for author_id in row['author_ids']:
                     require(previous_authors.get(author_id) == authors[author_id], f'{ident}:{author_id}: existing public byline identity changed')
-                for field in ('url', 'date', 'translationKey'):
+                for field in ('url', 'translationKey'):
                     require(old[field] == metadata[field], f'{path}:{field}: immutable published/source identity changed')
+                if article_state(old) == 'published':
+                    require(state == 'published', f'{path}: published articles cannot become draft or unlisted')
+                    require(old['date'] == metadata['date'], f'{path}:date: published announcement date is immutable')
                 require(old.get('params', {}).get('source_body_sha256') == metadata['params'].get('source_body_sha256'), f'{path}: private source_body_sha256 changed')
                 require(previous_data[ident] == row, f'{ident}: shared byline/discussion/feed identity changed')
         status = en['params'].get('translation_status')

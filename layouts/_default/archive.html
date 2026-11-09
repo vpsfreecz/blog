@@ -1,5 +1,5 @@
 {{ define "main" }}
-{{ $pages := where .Site.RegularPages "Type" "posts" }}
+{{ $pages := partial "discoverable.html" (where .Site.RegularPages "Type" "posts") }}
 {{ if .Params.archive_author }}
   {{ $authorID := .Params.archive_author }}
   {{ $ids := slice }}{{ range $id, $article := hugo.Data.articles }}{{ if in $article.author_ids $authorID }}{{ $ids = $ids | append $id }}{{ end }}{{ end }}

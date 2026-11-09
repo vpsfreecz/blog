@@ -11,8 +11,8 @@ automatically. Review both versions for meaning before committing.
 Clone `git@github.com:vpsfreecz/blog.git`, enter the clone and read
 [AGENTS.md](../AGENTS.md). On an initialized repository, create a working branch
 for drafts or preparation, for example `git switch -c article/network-update`.
-Approved ready articles follow the main-branch publication steps below. If the
-remote is empty, a maintainer must direct its initial default branch.
+Unlisted review copies and approved ready articles follow the main-branch steps
+below. If the remote is empty, a maintainer must direct its initial default branch.
 
 Choose an immutable article ID outside the reserved imported `wp-` namespace,
 such as `post-2026-11-network-update`. Create
@@ -39,12 +39,14 @@ timezone, followed by the English title slug. Remove apostrophes, normalize with
 Unicode NFKD to ASCII, lowercase, and replace runs of non-alphanumeric characters
 with a hyphen. If the title yields no slug, use `article-<article_id>`. For a
 date/title collision, append `-<article_id>` to every colliding folder. Keep the
-assigned folder stable through later title edits; article IDs and public URLs
-remain independent.
+assigned folder stable through later title and announcement-date edits. Article
+IDs and public URLs remain independent.
 
-Write the Markdown body after the closing `+++`. Use the intended original
-publication time with an explicit timezone, and update `lastmod` for a material
-content change. Do not advance either date just because a build runs. Keep the
+Write the Markdown body after the closing `+++`. Use a timezone-bearing `date`.
+While the article is draft or unlisted, you can change this date. When announcing
+it publicly, set the actual announcement time in both languages. Once published,
+its date is fixed and it cannot return to draft or unlisted. Update `lastmod` for
+substantive edits or promotion; builds do not advance either timestamp. Keep the
 article ID and a published URL stable. Use explicit paths with leading and
 trailing slashes; do not add `/cs/` or `/en/` to production paths.
 
@@ -72,15 +74,18 @@ Czech article a lowercase root-slug path within the [discussion path rules](disc
 and preserve the source URL after publication. Article writing needs no forum
 credentials or manual topic-creation step. After the [forum setup and pilot](discussions.md#pilot-and-enable)
 and production opt-in, the native embed can create a shared topic on the first
-article visit. The source defaults to disabled; drafts and previews always
-suppress the embed.
+article visit. The source defaults to disabled. Drafts, previews and unlisted
+review copies suppress the embed; unlisted copies also omit the discussion
+invitation.
 
 For new articles, assign the per-language URNs shown above once and retain them
 through corrections. Imported Czech articles retain their exact original
 `https://blog.vpsfree.cz/?p=<sourceID>` GUID; imported English articles use
 `urn:vpsfree:blog:wp-<sourceID>:en`. These GUIDs are identifiers, not navigation
 URLs. RSS uses `isPermaLink="false"` and emits up to ten full-content articles
-with their original publication dates. Production builds exclude drafts.
+with their original publication dates. Production builds exclude drafts and
+future-dated articles. The article checker rejects a future announcement date
+for unlisted or published content.
 
 Put approved article images in `static/images/<article_id>/` and refer to them
 with root-relative Markdown links, for example
@@ -101,13 +106,14 @@ explicit English `url`, such as `/network-update/`. Copy the original `date`,
 `translationKey` and `params.article_id`; retain the shared byline and discussion
 identity. Uncommitted previews can omit a translation. Every committed article,
 including a draft, needs exactly one Czech and one English variant with the same
-draft state and original date. An English URL never substitutes Czech content
+publication state and date. An English URL never substitutes Czech content
 for a missing translation.
 
 Imported English articles keep the original source URLs. During rendering, links
 to known blog articles use an English page available in that build, including
-drafts in preview; otherwise they lead to the Czech original. Knowledge-base
-links use only the verified page and section mappings in `data/english-links.json`.
+drafts in preview. Unlisted pages are excluded from this automatic link mapping;
+otherwise links lead to the Czech original. Knowledge-base links use only the
+verified page and section mappings in `data/english-links.json`.
 Unmatched links stay unchanged.
 
 Under the English file's `[params]`, record the editorial state:
@@ -202,8 +208,9 @@ From the clone root:
 nix develop -c bin/preview
 ```
 
-This includes real repository drafts. Open Czech at `http://localhost:1313/`
-and English at `http://localhost:1314/`; follow each article's explicit path
+This includes repository drafts, including future-dated working drafts. Open
+Czech at `http://localhost:1313/` and English at `http://localhost:1314/`; follow
+each article's explicit path
 and its paired language link. Use `nix develop -c bin/preview --fixtures` for
 the isolated synthetic demo instead. `bin/preview --help` lists preview options.
 Keep drafts on loopback unless sharing them was explicitly requested.
@@ -216,8 +223,9 @@ including added or removed drafts.
 Search from the sidebar or `/search/` on each language's loopback origin. Search
 indexes titles and article bodies, including drafts in previews, while excluding
 navigation and historical comments. Production builds exclude drafts from both
-pages and search. Use the reload action if an old tab can no longer load its
-search files after an update.
+pages and search. Unlisted pages remain available at their direct paths but are
+excluded from search in every environment. Use the reload action if an old tab
+can no longer load its search files after an update.
 
 Inspect the body, byline, dates, images, code and language switch. Then run:
 
@@ -227,27 +235,60 @@ nix build .#site
 ```
 
 The checks cover article/archive routes, feeds, metadata, isolated fixtures and
-reproducible output; they do not replace article or translation review. The production build
-excludes drafts and synthetic fixtures. `result/cs/` and `result/en/` are separate
+reproducible output; they do not replace article or translation review. The
+production build excludes drafts and synthetic fixtures. `result/cs/` and `result/en/` are separate
 document roots; `metadata.json` remains outside them. Imported HTML and approved
 historical comment threads are rendered, and the feeds contain full article
 content. Approved historical YouTube/SuperLectures media iframes are retained;
 production Discourse comment embeds remain disabled.
 
-## Prepare publication
+## Choose visibility and prepare publication
+
+Both language files use the same state:
+
+| `draft` | `params.unlisted` | State |
+| --- | --- | --- |
+| `true` | absent or `false` | Draft: available in preview, excluded from production. |
+| `false` | `true` | Unlisted: available at its normal URL for review. |
+| `false` | absent or `false` | Published: included in normal listings and feeds. |
+
+Both flags must be booleans. Do not combine `draft = true` with
+`unlisted = true`. Unlisted and published articles require reviewed English and
+its exact current Czech source hash. Separate `publishDate`, `expiryDate`,
+build/list/render or sitemap overrides are unsupported.
+
+An unlisted article is public to anyone who receives or discovers its URL. Its
+source is also visible in Git. The page has a review notice and
+`noindex, nofollow`, and is excluded from lists, archives, taxonomy counts, RSS,
+sitemaps and search. Its link to the other language remains available. Explicit
+links in article prose can disclose the URL. Crawlers may ignore `noindex`; it
+cannot remove previous copies, notifications or forum topics.
+
+For unlisted review, set these fields in both files, retaining all other metadata:
+
+```toml
+draft = false
+[params]
+unlisted = true
+```
+
+To publish the review copy, remove `unlisted` or set it to `false`, set the actual
+announcement `date` and update `lastmod` in both files. Keep the same bundle,
+URLs, article ID and feed GUIDs. Finalize the Czech file, then refresh its hash in
+English. Once published, the article keeps its original date and published state;
+withdrawing a published article requires a separate editorial change.
 
 Review the diff for intended content, public attribution, stable URLs/GUIDs and
-private-data exclusions. Set `draft = false` on both variants only for approved
-ready content, with reviewed English and its current Czech source hash. Stage
-only intended article/shared-metadata files, inspect `git diff --cached`, and run
-`nix develop -c bin/check-articles --staged` before the ordinary commit. The
-contextual review must be complete before marking English reviewed.
+private-data exclusions. Complete the contextual translation review before
+marking English reviewed. Stage only the intended article and shared-metadata
+files, inspect `git diff --cached`, and run
+`nix develop -c bin/check-articles --staged` before the ordinary commit.
 
-For an article the user has asked to publish, start from fresh `main`, commit
-with ordinary hooks and push `main` within Git host permissions and protections.
-Keep drafts and preparation on a feature branch. A ready article does not need
-a feature-branch CI cycle before publication. Publish only the intended article
-changes; keep unrelated feature work separate. Respect a host refusal and obtain
+When the user asks to share an unlisted copy or publish an article, start from
+fresh `main`, commit with ordinary hooks and push `main` within Git host
+permissions and protections. Keep drafts on a feature branch. Neither an
+unlisted review copy nor a ready article needs a feature-branch CI cycle first.
+Include only the intended article changes. Respect a host refusal and obtain
 maintainer direction before initializing an empty remote. System deployment,
 publication settings and public cutover remain separate maintainer operations.
 
@@ -262,10 +303,10 @@ build and deploy jobs, with a default ten-minute bound. Failed or skipped delive
 is not publication success. It never retries a push/upload or resumes publication.
 The observer first uses the public GitHub API. It can also use an existing `gh`
 login; it does not require a new login or secret. If CI cannot be observed,
-bounded CS/EN site checks report only title/article/canonical observations and
-explicitly leave CI
-and the deployed commit unproven. For byte comparisons, supply an existing build
-from the exact pushed source with `--artifact PATH`. Report the pushed SHA,
+bounded CS/EN site checks report the observed title, article identity, canonical
+URL and expected visibility. They leave CI and the deployed commit unproven.
+For byte comparisons, supply an existing build from the exact pushed source
+with `--artifact PATH`. Report the pushed SHA,
 run/attempt and result or limited fallback, including any timeout.
 
 For a draft pushed to a feature branch, observe checks on that exact branch:
@@ -285,3 +326,8 @@ defaults off; after an operator enables and resumes its installed policy,
 protected-main pushes can publish validated content through authenticated upload.
 Feature pushes run checks only. Article writing does not grant forum, server,
 credential or environment-setting changes.
+
+Build unlisted content with templates and checks that support it. Rebuilding it
+with older templates can expose it in listings. When reverting source, retain
+unlisted support or remove the review content in a reviewed change. Rolling back
+an exact release restores its prior complete payload.

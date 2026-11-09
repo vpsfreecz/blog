@@ -142,3 +142,8 @@ adapter reports load failures and offers a reload. Its stable entry files
 retain ordinary HTTP caching. The [discussion guide](discussions.md) describes
 the separate, default-off forum embed and its setup gates. Uploads create no
 discussion topics.
+
+Unlisted articles use the same main release path and complete file accounting as
+published articles. Build them with templates and checks that support unlisted
+content; older templates may expose it in listings. An exact-release rollback
+restores its prior complete payload.

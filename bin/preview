@@ -38,11 +38,11 @@ printf ' %q' "$@"
 printf '\n'
 # Concurrent singlehost and multihost servers must never share public/en files.
 preview_destination=$(mktemp --directory "${TMPDIR:-/tmp}/vpsfree-blog-${environment}.XXXXXXXX")
-hugo --environment "$environment" --buildDrafts --config "$config" \
+hugo --environment "$environment" --buildDrafts --buildFuture --config "$config" \
   --destination "$preview_destination" --panicOnWarning "${server_options[@]}"
 index_options=()
 if [[ "$environment" == vpn ]]; then index_options=(--single-root); fi
 bin/index-search "$preview_destination" "${index_options[@]}"
-exec hugo server --environment "$environment" --buildDrafts --bind "$bind_address" \
+exec hugo server --environment "$environment" --buildDrafts --buildFuture --bind "$bind_address" \
   --port "$port" --config "$config" --destination "$preview_destination" \
   --watch=false --disableFastRender --disableLiveReload "${server_options[@]}"

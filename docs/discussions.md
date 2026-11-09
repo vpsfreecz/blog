@@ -11,7 +11,7 @@ The historical comment archive and forum link work independently of this setting
 Historical names, dates, thread relationships and anchors remain static; the site
 does not provide a local comment form.
 
-An embed renders only for a non-draft article in a static production build with
+An embed renders only for a published article in a static production build with
 the explicit boolean setting `true` and the matching language base URL:
 
 | Language | Required base URL |
@@ -20,9 +20,10 @@ the explicit boolean setting `true` and the matching language base URL:
 | English | `https://blog.vpsfree.org/` |
 
 Every Hugo server and every other build environment suppresses the embed,
-including previews that explicitly request the setting. Drafts always suppress
-it. The shared `data/articles.json` entry must contain an absolute HTTPS Czech
-article permalink without credentials, port, query or fragment. Both translations
+including previews that explicitly request the setting. Draft and unlisted pages
+suppress the embed; unlisted pages also omit the discussion invitation. Existing
+archived comments remain intact. The shared `data/articles.json` entry must
+contain an absolute HTTPS Czech article permalink without credentials, port, query or fragment. Both translations
 use this exact `discussion_url` as `discourseEmbedUrl`; their own canonical URLs
 remain language-specific. Values are serialized as JSON. Builds do not contact
 Discourse, create topics or use forum API keys.

@@ -1,10 +1,8 @@
 {{/* Native archive pages only; article source and metadata remain importer/author-owned. */}}
 {{ .EnableAllLanguages }}
-{{ range $id, $author := hugo.Data.authors }}
-  {{ with $author.slug }}{{ $.AddPage (dict "kind" "section" "path" (printf "author/%s" .) "title" $author.name "layout" "archive" "params" (dict "archive_author" $id)) }}{{ end }}
-{{ end }}
 {{/* Read only public article front matter; built Site.Pages are unavailable in adapters. */}}
 {{ $months := slice }}
+{{ $authors := slice }}
 {{ $lang := .Site.Language.Lang }}
 {{ if os.FileExists "content/posts" }}
   {{ range os.ReadDir "content/posts" }}
@@ -16,8 +14,9 @@
           {{ $front := findRE `(?s)^\+\+\+\s*\n.*?\n\+\+\+` $source 1 }}
           {{ with $front }}
             {{ $metadata := transform.Unmarshal (dict "format" "toml") (replaceRE `(?s)^\+\+\+\s*\n|\n\+\+\+$` "" (index . 0)) }}
-            {{ if or (ne hugo.Environment "production") (not $metadata.draft) }}
+            {{ if and (not $metadata.params.unlisted) (or (ne hugo.Environment "production") (and (not $metadata.draft) (le (time.AsTime $metadata.date) now))) }}
               {{ $months = $months | append ((time.AsTime $metadata.date).Format "2006/01") }}
+              {{ with index hugo.Data.articles $metadata.params.article_id }}{{ range .author_ids }}{{ $authors = $authors | append . }}{{ end }}{{ end }}
             {{ end }}
           {{ end }}
         {{ end }}
@@ -27,4 +26,9 @@
 {{ end }}
 {{ range $months | uniq }}
   {{ $.AddPage (dict "kind" "section" "path" . "title" . "layout" "archive" "params" (dict "archive_month" .)) }}
+{{ end }}
+{{ range $authors | uniq }}
+  {{ $id := . }}{{ with index hugo.Data.authors $id }}
+    {{ with .slug }}{{ $.AddPage (dict "kind" "section" "path" (printf "author/%s" .) "title" (index hugo.Data.authors $id).name "layout" "archive" "params" (dict "archive_author" $id)) }}{{ end }}
+  {{ end }}
 {{ end }}
