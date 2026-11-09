@@ -89,9 +89,10 @@ class Page(HTMLParser):
                    for t, a in self.elements)
 
 
-def check_search_script(page, piwik_id=None):
+def check_search_script(page, piwik_id=None, discussion_source=None, counts=False, count_links=None):
     if page.has('meta', **{'http-equiv': 'refresh'}):
         piwik_id = None  # Hugo's redirect documents do not use the base layout.
+        assert not discussion_source and not counts
     scripts = [(tag, attrs) for tag, attrs in page.elements if tag == 'script']
     tracking = [(tag, attrs) for tag, attrs in scripts if attrs.get('id') == 'piwik-tracking']
     assert len(tracking) == (1 if piwik_id else 0)
@@ -109,12 +110,52 @@ def check_search_script(page, piwik_id=None):
         assert pixels[0].get('src') == pixel
         assert re.search(r'<noscript>\s*<p>\s*<img\b[^>]*src="' + re.escape(pixel) + r'"', page.text)
     scripts = [(tag, attrs) for tag, attrs in scripts if attrs.get('id') != 'piwik-tracking']
-    if scripts:
-        assert page.has('section', **{'data-search-page': None})
-        assert len(scripts) == 1
-        attrs = scripts[0][1]
-        assert attrs.get('type') == 'module' and re.fullmatch(r'/js/search\.[0-9a-f]+\.js', attrs.get('src', ''))
-        assert attrs.get('integrity', '').startswith('sha256-')
+    search = [attrs for _, attrs in scripts if re.fullmatch(r'/js/search\.[0-9a-f]+\.js', attrs.get('src', ''))]
+    replies = [attrs for _, attrs in scripts if re.fullmatch(r'/js/discourse-counts\.[0-9a-f]+\.js', attrs.get('src', ''))]
+    inline = [attrs for _, attrs in scripts if not attrs.get('src')]
+    assert len(scripts) == len(search) + len(replies) + len(inline), 'unexpected script'
+    assert len(search) == int(any(tag == 'section' and 'data-search-page' in attrs for tag, attrs in page.elements))
+    for attrs in search:
+        assert attrs.get('type') == 'module' and attrs.get('integrity', '').startswith('sha256-')
+    assert len(replies) == int(counts), 'unexpected or missing listing reply script'
+    for attrs in replies:
+        assert 'defer' in attrs and attrs.get('integrity', '').startswith('sha256-')
+    assert len(inline) == int(bool(discussion_source)), 'unexpected or missing article embed'
+    targets = [attrs for tag, attrs in page.elements if attrs.get('id') == 'discourse-comments']
+    assert len(targets) == int(bool(discussion_source))
+    assert not any(tag == 'iframe' and 'discourse.vpsfree.cz' in attrs.get('src', '')
+                   for tag, attrs in page.elements)
+    if discussion_source:
+        assert inline == [{}] and page.has('div', id='discourse-comments')
+        script, = re.findall(r'(?s)<script>(.*?)</script>', page.text)
+        prefix = 'window.DiscourseEmbed = '
+        assert script.strip().startswith(prefix)
+        payload, end = json.JSONDecoder().raw_decode(script.strip()[len(prefix):])
+        assert payload == {'discourseUrl': 'https://discourse.vpsfree.cz/',
+                           'discourseEmbedUrl': discussion_source, 'fullApp': True}
+        assert payload['fullApp'] is True
+        loader = "; (() => { const embed = document.createElement('script'); embed.async = true; " \
+                 "embed.src = window.DiscourseEmbed.discourseUrl + 'javascripts/embed.js'; " \
+                 "document.head.appendChild(embed); })();"
+        assert ' '.join(script.strip()[len(prefix) + end:].split()) == loader
+    else:
+        assert 'DiscourseEmbed' not in page.text
+    markers = [(attrs.get('href'), attrs['data-discourse-count']) for tag, attrs in page.elements
+               if 'data-discourse-count' in attrs]
+    assert all(tag == 'a' for tag, attrs in page.elements if 'data-discourse-count' in attrs)
+    expected = []
+    if counts:
+        for route in re.findall(r'<h2 class="entry-title"><a href="([^"]+)"', page.text):
+            href = route + '#comments'
+            if href in (count_links or {}):
+                expected.append((href, count_links[href]))
+    assert sorted(markers) == sorted(expected), 'listing source or local discussion link mismatch'
+
+
+def is_listing(page, relative):
+    return not page.has('meta', **{'http-equiv': 'refresh'}) and (
+        relative == 'index.html' or bool(re.fullmatch(r'page/[0-9]+/index.html', relative))
+        or page.has('header', **{'class': 'archive-header'}))
 
 
 class ArticleLinks(HTMLParser):
@@ -233,10 +274,25 @@ def check_join_graphic():
                 assert value.startswith(('#', 'data:image/png;base64,')), 'CTA must be self-contained'
 
 
-def check_roots(destination, hosts, piwik_ids=None):
+def check_roots(destination, hosts, piwik_ids=None, discourse=False):
     for lang, host in hosts.items():
         piwik_id = (piwik_ids or {}).get(lang)
         root = destination / lang
+        article_sources, count_links = {}, {}
+        if discourse:
+            for article_id, variants in ARTICLE_SOURCES.items():
+                if lang not in variants:
+                    continue
+                front = tomllib.loads(variants[lang].read_text().split('+++')[1])
+                english = tomllib.loads(variants['en'].read_text().split('+++')[1]) if 'en' in variants else None
+                same_id = english and front['params']['article_id'] == english['params']['article_id'] == article_id
+                route = english['url'] if same_id and eligible(english) else ''
+                safe = re.fullmatch(r'/(?:[a-z0-9]+(?:[-_][a-z0-9]+)*/)+', route) and not re.match(
+                    r'/(?:cs|en|search|feed|author|authors|category|categories|tag|tags|archive|archives|page|posts|assets|images|pagefind|admin|login|logout|robots|sitemap)/|/[0-9]{4}/[0-9]{2}/', route)
+                source = 'https://blog.vpsfree.org' + route if safe and eligible(front) else None
+                article_sources[front['url'].lstrip('/') + 'index.html'] = source
+                if source:
+                    count_links[front['url'] + '#comments'] = source
         assert (root / 'index.html').is_file(), root
         assert (root / 'sitemap.xml').is_file(), root
         feed = ET.parse(root / 'feed/index.xml').getroot()
@@ -252,9 +308,10 @@ def check_roots(destination, hosts, piwik_ids=None):
         assert page.has('a', href='/'), 'logo must retain the current language home'
         for path in root.rglob('*.html'):
             text = path.read_text()
-            check_search_script(Page(path), piwik_id)
-            assert 'DiscourseEmbed' not in text, path
-            assert not any(t == 'iframe' and 'discourse.vpsfree.cz' in a.get('src', '') for t, a in Page(path).elements), path
+            page = Page(path)
+            relative = path.relative_to(root).as_posix()
+            check_search_script(page, piwik_id, article_sources.get(relative),
+                                discourse and is_listing(page, relative), count_links)
             for tag, attrs in Page(path).elements:
                 if tag in ('img', 'source'):
                     if piwik_id and tag == 'img' and attrs.get('src') == f'//piwik.vpsfree.cz/piwik.php?idsite={piwik_id}':
@@ -275,6 +332,7 @@ def check_piwik_guards(work):
     """Inspect rendered HTML only; never execute a tracker or request its endpoints."""
     content = work / 'piwik-content'
     content.mkdir()
+    discourse = tomllib.loads((ROOT / 'hugo.toml').read_text())['params']['discourse']['enabled'] is True
     for language in ('cs', 'en'):
         (content / f'published.{language}.md').write_text('+++\ntitle="Synthetic tracking check"\n'
             'date="2026-01-01T12:00:00+01:00"\ntype="posts"\n'
@@ -293,7 +351,8 @@ def check_piwik_guards(work):
             expected = None
             if environment == 'production':
                 expected = 4 if page.has('html', lang='cs-CZ') else (english_id if english_id > 0 else None)
-            check_search_script(page, expected)
+            relative = path.relative_to(destination).as_posix().split('/', 1)[-1]
+            check_search_script(page, expected, counts=discourse and environment == 'production' and is_listing(page, relative))
 
 
 def check_preview_isolation(work):
@@ -588,6 +647,14 @@ def check_discussions(work):
                 f'translationKey = "discussion-{article_id}"\n[params]\narticle_id = "{article_id if article_id != "mismatch" or lang == "cs" else "different-id"}"\n'
                 f'unlisted = {str(article_id == "unlisted" or article_id == "en-unlisted" and lang == "en").lower()}\n'
                 '+++\n<p>Synthetic local check only.</p>\n')
+    def reject(text, **expected):
+        try:
+            check_search_script(Page(text=text), **expected)
+        except AssertionError:
+            return
+        raise AssertionError('Invalid production script output accepted')
+
+    valid_sources = ('published', 'escaped', 'unmapped', 'multiple', 'nested')
     cases = (('production', True, False, True), ('production', False, False, False),
              ('preview', True, False, True), ('vpn', True, False, True), ('production', True, True, True))
     for number, (environment, enabled, wrong_origin, mapped) in enumerate(cases):
@@ -623,11 +690,13 @@ def check_discussions(work):
                 assert head.metadata == ({'author': [', '.join(names)], 'discourse-username': [username]} if names else {})
                 assert all(name in ''.join(head.byline) for name in names)
                 assert not any(tag == 'em' and 'data-p30-injected' in attrs for tag, attrs in Page(path).elements)
-                valid_source = article_id in ('published', 'escaped', 'unmapped', 'multiple', 'nested')
+                valid_source = article_id in valid_sources
                 should_embed = environment == 'production' and enabled and not wrong_origin and valid_source
                 expected_source = 'https://blog.vpsfree.org/' + ('nested_path/english_article/' if article_id == 'nested' else f'discussion-{article_id}-en/')
                 assert not any('data-discourse-count' in attrs for _, attrs in Page(path).elements)
                 assert not any(tag == 'script' and re.fullmatch(r'/js/discourse-counts\.[0-9a-f]+\.js', attrs.get('src', '')) for tag, attrs in Page(path).elements)
+                piwik_id = config['languages'][lang]['params']['piwikSiteId'] if environment == 'production' else None
+                check_search_script(Page(path), piwik_id, expected_source if should_embed else None)
                 assert ('window.DiscourseEmbed =' in text) == should_embed, (number, article_id, lang)
                 published = article_id not in ('draft', 'unlisted') and not (lang == 'en' and article_id in ('en-draft', 'en-unlisted'))
                 assert Page(path).has('a', href='https://discourse.vpsfree.cz/') == published
@@ -647,7 +716,9 @@ def check_discussions(work):
             listing = Page(destination / lang / 'index.html')
             markers = {attrs['data-discourse-count'] for _, attrs in listing.elements if 'data-discourse-count' in attrs}
             eligible = environment == 'production' and enabled and not wrong_origin
-            expected_markers = {'https://blog.vpsfree.org/' + ('nested_path/english_article/' if ident == 'nested' else f'discussion-{ident}-en/') for ident in ('published', 'escaped', 'unmapped', 'multiple', 'nested')} if eligible else set()
+            count_links = {('/nested_path/english_article/' if ident == 'nested' and lang == 'en' else f'/discussion-{ident}-{lang}/') + '#comments':
+                           'https://blog.vpsfree.org/' + ('nested_path/english_article/' if ident == 'nested' else f'discussion-{ident}-en/') for ident in valid_sources}
+            expected_markers = set(count_links.values()) if eligible else set()
             assert markers == expected_markers, (number, lang, markers)
             scripts = [attrs for tag, attrs in listing.elements if tag == 'script' and re.fullmatch(r'/js/discourse-counts\.[0-9a-f]+\.js', attrs.get('src', ''))]
             assert len(scripts) == int(eligible)
@@ -656,9 +727,30 @@ def check_discussions(work):
             for _, attrs in listing.elements:
                 if 'data-discourse-count' in attrs:
                     assert attrs['href'].startswith('/') and attrs['href'].endswith('#comments')
-        for path in destination.rglob('*.html'):
-            if path not in article_paths:
-                assert not AuthorHead(path.read_text()).metadata, path
+            for path in (destination / lang).rglob('*.html'):
+                if path not in article_paths:
+                    page = Page(path)
+                    assert not AuthorHead(page.text).metadata, path
+                    relative = path.relative_to(destination / lang).as_posix()
+                    piwik_id = config['languages'][lang]['params']['piwikSiteId'] if environment == 'production' else None
+                    check_search_script(page, piwik_id, counts=eligible and is_listing(page, relative), count_links=count_links)
+            if number == 0 and lang == 'en':
+                article = (destination / 'en/discussion-published-en/index.html').read_text()
+                source = 'https://blog.vpsfree.org/discussion-published-en/'
+                expected = {'piwik_id': 10, 'discussion_source': source}
+                reject(article.replace(source, 'https://blog.vpsfree.org/wrong-source/'), **expected)
+                reject(re.sub(r'"fullApp"\s*:\s*true', '"fullApp":false', article), **expected)
+                embed, = re.findall(r'(?s)<script>.*?</script>', article)
+                search = (destination / 'en/search/index.html').read_text()
+                reject(search + embed, piwik_id=10)
+                count_script, = re.findall(r'<script defer src="/js/discourse-counts[^>]+></script>', listing.text)
+                reject(article + count_script, **expected)
+                empty_listing = Page(text=count_script)
+                check_search_script(empty_listing, counts=is_listing(empty_listing, 'page/2/index.html'))
+                listing_expected = {'piwik_id': 10, 'counts': True, 'count_links': count_links}
+                reject(listing.text.replace('data-discourse-count="' + source,
+                                           'data-discourse-count="https://blog.vpsfree.org/wrong-source/'), **listing_expected)
+                reject(listing.text + '<script src="https://unexpected.invalid/script.js"></script>', **listing_expected)
     print('Article author metadata: mapped/unmapped/multiple/escaped, both languages, optional map and embed guards PASS')
 
 
@@ -693,9 +785,11 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     run('bin/build', str(production))
     run('bin/build', str(repeat))
     assert digest_tree(production) == digest_tree(repeat), 'build is not deterministic'
-    languages = tomllib.loads((ROOT / 'hugo.toml').read_text())['languages']
+    configuration = tomllib.loads((ROOT / 'hugo.toml').read_text())
+    production_discourse = configuration['params']['discourse']['enabled'] is True
+    languages = configuration['languages']
     piwik_ids = {lang: values.get('params', {}).get('piwikSiteId') for lang, values in languages.items()}
-    check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'}, piwik_ids)
+    check_roots(production, {'cs': 'https://blog.vpsfree.cz/', 'en': 'https://blog.vpsfree.org/'}, piwik_ids, discourse=production_discourse)
     check_search_index(production / 'cs', {'cs-cz': article_count('cs')})
     check_search_index(production / 'en', {'en': article_count('en')})
     for language in ('cs', 'en'):
@@ -765,7 +859,9 @@ with tempfile.TemporaryDirectory(prefix='blog-check-') as directory:
     assert not (fixture_production / 'cs/synteticky-priklad_1').exists()
     assert not (fixture_production / 'en/synthetic-example_1').exists()
     for path in fixture_production.rglob('*.html'):
-        check_search_script(Page(path))
+        page = Page(path)
+        relative = path.relative_to(fixture_production).as_posix().split('/', 1)[-1]
+        check_search_script(page, counts=production_discourse and is_listing(page, relative))
 
     run('hugo', '--environment', 'preview', '--buildDrafts', '--config',
         config + ',config/preview/hugo.toml', '--destination', str(drafts), '--panicOnWarning')

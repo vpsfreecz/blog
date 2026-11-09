@@ -43,4 +43,4 @@ tags = "/tag/:slug/"
 allowContent = ['^text/html$', '^text/markdown$']
 
 [params.discourse]
-enabled = false
+enabled = true

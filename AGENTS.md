@@ -21,7 +21,7 @@ it needs no installation or external workspace.
   source and listing reply-count identity. Never infer identity from a translated title.
 - Preview real drafts with `nix develop -c bin/preview`. `--fixtures` selects
   the isolated synthetic demo. Preserve approved historical media iframes;
-  production Discourse scripts and comment embeds remain disabled.
+  previews suppress production Discourse scripts and comment embeds.
   Follow the host's service-registration rules if working in a managed environment.
 - Accept either Czech or English as the starting text. Proofread both languages
   in context and preserve technical facts, commands, links and attribution.
@@ -48,6 +48,7 @@ it needs no installation or external workspace.
   authenticated upload. Feature pushes run checks only; system deployment
   and public cutover are operator steps. Do not initialize an empty remote without
   maintainer direction. Imported articles, historical comments and
-  full-content feeds are implemented. The optional production Discourse embed
-  defaults off; forum setup and deployment still need verification and
-  approval.
+  full-content feeds are implemented. Production enables the native Discourse
+  embed and listing reply labels for eligible published articles. Retain preview,
+  origin, server and article-state guards; follow the discussion guide for forum
+  setup and a pilot before serving an enabled build.

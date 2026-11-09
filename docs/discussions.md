@@ -1,14 +1,17 @@
 # Article discussions
 
-The source contains an optional native full-app Discourse embed for inline
-replies. It is disabled by default:
+Production builds enable the native full-app Discourse embed for inline replies
+and listing reply labels:
 
 ```toml
 [params.discourse]
-enabled = false
+enabled = true
 ```
 
-The historical comment archive and forum link work independently of this setting.
+For a new installation, set this to `false` until the forum setup and pilot below
+are complete. The historical comment archive and forum link work independently
+of this setting.
+
 Historical names, dates, thread relationships and anchors remain static; the site
 does not provide a local comment form.
 
@@ -44,7 +47,7 @@ changing the source URL does not merge or migrate topics.
 Published articles on listing pages can show Discourse reply counts through one
 asynchronous batch request to the forum's `/embed/count` endpoint. Both languages
 look up the same English source URL while their discussion links lead to the
-local article. Counts use the same production opt-in as the embed. Previews,
+local article. Counts use the same production setting as the embed. Previews,
 drafts and unlisted pages make no count requests. Single-article pages use the
 native embed without a separate count request.
 
@@ -64,7 +67,7 @@ executes code from the fixed forum origin already trusted by the embed.
 ## Configure the forum
 
 The following steps change forum settings and can create topics. The forum
-operator performs them while the blog setting remains `false`.
+operator performs them with the blog setting temporarily set to `false`.
 
 This procedure follows the configured [Discourse v2026.9.1 source][source], whose
 source NAR hash is `sha256-j3JjLYNcv3lluoCekyUUKMfkSX/ExeDsa8zrQ+pDrwg=`.
@@ -247,19 +250,16 @@ notification or account policy automatically.
    Reloading discards the temporary DOM changes. Keep previews and drafts
    isolated from the production forum.
 4. After setup, mappings and the pilot are accepted, restore the normal path
-   rules above if the pilot used narrower rules. Prepare a reviewed enablement
-   release that updates the affected production assertions in `bin/check`: its
-   generic script allowlist and root checks currently require disabled output.
-   Make those checks validate the enabled native embed and listing-count script
-   while retaining the preview, origin and article-state guards. Run the enabled
-   production checks as part of that release, alongside setting `hugo.toml` to:
+   rules above if the pilot used narrower rules. Prepare a reviewed release that
+   restores the enabled production setting in `hugo.toml` and run the production
+   checks before serving it:
 
    ```toml
    [params.discourse]
    enabled = true
    ```
 
-After the opt-in release, check a listing page in each language: the returned
+After the enabled release, check a listing page in each language: the returned
 reply labels must refer to the same forum topic and leave the local article links
 unchanged.
 
@@ -269,7 +269,7 @@ observed version, category, author, settings and pilot results in the operator's
 rollout record. Listed-on-first-view behavior would require a separate deliberate
 change to both visibility settings after reviewing notification effects.
 
-`nix develop -c bin/check` covers disabled and opt-in rendering using isolated local
+`nix develop -c bin/check` covers disabled and enabled rendering using isolated local
 content and static outputs. It performs no forum requests. Browser verification
 of a local candidate must use synthetic origins and blocked forum requests.
 Loading an enabled production embed is not a read-only appearance check.

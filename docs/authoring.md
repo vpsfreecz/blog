@@ -82,11 +82,11 @@ lowercase root slug outside reserved routes and `wp-`. Both languages use the
 actual published English counterpart as their shared forum source and reply-count lookup URL; see the
 [discussion path rules](discussions.md#source-hosts-and-paths).
 Keep both public article URLs stable. Article writing needs no forum
-credentials or manual topic-creation step. After the [forum setup and pilot](discussions.md#pilot-and-enable)
-and production opt-in, the native embed can create a shared topic on the first
-article visit. The source defaults to disabled. Drafts, previews and unlisted
-review copies suppress the embed; unlisted copies also omit the discussion
-invitation.
+credentials or manual topic-creation step. After the
+[forum setup and pilot](discussions.md#pilot-and-enable), the production embed
+can create a shared topic on the first article visit. Drafts, previews and
+unlisted review copies suppress the embed; unlisted copies also omit the
+discussion invitation.
 
 For new articles, assign the per-language URNs shown above once and retain them
 through corrections. Imported Czech articles retain their exact original
@@ -250,7 +250,8 @@ production build excludes drafts and synthetic fixtures. `result/cs/` and `resul
 document roots; `metadata.json` remains outside them. Imported HTML and approved
 historical comment threads are rendered, and the feeds contain full article
 content. Approved historical YouTube/SuperLectures media iframes are retained;
-production Discourse comment embeds remain disabled.
+production published articles use the native Discourse embed; previews, drafts
+and unlisted copies suppress it.
 
 ## Choose visibility and prepare publication
 

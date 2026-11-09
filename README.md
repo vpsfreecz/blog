@@ -4,15 +4,16 @@ Hugo builds Czech and English sites for `blog.vpsfree.cz` and
 `blog.vpsfree.org`. Each site uses its own host root. The repository contains
 125 imported Czech articles, their public bylines, historical comments and
 media. The 125 English translations have maintainer editorial approval and are
-eligible for production builds. The optional production Discourse embed is
-disabled by default; runtime forum setup remains unverified. After an operator
-enables and resumes target publication, protected-main pushes can upload and
-activate a validated release.
+eligible for production builds. Production builds enable the native Discourse
+embed and forum reply labels for published articles. Previews, drafts and
+unlisted review copies suppress them. Complete the forum setup and pilot before
+serving an enabled build. After an operator enables and resumes target
+publication, protected-main pushes can upload and activate a validated release.
 
 For a new article or translation, follow [the author guide](docs/authoring.md).
 Agents start with [AGENTS.md](AGENTS.md) and can read the repository's
 [authoring skill](skills/blog-authoring/SKILL.md) without installing anything.
-See [discussion setup](docs/discussions.md) for the opt-in embed and
+See [discussion setup](docs/discussions.md) for the embed and
 [release artifacts](docs/deployment.md) for release delivery.
 
 ```sh
@@ -71,7 +72,7 @@ published URL and article ID stable. A missing translation remains absent.
 per-language `feed_guids` and optional `legacy_post_id`. `discussion_url` is the
 original absolute Czech permalink for provenance and source navigation. Both
 languages use the actual published English counterpart as their shared forum
-source; each keeps its own canonical URL. Optional listing counts show Discourse
+source; each keeps its own canonical URL. Listing counts show Discourse
 replies only. Archived WordPress comments remain separate. `data/authors.json`
 maps stable author IDs to public `name`, archive `slug` and optional approved
 public URL. `data/legacy-comments/<article_id>.json` holds the approved original
