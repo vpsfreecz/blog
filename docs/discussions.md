@@ -52,9 +52,17 @@ drafts and unlisted pages make no count requests. Single-article pages use the
 native embed without a separate count request.
 
 Counts include forum replies only; archived WordPress comments remain separate.
-Discourse returns a reply phrase in its effective forum/user locale, which may
-differ from the blog language. The blog displays that phrase as text beside a
-localized Discourse discussion label. It does not change forum locale settings.
+Discourse returns a reply phrase in its effective forum/user locale. The blog
+recognizes the configured Discourse version's exact English and Czech integer
+phrases and displays the count in the page language beside the Discourse label.
+Czech uses `1 odpověď`, `2 odpovědi` through `4 odpovědi`, and `odpovědí` for other
+counts; English uses `1 reply` and `replies` otherwise. Forum locale, session and
+account settings stay unchanged.
+
+Unknown languages, customized phrases and changed upstream formats leave the
+plain discussion link. Only exact nonnegative integer phrases within JavaScript's
+safe-integer range are accepted; malformed or missing values never become zero.
+If Discourse's wording changes, update the recognized formats to restore counts.
 
 Missing or restricted results, script/CSP errors and the five-second deadline
 leave a usable plain discussion link. An omitted result never becomes zero;

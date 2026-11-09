@@ -4,18 +4,19 @@ const fs = require('node:fs');
 const vm = require('node:vm');
 const source = fs.readFileSync(`${__dirname}/../assets/js/discourse-counts.js`, 'utf8');
 
-function fixture(urls) {
+function fixture(urls, language = 'cs-CZ') {
   const scripts = [];
   const timers = new Map();
   let timerId = 0;
   const links = urls.map((url, index) => ({
     href: `https://${index % 2 ? 'blog.vpsfree.org' : 'blog.vpsfree.cz'}/local-${index}/#comments`,
     dataset: {discourseCount: url},
-    label: {textContent: ''},
+    label: {textContent: '', set innerHTML(value) { assert.fail('Only textContent may render reply labels'); }},
     querySelector(selector) { assert.equal(selector, '[data-discourse-replies]'); return this.label; },
   }));
   const window = {};
   const document = {
+    documentElement: {lang: language},
     querySelectorAll(selector) { assert.equal(selector, '[data-discourse-count]'); return links; },
     createElement(tag) { assert.equal(tag, 'script'); return {remove() { this.removed = true; }}; },
     head: {append(script) { scripts.push(script); }},
@@ -39,9 +40,9 @@ assert.deepEqual(request.searchParams.getAll('embed_url[]'), [en.slice(0, -1), o
 assert.equal(request.searchParams.has('tl'), false);
 const beforeHrefs = run.links.map(link => link.href);
 const callback = run.window.vpsfreeBlogReplyCounts;
-callback({counts: {[en.slice(0, -1)]: '3 odpovědi', [other.slice(0, -1)]: '0 replies',
+callback({counts: {[en.slice(0, -1)]: '3 odpovědí', [other.slice(0, -1)]: '0 replies',
   'https://blog.vpsfree.org/unrequested': '999 replies'}});
-assert.deepEqual(run.links.map(link => link.label.textContent), [': 3 odpovědi', ': 3 odpovědi', ': 0 replies']);
+assert.deepEqual(run.links.map(link => link.label.textContent), [': 3 odpovědi', ': 3 odpovědi', ': 0 odpovědí']);
 assert.deepEqual(run.links.map(link => link.href), beforeHrefs);
 assert.equal(run.timers.size, 0);
 callback({counts: {[en.slice(0, -1)]: 'late'}});
@@ -61,7 +62,53 @@ for (const reply of [null, {}, {counts: null}, {counts: []}, {counts: 42},
 }
 run = fixture([en]);
 run.window.vpsfreeBlogReplyCounts({counts: {[en.slice(0, -1)]: '<img src=x onerror=alert(1)>'}});
-assert.equal(run.links[0].label.textContent, ': <img src=x onerror=alert(1)>');
+assert.equal(run.links[0].label.textContent, '');
+
+const expectations = [
+  [0, ': 0 odpovědí', ': 0 replies'],
+  [1, ': 1 odpověď', ': 1 reply'],
+  [2, ': 2 odpovědi', ': 2 replies'],
+  [3, ': 3 odpovědi', ': 3 replies'],
+  [4, ': 4 odpovědi', ': 4 replies'],
+  [5, ': 5 odpovědí', ': 5 replies'],
+  [11, ': 11 odpovědí', ': 11 replies'],
+  [21, ': 21 odpovědí', ': 21 replies'],
+  [22, ': 22 odpovědí', ': 22 replies'],
+  [9007199254740990, ': 9007199254740990 odpovědí', ': 9007199254740990 replies'],
+  [9007199254740991, ': 9007199254740991 odpovědí', ': 9007199254740991 replies'],
+];
+for (const language of ['cs-CZ', 'en']) {
+  for (const native of ['en', 'cs']) {
+    for (const [count, czech, english] of expectations) {
+      const nativeUnit = native === 'en' ? (count === 1 ? 'reply' : 'replies') :
+        (count === 1 ? 'odpověď' : 'odpovědí');
+      run = fixture([en, en], language);
+      run.window.vpsfreeBlogReplyCounts({counts: {[en.slice(0, -1)]: `${count} ${nativeUnit}`}});
+      const expected = language === 'en' ? english : czech;
+      assert.deepEqual(run.links.map(link => link.label.textContent), [expected, expected]);
+    }
+  }
+}
+for (const phrase of ['1 replies', '0 reply', '2 reply', '1 odpovědí', '0 odpověď', '2 odpověď',
+  '3 odpovědi', '2 Antworten', 'no replies', ' Replies: 2', '2 replies later',
+  '00 replies', '01 reply', '-1 replies', '+1 reply', '1.0 reply', '1e3 replies',
+  '1,000 replies', '1 000 replies', '١ reply', '２ replies', ' 2 replies', '2 replies ',
+  '2  replies', '2\treplies', '2\u00a0replies', '2 replies\n', '2 replies\r\n',
+  '2 replies\u2028', '2 replies\u2029', '9007199254740992 replies', '9999999999999999 replies',
+  '10000000000000000 replies', '<b>2 replies</b>', '<img src=x onerror=alert(1)>']) {
+  for (const language of ['cs-CZ', 'en']) {
+    run = fixture([en], language);
+    run.window.vpsfreeBlogReplyCounts({counts: {[en.slice(0, -1)]: phrase}});
+    assert.equal(run.links[0].label.textContent, '', `${language}: ${JSON.stringify(phrase)}`);
+    assert.equal(run.scripts.length, 1);
+  }
+}
+for (const language of ['', 'de', 'cs', 'en-US']) {
+  run = fixture([en], language);
+  assert.equal(run.scripts.length, 0);
+  assert.equal(run.links[0].label.textContent, '');
+}
+
 for (const fail of ['timeout', 'error']) {
   run = fixture([en]);
   const late = run.window.vpsfreeBlogReplyCounts;
@@ -81,4 +128,4 @@ for (const urls of [[], ['https://untrusted.invalid/article/'], ['http://blog.vp
   assert.equal(run.scripts.length, 0);
   assert.equal(run.timers.size, 0);
 }
-console.log('Discourse reply client PASS: one deduplicated fixed batch, EN keys/local hrefs, phrases/zero/unknown, text-only, caps/deadline/error/late callbacks');
+console.log('Discourse reply client PASS: one deduplicated fixed batch, EN keys/local hrefs, known native phrases/page locales/safe integers/zero/unknown, text-only, caps/deadline/error/late callbacks');
